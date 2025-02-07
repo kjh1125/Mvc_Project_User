@@ -1,0 +1,14 @@
+body{
+    background: #f2f2f2;
+}
+
+.mobile-view {
+    background: #ffffff;
+    width: 360px;
+    height: 740px;
+    margin: 10px auto 0 auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
