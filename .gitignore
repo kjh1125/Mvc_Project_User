@@ -13,6 +13,7 @@ target/
 *.ipr
 .idea/
 .smarttomcat/
+*.properties
 
 ### Eclipse ###
 .apt_generated
