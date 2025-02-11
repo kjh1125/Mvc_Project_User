@@ -2,23 +2,33 @@
 <footer th:fragment="footer" class="mobile-footer" xmlns:th="http://www.thymeleaf.org">
     <style>
         .mobile-footer {
-            position: absolute; /* fixed에서 absolute로 변경 */
-            bottom: 0;
-            left: 0;
+            position: relative;
+            z-index: 200;
             width: 100%;
-            background-color: #ffffff;
-            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
+        }
+
+        .height-controller {
+            height: 100%; /* 화면 전체 높이에 맞춰 설정 */
         }
 
         .bottom-nav {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 8px 0; /* 패딩 축소 */
-            max-width: 360px; /* mobile-view 너비에 맞춤 */
+            width: 100%;
+            min-width: 320px;
+            max-width: var(--max-width);
             margin: 0 auto;
+            display: flex;
+            gap: 12px;
+            padding: 0 16px;
+            position: fixed;
+            justify-content: space-around;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            transform: translateZ(0);
         }
+
 
         .nav-item {
             display: flex;
@@ -37,8 +47,8 @@
         }
 
         .nav-item i {
-            font-size: 1.2rem; /* 아이콘 크기 축소 */
-            margin-bottom: 2px; /* 여백 축소 */
+            font-size: 1.2rem;
+            margin-bottom: 2px;
         }
 
         @media (max-width: 360px) {
@@ -52,22 +62,24 @@
         }
     </style>
 
-    <div class="bottom-nav">
-        <a href="/" class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/' ? 'active' : ''}">
-            <i class="bi bi-house-door"></i>
-            <span>홈</span>
-        </a>
-        <a href="/chat" class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/chat' ? 'active' : ''}">
-            <i class="bi bi-chat"></i>
-            <span>채팅</span>
-        </a>
-        <a href="/board" class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/board' ? 'active' : ''}">
-            <i class="bi bi-card-list"></i>
-            <span>게시판</span>
-        </a>
-        <a href="/mypage" class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/mypage' ? 'active' : ''}">
-            <i class="bi bi-person"></i>
-            <span>마이페이지</span>
-        </a>
+    <div class="height-controller">
+        <div class="bottom-nav">
+            <a href="/" class="nav-item" th:href="@{/main}">
+                <i class="bi bi-house-door"></i>
+                <span>홈</span>
+            </a>
+            <a href="/chat" class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/chat' ? 'active' : ''}">
+                <i class="bi bi-chat"></i>
+                <span>채팅</span>
+            </a>
+            <a href="/board" class="nav-item" th:href="@{/boardList}">
+                <i class="bi bi-card-list"></i>
+                <span>게시판</span>
+            </a>
+            <a href="/mypage" class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/mypage' ? 'active' : ''}">
+                <i class="bi bi-person"></i>
+                <span>마이페이지</span>
+            </a>
+        </div>
     </div>
 </footer>

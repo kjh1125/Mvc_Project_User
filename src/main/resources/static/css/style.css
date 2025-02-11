@@ -1,18 +1,23 @@
 body{
     background: #f2f2f2;
+    overflow-y: scroll;
+    height: 100%;
+}
+
+:root {
+    --max-width: 600px;
 }
 
 .mobile-view {
+    display:flex;
+    flex-direction: column;
     background: #ffffff;
-    width: 360px;
-    height: 640px;
-    margin: 30px auto 0 auto;
+    width: 100%;
+    max-width: var(--max-width);
+    min-height: 100%;
+    margin: 0 auto 0 auto;
     border: 1px solid #ccc;
     border-radius: 5px;
-    overflow: hidden;
-    overflow-y: auto;
-    position: relative;
-    padding: 16px;
 }
 
 a {

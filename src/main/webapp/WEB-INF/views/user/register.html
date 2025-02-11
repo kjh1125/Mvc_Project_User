@@ -11,6 +11,9 @@
         input[type="radio"] {
             display: none;
         }
+        form{
+            margin-bottom: 0;
+        }
 
         label, i {
             cursor: pointer;
@@ -22,6 +25,7 @@
         }
         .page{
             display: none;
+            max-height: 100%;
         }
 
         #page1{
@@ -62,7 +66,7 @@
         <input type="hidden" th:value="${naverId}" th:field="*{user.naverId}">
     <!--1페이지-->
     <div id="page1" class="page">
-        <div class="d-flex flex-column justify-content-between" style="height: 100%">
+        <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
                     <a th:href="@{/main}">
@@ -74,7 +78,7 @@
                 <label class="pb-3">
                     성별을 알려주세요
                 </label>
-                <div class="d-flex align-items-center" onclick="manCheck()">
+                <div class="d-flex align-items-center" onclick="manCheck()" >
                     <input class="form-check-input" type="radio" th:field="*{userProfile.gender}"  value="male" id="genderMan">
                     <label class="form-check-label" for="genderMan">
                         <i class="bi bi-square" id="checkBoxMan"></i>
@@ -98,7 +102,7 @@
 
     <!--2페이지-->
     <div id="page2" class="page">
-        <div class="d-flex flex-column justify-content-between" style="height: 100%">
+        <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
                     <i class="bi bi-arrow-left" onclick="prevPage(2)"></i>
@@ -124,7 +128,7 @@
 
     <!--3페이지-->
     <div id="page3" class="page">
-        <div class="d-flex flex-column justify-content-between" style="height: 100%">
+        <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
                     <i class="bi bi-arrow-left" onclick="prevPage(3)"></i>
@@ -144,7 +148,7 @@
 
     <!--4페이지-->
     <div id="page4" class="page">
-        <div class="d-flex flex-column justify-content-between" style="height: 100%">
+        <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
                     <i class="bi bi-arrow-left" onclick="prevPage(4)"></i>
@@ -164,7 +168,7 @@
 
     <!--5페이지-->
     <div id="page5" class="page">
-        <div class="d-flex flex-column justify-content-between" style="height: 100%">
+        <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
                     <i class="bi bi-arrow-left" onclick="prevPage(5)"></i>
@@ -184,7 +188,7 @@
 
         <!--6페이지-->
         <div id="page6" class="page">
-            <div class="d-flex flex-column justify-content-between" style="height: 100%">
+            <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
                 <div class="d-flex flex-column">
                     <div class="d-flex justify-content-between">
                         <i class="bi bi-arrow-left" onclick="prevPage(6)"></i>
@@ -210,7 +214,7 @@
 
     <!--7페이지-->
         <div id="page7" class="page">
-            <div class="d-flex flex-column justify-content-between" style="height: 100%">
+            <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
                 <div class="d-flex flex-column">
                     <div class="d-flex justify-content-between">
                         <i class="bi bi-arrow-left" onclick="prevPage(7)"></i>
@@ -249,7 +253,7 @@
 
     <!--8페이지-->
     <div id="page8" class="page">
-        <div class="d-flex flex-column justify-content-between" style="height: 100%">
+        <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
                     <i class="bi bi-arrow-left" onclick="prevPage(8)"></i>
@@ -285,7 +289,7 @@
 
     <!--9페이지-->
     <div id="page9" class="page">
-        <div class="d-flex flex-column justify-content-between" style="height: 100%">
+        <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
                     <i class="bi bi-arrow-left" onclick="prevPage(9)"></i>
@@ -341,7 +345,7 @@
 
     <!--10페이지-->
     <div id="page10" class="page">
-        <div class="d-flex flex-column justify-content-between" style="height: 100%">
+        <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
                     <i class="bi bi-arrow-left" onclick="prevPage(10)"></i>
@@ -366,7 +370,7 @@
                         </label>
                     </div>
 
-                    <div class="d-flex align-items-center m-2 mb-3 me-5" onclick="smokeCheck(3)">
+                    <div class="d-flex align-items-center m-2 mb-3" onclick="smokeCheck(3)">
                         <input class="form-check-input" type="radio" name="smoking_status" value="non_smoker" id="smoke3" th:field="*{userProfile.smokingStatus}">
                         <label class="form-check-label" for="smoke3">
                             <span class="check-smoke border border-info rounded-pill p-2" id="smokeCheck3">비흡연</span>
@@ -397,7 +401,7 @@
 
         <!--10페이지-->
         <div id="page11" class="page">
-            <div class="d-flex flex-column justify-content-between" style="height: 100%">
+            <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
                 <div class="d-flex flex-column">
                     <div class="d-flex justify-content-between">
                         <i class="bi bi-arrow-left" onclick="prevPage(11)"></i>

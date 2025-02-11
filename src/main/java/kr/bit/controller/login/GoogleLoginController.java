@@ -1,10 +1,13 @@
 package kr.bit.controller.login;
 
+import kr.bit.security.JwtGenerator;
 import kr.bit.service.UserService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -20,6 +23,9 @@ import java.net.URL;
 public class GoogleLoginController {
 
     @Autowired
+    private JwtGenerator jwtGenerator;
+
+    @Autowired
     private UserService userService;
 
     @Value("${google.client.id}")
@@ -30,9 +36,9 @@ public class GoogleLoginController {
 
     @GetMapping(value = "/googleLogin")
     public String loginGoogle(@RequestParam(value = "code") String authCode, RedirectAttributes redirectAttributes) {
-        String jwtToken = getGoogleAccessToken(authCode);
-        if (jwtToken != null) {
-            return getGoogleUserInfo(jwtToken, redirectAttributes);  // 수정된 부분
+        String token = getGoogleAccessToken(authCode);
+        if (token != null) {
+            return getGoogleUserInfo(token, redirectAttributes);  // 수정된 부분
         }
         return "Error: Unable to retrieve access token.";
     }
@@ -86,11 +92,11 @@ public class GoogleLoginController {
         return accessToken;
     }
 
-    private String getGoogleUserInfo(String jwtToken, RedirectAttributes redirectAttributes) {
+    private String getGoogleUserInfo(String token, RedirectAttributes redirectAttributes) {
         String userId = null;
         String googleId = null;
         try {
-            String apiURL = "https://oauth2.googleapis.com/tokeninfo?id_token=" + jwtToken;
+            String apiURL = "https://oauth2.googleapis.com/tokeninfo?id_token=" + token;
             URL url = new URL(apiURL);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
@@ -118,8 +124,16 @@ public class GoogleLoginController {
             e.printStackTrace();
         }
         if (userId != null) {
-            //TODO JWT토큰구현
-            return "main";
+            Authentication authentication = new UsernamePasswordAuthenticationToken(userId,null);
+
+            // JWT 토큰 생성
+            String jwtToken = jwtGenerator.generateToken(authentication);  // JWT 토큰 발급
+
+            // JWT 토큰을 세션이나 클라이언트로 전달 (여기서는 세션에 저장)
+// JWT 토큰을 URL 파라미터로 전달
+            redirectAttributes.addAttribute("token", jwtToken);
+            return "redirect:/save";
+
         }
         else{
             redirectAttributes.addAttribute("googleId", googleId);

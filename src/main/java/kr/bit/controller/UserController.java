@@ -1,9 +1,12 @@
 package kr.bit.controller;
 
 import kr.bit.beans.*;
+import kr.bit.security.JwtGenerator;
 import kr.bit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +26,8 @@ import java.util.stream.Collectors;
 @Controller
 public class UserController {
 
+    @Autowired
+    private JwtGenerator jwtGenerator;
 
     @Value("${upload.path}")
     private String uploadDir; // 이미지 저장 경로를 application.properties로부터 가져옵니다.
@@ -57,8 +62,7 @@ public class UserController {
 
     @PostMapping("user/register_pro")
     public String register_pro(@ModelAttribute("userJoinBean") UserJoinBean userJoinBean,
-                               @RequestParam("imgFile") MultipartFile file,
-                               RedirectAttributes redirectAttributes) {
+                               @RequestParam("imgFile") MultipartFile file,RedirectAttributes redirectAttributes) {
         User user = userJoinBean.getUser();
         UserProfile userProfile = userJoinBean.getUserProfile();
         String hobbies = userJoinBean.getHobbies();
@@ -89,9 +93,13 @@ public class UserController {
         // 사용자와 프로필, 취미 정보를 DB에 저장
         userService.registerUserWithHobbies(user, userProfile, hobbies);
 
-        // 사용자 ID를 리디렉션 URL에 추가
-        redirectAttributes.addAttribute("userId", user.getUserId());
-        return "redirect:/user/photo";  // 사진 업로드 페이지로 리디렉션
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUserId(),null);
+
+        String jwtToken = jwtGenerator.generateToken(authentication);
+
+        redirectAttributes.addAttribute("token", jwtToken);
+        return "redirect:/main";
+
     }
 
     }
