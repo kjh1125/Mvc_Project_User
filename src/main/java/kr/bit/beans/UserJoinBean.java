@@ -10,5 +10,4 @@ public class UserJoinBean {
     private User user;
     private UserProfile userProfile;
     private String hobbies;
-    private MultipartFile photoImage;
 }
