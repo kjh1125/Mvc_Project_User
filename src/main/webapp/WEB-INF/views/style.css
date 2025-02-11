@@ -10,7 +10,6 @@ body{
     border: 1px solid #ccc;
     border-radius: 5px;
     overflow: hidden;
-    overflow-y: auto;
     position: relative;
     padding: 16px;
 }

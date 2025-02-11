@@ -41,7 +41,7 @@
 <script>
     function googleLogin() {
         var googleClientId = '491361950548-csjpd36h82d3ma39vru2r2pmbvugr6ro.apps.googleusercontent.com';  // 구글 클라이언트 ID 입력
-        var redirectUri = 'http://localhost:8080/testtest/googleLogin'; // 구글 로그인 리디렉션 URI
+        var redirectUri = 'http://localhost:8080/blindtime/googleLogin'; // 구글 로그인 리디렉션 URI
         var scope = 'email%20profile%20openid'; // 요청할 범위
         var responseType = 'code';  // 인증 코드 받기
         var apiUrl = "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + googleClientId
@@ -55,7 +55,7 @@
 
     function kakaoLogin() {
         Kakao.Auth.authorize({
-            redirectUri: 'http://localhost:8080/testtest/kakaoLogin',
+            redirectUri: 'http://localhost:8080/blindtime/kakaoLogin',
         });
     }
 
@@ -68,7 +68,7 @@
 
     function naverLogin() {
         var clientId = 'fBXX5nbSsulYyCUP7NDj'; // 네이버 클라이언트 ID
-        var redirectURI = encodeURIComponent("http://localhost:8080/testtest/naverLogin"); // 콜백 URL
+        var redirectURI = encodeURIComponent("http://localhost:8080/blindtime/naverLogin"); // 콜백 URL
         var state = generateState(); // 고유 상태 값 생성
 
         // URL 생성

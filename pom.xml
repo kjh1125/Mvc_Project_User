@@ -17,6 +17,7 @@
         <org.mysql-version>8.0.16</org.mysql-version>
         <org.hikaricp-version>3.4.1</org.hikaricp-version>
         <org.jwt-version>0.11.2</org.jwt-version> <!-- JWT 버전 추가 -->
+        <org.apache.commons-version>2.7.0</org.apache.commons-version>
     </properties>
 
     <dependencies>
@@ -112,6 +113,22 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20210307</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-dbcp2</artifactId>
+            <version>${org.apache.commons-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
         </dependency>
     </dependencies>
 

@@ -1,28 +1,35 @@
-package kr.bit.controller;
+package kr.bit.controller.login;
 
+import kr.bit.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.json.JSONObject;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.net.URL;
 import java.net.HttpURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-@RestController
+@Controller
 @CrossOrigin("*")
 @PropertySource("classpath:application.properties")
 public class KakaoLoginController {
+
+    @Autowired
+    private UserService userService;
 
     @Value("${kakao.client.id}")
     private String kakaoClientId;
 
     @RequestMapping(value = "/kakaoLogin", method = RequestMethod.GET)
-    public String loginKakao(@RequestParam(value = "code") String code) {
+    public String loginKakao(@RequestParam(value = "code") String code,RedirectAttributes redirectAttributes) {
         String accessToken = getAccessToken(code);
         if (accessToken != null) {
-            return getKakaoUserInfo(accessToken);
+            return getKakaoUserInfo(accessToken,redirectAttributes);
         }
         return "Error: Unable to retrieve access token.";
     }
@@ -30,7 +37,7 @@ public class KakaoLoginController {
     private String getAccessToken(String code) {
         String accessToken = null;
         try {
-            String redirectURI = "http://localhost:8080/testtest/kakaoLogin"; // Callback URL
+            String redirectURI = "http://localhost:8080/blindtime/kakaoLogin"; // Callback URL
             String apiURL = "https://kauth.kakao.com/oauth/token?"
                     + "grant_type=authorization_code"
                     + "&client_id=" + kakaoClientId
@@ -66,8 +73,9 @@ public class KakaoLoginController {
         return accessToken;
     }
 
-    private String getKakaoUserInfo(String accessToken) {
-        String userInfo = null;
+    private String getKakaoUserInfo(String accessToken, RedirectAttributes redirectAttributes) {
+        String userId = null;
+        Long kakaoId = null;
         try {
             String header = "Bearer " + accessToken;
             String apiURL_userInfo = "https://kapi.kakao.com/v2/user/me";
@@ -93,11 +101,19 @@ public class KakaoLoginController {
 
             // 사용자 정보 JSON 파싱
             JSONObject userInfoJson = new JSONObject(res_userInfo.toString());
-            long id = userInfoJson.getLong("id");
-            userInfo = String.valueOf(id); // 사용자 ID
+            kakaoId = userInfoJson.getLong("id");
+            userId = userService.kakaoLogin(kakaoId);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return userInfo;
+
+        if (userId != null) {
+            //TODO JWT토큰구현
+            return "main";
+        }
+        else{
+            redirectAttributes.addAttribute("kakaoId", kakaoId);
+            return "redirect:/user/register";
+        }
     }
 }

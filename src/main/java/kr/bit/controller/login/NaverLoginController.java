@@ -1,19 +1,26 @@
-package kr.bit.controller;
+package kr.bit.controller.login;
 
+import kr.bit.service.UserService;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-@RestController
+@Controller
 @CrossOrigin("*")
 @PropertySource("classpath:application.properties")
 public class NaverLoginController {
+
+    @Autowired
+    private UserService userService;
 
     @Value("${naver.client.id}")
     private String naverClientId;
@@ -22,10 +29,10 @@ public class NaverLoginController {
     private String naverClientSecret;
 
     @RequestMapping(value = "/naverLogin", method = RequestMethod.GET)
-    public String loginNaver(@RequestParam(value = "code") String code, @RequestParam(value = "state") String state) {
+    public String loginNaver(@RequestParam(value = "code") String code, @RequestParam(value = "state") String state, RedirectAttributes redirectAttributes) {
         String accessToken = getAccessToken(code, state);
         if (accessToken != null) {
-            return getNaverUserInfo(accessToken);
+            return getNaverUserInfo(accessToken,redirectAttributes);
         }
         return "Error: Unable to retrieve access token.";
     }
@@ -33,7 +40,7 @@ public class NaverLoginController {
     private String getAccessToken(String code, String state) {
         String accessToken = null;
         try {
-            String redirectURI = "http://localhost:8080/testtest/naverLogin"; // Callback URL
+            String redirectURI = "http://localhost:8080/blindtime/naverLogin"; // Callback URL
             String apiURL = "https://nid.naver.com/oauth2.0/token?grant_type=authorization_code"
                     + "&client_id=" + naverClientId
                     + "&client_secret=" + naverClientSecret
@@ -69,8 +76,9 @@ public class NaverLoginController {
         return accessToken;
     }
 
-    private String getNaverUserInfo(String accessToken) {
-        String userInfo = null;
+    private String getNaverUserInfo(String accessToken, RedirectAttributes redirectAttributes) {
+        String userId = null;
+        String naverId = null;
         try {
             String header = "Bearer " + accessToken;
             String apiURL_userInfo = "https://openapi.naver.com/v1/nid/me";
@@ -96,11 +104,18 @@ public class NaverLoginController {
 
             // JSON 파싱 후 사용자 정보 추출
             JSONObject userInfoJson = new JSONObject(res_userInfo.toString());
-            String id = userInfoJson.getJSONObject("response").getString("id"); // 사용자 ID (이메일도 가능)
-            userInfo = id;
+            naverId = userInfoJson.getJSONObject("response").getString("id"); // 사용자 ID (이메일도 가능)
+            userId = userService.naverLogin(naverId);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return userInfo;
+        if (userId != null) {
+            //TODO JWT토큰구현
+            return "main";
+        }
+        else{
+            redirectAttributes.addAttribute("naverId", naverId);
+            return "redirect:/user/register";
+        }
     }
 }
