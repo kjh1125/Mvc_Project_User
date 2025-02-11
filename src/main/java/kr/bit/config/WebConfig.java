@@ -3,16 +3,23 @@ package kr.bit.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 import javax.servlet.Filter;
+import java.io.IOException;
 
+@Configuration
+@EnableWebMvc
 public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
 
     @Override
@@ -39,10 +46,19 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
     }
 
     @Bean
-    public MultipartResolver multipartResolver() {
-        return new StandardServletMultipartResolver();
-    }
+    public MultipartResolver multipartResolver() throws IOException {
+        CommonsMultipartResolver resolver = new CommonsMultipartResolver();
 
+        resolver.setUploadTempDir(new FileSystemResource("C:/bootcamp/spring1/testtest/src/main/resources/static/images/photo"));
+
+        resolver.setMaxUploadSize(20971520);
+
+        resolver.setMaxUploadSizePerFile(41943040);
+
+        resolver.setMaxInMemorySize(20971520);
+
+        return resolver;
+    }
     @Bean
     public ConversionService conversionService() {
         return new DefaultConversionService();

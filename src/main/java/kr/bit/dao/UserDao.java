@@ -44,4 +44,8 @@ public class UserDao {
     public void createUserHobby(UserHobby userHobby){
         userMapper.createUserHobby(userHobby);
     }
+
+    public void updateUserProfile(long userId, String photoImageUrl){
+        userMapper.updateUserProfile(userId, photoImageUrl);
+    }
 }

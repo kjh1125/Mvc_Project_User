@@ -12,6 +12,7 @@ public class UserProfile {
     private String createdAt;
     private Integer height;
     private Integer weight;
+    private String photoImageUrl;
     private int profileImageId;
     private String religion;
     private String mbti;

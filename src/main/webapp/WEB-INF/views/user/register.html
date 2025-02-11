@@ -51,11 +51,12 @@
             cursor: pointer;
         }
 
+
     </style>
 </head>
 <body>
 <div class="mobile-view">
-    <form th:action="@{/user/register_pro}" method="post" th:object="${userJoinBean}">
+    <form th:action="@{/user/register_pro}" method="post" th:object="${userJoinBean}"  enctype="multipart/form-data">
         <input type="hidden" th:value="${googleId}" th:field="*{user.googleId}">
         <input type="hidden" th:value="${kakaoId}" th:field="*{user.kakaoId}">
         <input type="hidden" th:value="${naverId}" th:field="*{user.naverId}">
@@ -181,14 +182,39 @@
         </div>
     </div>
 
-
-    <!--6페이지-->
+        <!--6페이지-->
         <div id="page6" class="page">
             <div class="d-flex flex-column justify-content-between" style="height: 100%">
                 <div class="d-flex flex-column">
                     <div class="d-flex justify-content-between">
                         <i class="bi bi-arrow-left" onclick="prevPage(6)"></i>
-                        6/10
+                        6/11
+                    </div>
+                    <label class="pb-3" for="weight">
+                        본인의 사진을 넣어주세요
+                    </label>
+                    <div class="pictureBox" onclick="document.getElementById('photoInput').click()">
+                        <i class="bi bi-plus-circle" id="icon"></i>
+                        <img id="photoPreview" src="" alt="사진 미리보기" style="display:none; width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+
+                    <!-- 파일 입력 (숨기기) -->
+                    <input type="file" name="imgFile" id="photoInput" accept="image/*" style="display: none;" onchange="previewImage(event)">
+
+                </div>
+                <div>
+                    <button type="button" class="btn border w-100" onclick="nextPage(6)">다음</button>
+                </div>
+            </div>
+        </div>
+
+    <!--7페이지-->
+        <div id="page7" class="page">
+            <div class="d-flex flex-column justify-content-between" style="height: 100%">
+                <div class="d-flex flex-column">
+                    <div class="d-flex justify-content-between">
+                        <i class="bi bi-arrow-left" onclick="prevPage(7)"></i>
+                        7/10
                     </div>
                     <label class="pb-3" for="weight">
                         MBTI를 입력해주세요
@@ -215,19 +241,19 @@
                 </div>
 
                 <div>
-                    <button type="button" class="btn border w-100" onclick="nextPage(6)">다음</button>
+                    <button type="button" class="btn border w-100" onclick="nextPage(7)">다음</button>
                 </div>
             </div>
     </div>
 
 
-    <!--7페이지-->
-    <div id="page7" class="page">
+    <!--8페이지-->
+    <div id="page8" class="page">
         <div class="d-flex flex-column justify-content-between" style="height: 100%">
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
-                    <i class="bi bi-arrow-left" onclick="prevPage(7)"></i>
-                    7/10
+                    <i class="bi bi-arrow-left" onclick="prevPage(8)"></i>
+                    8/10
                 </div>
                 <label class="pb-3" for="religion">
                     종교를 입력해주세요
@@ -251,19 +277,19 @@
             </div>
 
             <div>
-                <button type="button" class="btn border w-100" onclick="nextPage(7)">다음</button>
+                <button type="button" class="btn border w-100" onclick="nextPage(8)">다음</button>
             </div>
         </div>
     </div>
 
 
-    <!--8페이지-->
-    <div id="page8" class="page">
+    <!--9페이지-->
+    <div id="page9" class="page">
         <div class="d-flex flex-column justify-content-between" style="height: 100%">
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
-                    <i class="bi bi-arrow-left" onclick="prevPage(8)"></i>
-                    8/10
+                    <i class="bi bi-arrow-left" onclick="prevPage(9)"></i>
+                    9/10
                 </div>
                 <label class="pb-3">
                     술은 얼마나 드시나요?
@@ -308,18 +334,18 @@
 
             </div>
             <div>
-                <button type="button" id="button8" class="btn border w-100" onclick="nextPage(8)" disabled>다음</button>
+                <button type="button" id="button9" class="btn border w-100" onclick="nextPage(9)" disabled>다음</button>
             </div>
         </div>
     </div>
 
-    <!--9페이지-->
-    <div id="page9" class="page">
+    <!--10페이지-->
+    <div id="page10" class="page">
         <div class="d-flex flex-column justify-content-between" style="height: 100%">
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
-                    <i class="bi bi-arrow-left" onclick="prevPage(9)"></i>
-                    9/10
+                    <i class="bi bi-arrow-left" onclick="prevPage(10)"></i>
+                    10/11
                 </div>
                 <label class="pb-3">
                     흡연량은 어떻게 되시나요?
@@ -364,18 +390,18 @@
 
             </div>
             <div>
-                <button type="button" id="button9" class="btn border w-100" onclick="nextPage(9)" disabled>다음</button>
+                <button type="button" id="button10" class="btn border w-100" onclick="nextPage(10)" disabled>다음</button>
             </div>
         </div>
     </div>
 
         <!--10페이지-->
-        <div id="page10" class="page">
+        <div id="page11" class="page">
             <div class="d-flex flex-column justify-content-between" style="height: 100%">
                 <div class="d-flex flex-column">
                     <div class="d-flex justify-content-between">
-                        <i class="bi bi-arrow-left" onclick="prevPage(10)"></i>
-                        10/10
+                        <i class="bi bi-arrow-left" onclick="prevPage(11)"></i>
+                        11/11
                     </div>
                     <label class="pb-3" id="hobbyLabel">
                         취미는 어떤게 있으신가요?(0/5)
@@ -391,7 +417,7 @@
 
                 </div>
                 <div>
-                    <button id="button10" class="btn border w-100">완료</button>
+                    <button id="button11" class="btn border w-100">완료</button>
                 </div>
             </div>
         </div>
@@ -504,14 +530,14 @@
         $("#drink" + drinkNum).prop("checked", true);
         $('.check-drink').removeClass('radioChecked');
         $('#drinkCheck'+drinkNum).addClass('radioChecked');
-        $("#button8").prop("disabled", false); // 버튼 활성화
+        $("#button9").prop("disabled", false); // 버튼 활성화
     }
 
     const smokeCheck = (smokeNum) => {
         $("#smoke" + smokeNum).prop("checked", true);
         $('.check-smoke').removeClass('radioChecked');
         $('#smokeCheck'+smokeNum).addClass('radioChecked');
-        $("#button9").prop("disabled", false); // 버튼 활성화
+        $("#button10").prop("disabled", false); // 버튼 활성화
     }
 
     // 선택된 취미 ID들을 저장할 배열
@@ -538,19 +564,15 @@
         }
 
         if(selectedHobbies.length>0){
-            $("#button10").prop("disabled", false); // 버튼 활성화
+            $("#button11").prop("disabled", false); // 버튼 활성화
         }
         else{
-            $("#button10").prop("disabled", true);
+            $("#button11").prop("disabled", true);
         }
         hobbyLabel.textContent = `취미는 어떤게 있으신가요?(${selectedHobbies.length}/5)`;
         // 선택된 취미 ID들을 콤마로 구분된 문자열로 변환하여 input 필드에 설정
         document.getElementById('hobbiesInput').value = selectedHobbies.join(',');
     }
-
-
-
-
     const previewImage = (event) => {
         const file = event.target.files[0]; // 업로드된 파일
         if (file) {
@@ -568,6 +590,7 @@
             };
 
             reader.readAsDataURL(file); // 파일을 DataURL로 읽기
+            $('#button').text('제출');
         }
     };
 
