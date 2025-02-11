@@ -1,0 +1,73 @@
+<!-- src/main/resources/templates/fragments/footer.html -->
+<footer th:fragment="footer" class="mobile-footer" xmlns:th="http://www.thymeleaf.org">
+    <style>
+        .mobile-footer {
+            position: absolute; /* fixed에서 absolute로 변경 */
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ffffff;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px 0; /* 패딩 축소 */
+            max-width: 360px; /* mobile-view 너비에 맞춤 */
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+            font-size: 0.75rem; /* 폰트 크기 축소 */
+            transition: color 0.3s ease;
+            padding: 0 5px; /* 좌우 패딩 추가 */
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: #007bff;
+        }
+
+        .nav-item i {
+            font-size: 1.2rem; /* 아이콘 크기 축소 */
+            margin-bottom: 2px; /* 여백 축소 */
+        }
+
+        @media (max-width: 360px) {
+            .nav-item {
+                font-size: 0.7rem;
+            }
+
+            .nav-item i {
+                font-size: 1rem;
+            }
+        }
+    </style>
+
+    <div class="bottom-nav">
+        <a href="/" class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/' ? 'active' : ''}">
+            <i class="bi bi-house-door"></i>
+            <span>홈</span>
+        </a>
+        <a href="/chat" class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/chat' ? 'active' : ''}">
+            <i class="bi bi-chat"></i>
+            <span>채팅</span>
+        </a>
+        <a href="/board" class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/board' ? 'active' : ''}">
+            <i class="bi bi-card-list"></i>
+            <span>게시판</span>
+        </a>
+        <a href="/mypage" class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/mypage' ? 'active' : ''}">
+            <i class="bi bi-person"></i>
+            <span>마이페이지</span>
+        </a>
+    </div>
+</footer>
