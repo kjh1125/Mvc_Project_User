@@ -5,6 +5,7 @@ import kr.bit.beans.Message;
 import kr.bit.dao.ChatDao;
 import kr.bit.dao.UserDao;
 import kr.bit.dto.ChatRoomDTO;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,6 @@ public class ChatService {
 
     public List<ChatRoomDTO> getChatRoomsByUserId(int userId) {
         List<ChatRoom> chatRooms = chatDao.getChatRoomsByUserId(userId);
-        System.out.println(chatRooms.toString());
         if (chatRooms == null) {
             chatRooms = new ArrayList<>();
         }
@@ -34,6 +34,7 @@ public class ChatService {
         List<ChatRoomDTO> chatRoomDTOs = new ArrayList<>();
 
         for (ChatRoom chatRoom : chatRooms) {
+            System.out.println(chatRoom);
             ChatRoomDTO dto = new ChatRoomDTO();
             int roomId = chatRoom.getId();
             dto.setChatRoomId(roomId);
@@ -100,5 +101,22 @@ public class ChatService {
 
     public List<Message> getMessagesByRoomId(int roomId){
         return chatDao.getMessagesByRoomId(roomId);
+    }
+
+
+    public void updateIsEnter(int userId, int roomId){
+        System.out.println(userId);
+        System.out.println(roomId);
+        chatDao.updateIsEnter(userId, roomId);
+    }
+
+    public void isEnter(@Param("roomId") int id) {
+        System.out.println(id);
+        ChatRoom chatRoom = chatDao.isEnter(id);
+        System.out.println(chatRoom);
+        if(chatRoom.isEnter1()&&chatRoom.isEnter2()){
+            System.out.println("끼얏호우");
+            chatDao.updateSessionStatus("on",id);
+        }
     }
 }

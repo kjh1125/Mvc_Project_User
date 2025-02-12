@@ -10,13 +10,13 @@ import java.util.List;
 
 public interface UserMapper {
     @Select("select user_id from users where google_id=#{googleId}")
-    String googleLogin(String google_id);
+    Integer googleLogin(String google_id);
 
     @Select("select user_id from users where kakao_id=#{kakaoId}")
-    String kakaoLogin(long kakao_id);
+    Integer kakaoLogin(long kakao_id);
 
     @Select("select user_id from users where naver_id=#{naverId}")
-    String naverLogin(String naver_id);
+    Integer naverLogin(String naver_id);
 
     @Select("select * from hobbies")
     List<Hobby> getHobby();

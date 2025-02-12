@@ -124,7 +124,9 @@ public class GoogleLoginController {
             // JSON 파싱 후 사용자 정보 추출
             JSONObject jsonResponse = new JSONObject(responseContent.toString());
             googleId = jsonResponse.getString("email");
-            userId = Integer.parseInt(userService.googleLogin(googleId));
+            System.out.println(googleId);
+
+            userId = userService.googleLogin(googleId);
         } catch (Exception e) {
             e.printStackTrace();  // 예외 로그 출력
             return "Error: Unable to process Google user information.";
