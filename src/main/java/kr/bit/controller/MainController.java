@@ -5,26 +5,30 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 @Controller
 public class MainController {
 
-    @GetMapping("/save")
-    public String save(@RequestParam(value = "token", required = false) String jwtToken, Model model) {
-        if (jwtToken != null) {
-            model.addAttribute("jwtToken", jwtToken);
-            return "save";  // save.html 페이지로 이동
-        }
-        return "redirect:/login";  // 토큰이 없으면 로그인 페이지로 리디렉션
-    }
-
     @GetMapping("/main")
-    public String main() {
-        return "main";  // main.html 페이지로 이동
+    public String main(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);  // false는 세션이 없으면 새로 생성하지 않음
+        if (session != null && session.getAttribute("user") != null) {
+            return "main";  // main.html 페이지로 이동
+        } else {
+            return "redirect:/login";  // login.html 페이지로 리다이렉트
+        }
     }
 
     @GetMapping("/login")
-    public String login() {
-        return "login";  // login.html 페이지로 이동
+    public String login(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);  // false는 세션이 없으면 새로 생성하지 않음
+        if (session != null && session.getAttribute("user") != null) {
+            return "redirect:/main";  // main.html 페이지로 이동
+        } else {
+            return "login";
+        }
     }
 }
 

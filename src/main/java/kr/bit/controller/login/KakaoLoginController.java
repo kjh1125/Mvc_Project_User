@@ -1,17 +1,21 @@
 package kr.bit.controller.login;
 
-import kr.bit.security.JwtGenerator;
 import kr.bit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.json.JSONObject;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.net.URL;
 import java.net.HttpURLConnection;
 import java.io.BufferedReader;
@@ -23,19 +27,16 @@ import java.io.InputStreamReader;
 public class KakaoLoginController {
 
     @Autowired
-    private JwtGenerator jwtGenerator;
-
-    @Autowired
     private UserService userService;
 
     @Value("${kakao.client.id}")
     private String kakaoClientId;
 
     @RequestMapping(value = "/kakaoLogin", method = RequestMethod.GET)
-    public String loginKakao(@RequestParam(value = "code") String code,RedirectAttributes redirectAttributes) {
+    public String loginKakao(@RequestParam(value = "code") String code,RedirectAttributes redirectAttributes, HttpServletResponse response, HttpServletRequest request) {
         String accessToken = getAccessToken(code);
         if (accessToken != null) {
-            return getKakaoUserInfo(accessToken,redirectAttributes);
+            return getKakaoUserInfo(accessToken,redirectAttributes,response,request);
         }
         return "Error: Unable to retrieve access token.";
     }
@@ -79,8 +80,8 @@ public class KakaoLoginController {
         return accessToken;
     }
 
-    private String getKakaoUserInfo(String accessToken, RedirectAttributes redirectAttributes) {
-        String userId = null;
+    private String getKakaoUserInfo(String accessToken, RedirectAttributes redirectAttributes, HttpServletResponse response, HttpServletRequest request) {
+        Integer userId = null;
         Long kakaoId = null;
         try {
             String header = "Bearer " + accessToken;
@@ -108,25 +109,28 @@ public class KakaoLoginController {
             // 사용자 정보 JSON 파싱
             JSONObject userInfoJson = new JSONObject(res_userInfo.toString());
             kakaoId = userInfoJson.getLong("id");
-            userId = userService.kakaoLogin(kakaoId);
+            userId = Integer.parseInt(userService.kakaoLogin(kakaoId));
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         if (userId != null) {
-            Authentication authentication = new UsernamePasswordAuthenticationToken(userId,null);
+            // 인증 정보를 SecurityContext에 설정
+            Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // JWT 토큰 생성
-            String jwtToken = jwtGenerator.generateToken(authentication);  // JWT 토큰 발급
+            HttpSession session = request.getSession();
+            session.setAttribute("user", userId);  // 세션에 사용자 ID 저장
+            // 세션 ID를 쿠키로 설정
+            Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());  // 세션 ID를 쿠키에 담습니다
+            sessionCookie.setPath("/");  // 전체 사이트에 대해 쿠키가 유효하도록 설정
+            sessionCookie.setHttpOnly(true);  // 클라이언트 JS에서 쿠키 접근 불가
+            sessionCookie.setSecure(true);  // HTTPS에서만 쿠키 전송
+            sessionCookie.setMaxAge(60 * 60);  // 쿠키의 유효기간 설정 (예: 1시간)
+            response.addCookie(sessionCookie);  // 응답으로 쿠키를 클라이언트에 추가
 
-
-            // JWT 토큰을 세션이나 클라이언트로 전달 (여기서는 세션에 저장)
-// JWT 토큰을 URL 파라미터로 전달
-            redirectAttributes.addAttribute("token", jwtToken);
-            return "redirect:/save";
-
-        }
-        else{
+            return "redirect:/main";
+        } else {
             redirectAttributes.addAttribute("kakaoId", kakaoId);
             return "redirect:/user/register";
         }

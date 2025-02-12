@@ -18,6 +18,9 @@
 
 <div class="mobile-view">
     <div class="back-view">
+        <form th:action="@{/user/logOut}" method="post">
+            <button type="submit">로그아웃</button>
+        </form>
 
     </div>
     <div th:replace="fragments/footer.html :: footer">

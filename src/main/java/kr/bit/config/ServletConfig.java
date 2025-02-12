@@ -22,7 +22,7 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"kr.bit.controller", "kr.bit.service", "kr.bit.dao", "kr.bit.mapper", "kr.bit.security"})
+@ComponentScan(basePackages = {"kr.bit.controller", "kr.bit.service", "kr.bit.dao", "kr.bit.mapper", "kr.bit.security", "kr.bit.dto"})
 public class ServletConfig implements WebMvcConfigurer {
 
     @Override
@@ -39,6 +39,7 @@ public class ServletConfig implements WebMvcConfigurer {
         templateResolver.setPrefix("/WEB-INF/views/");
         templateResolver.setSuffix(".html");
         templateResolver.setTemplateMode("HTML5");
+        templateResolver.setCacheable(false);  // 캐시 비활성화
         return templateResolver;
     }
 
@@ -81,12 +82,17 @@ public class ServletConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public SqlSessionFactory factory(BasicDataSource source) throws Exception{
+    public SqlSessionFactory factory(BasicDataSource source) throws Exception {
         SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
         factoryBean.setDataSource(source);
 
+        // MyBatis 설정 객체를 추가하여 camelCase 매핑 활성화
+        org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
+        configuration.setMapUnderscoreToCamelCase(true);  // underscore와 camelCase 자동 매핑 활성화
+        factoryBean.setConfiguration(configuration);
+
         SqlSessionFactory factory = factoryBean.getObject();
-        return factory;  //sql실행, 매핑 인터페이스 처리
+        return factory;
     }
 
 

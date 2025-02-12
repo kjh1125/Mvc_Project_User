@@ -1,9 +1,6 @@
 package kr.bit.service;
 
-import kr.bit.beans.Hobby;
-import kr.bit.beans.User;
-import kr.bit.beans.UserHobby;
-import kr.bit.beans.UserProfile;
+import kr.bit.beans.*;
 import kr.bit.dao.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,6 +52,11 @@ public class UserService {
             userHobby.setHobbyId(hobbyId);
             userDao.createUserHobby(userHobby);
         }
+    }
+
+
+    public Point getPoint(int userId){
+        return userDao.getPoint(userId);
     }
 
 }

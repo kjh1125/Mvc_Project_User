@@ -41,12 +41,17 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-            <version>${org.springframework-version}</version> <!-- 원하는 버전으로 지정 -->
+            <version>${org.springframework-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
-            <version>${org.springframework-version}</version> <!-- 원하는 버전으로 지정 -->
+            <version>${org.springframework-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${org.springframework-version}</version>
         </dependency>
         <!-- Thymeleaf -->
         <dependency>
