@@ -17,7 +17,7 @@
 <body>
 
 <div class="mobile-view">
-    <div style="height:95vh;">
+    <div class="back-view">
 
     </div>
     <div th:replace="fragments/footer.html :: footer">
@@ -25,13 +25,5 @@
     </div>
 </div>
 
-<script th:inline="javascript">
-    var jwtToken = localStorage.getItem('jwtToken');
-
-    if (!jwtToken) {
-        const uri = /*[[@{/login}]]*/ '';
-        window.location.href = uri;
-    }
-</script>
 </body>
 </html>

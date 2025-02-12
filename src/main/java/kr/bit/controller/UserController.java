@@ -1,33 +1,32 @@
 package kr.bit.controller;
 
 import kr.bit.beans.*;
-import kr.bit.security.JwtGenerator;
 import kr.bit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Controller
+@RequestMapping("/user")
 public class UserController {
-
-    @Autowired
-    private JwtGenerator jwtGenerator;
 
     @Value("${upload.path}")
     private String uploadDir; // 이미지 저장 경로를 application.properties로부터 가져옵니다.
@@ -35,7 +34,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("user/register")
+    @GetMapping("register")
     public String register(
             @RequestParam(value = "googleId", required = false) String googleId,
             @RequestParam(value = "kakaoId", required = false) String kakaoId,
@@ -60,9 +59,10 @@ public class UserController {
         return "user/register";
     }
 
-    @PostMapping("user/register_pro")
+    @PostMapping("register_pro")
     public String register_pro(@ModelAttribute("userJoinBean") UserJoinBean userJoinBean,
-                               @RequestParam("imgFile") MultipartFile file,RedirectAttributes redirectAttributes) {
+                               @RequestParam("imgFile") MultipartFile file, RedirectAttributes redirectAttributes,
+                               HttpSession session, HttpServletResponse response) {
         User user = userJoinBean.getUser();
         UserProfile userProfile = userJoinBean.getUserProfile();
         String hobbies = userJoinBean.getHobbies();
@@ -72,7 +72,6 @@ public class UserController {
         System.out.println(hobbies);
         System.out.println(file);
         System.out.println(uploadDir);
-
 
         try {
             // 파일 저장 경로 설정 (예: /path/to/upload/directory)
@@ -93,13 +92,32 @@ public class UserController {
         // 사용자와 프로필, 취미 정보를 DB에 저장
         userService.registerUserWithHobbies(user, userProfile, hobbies);
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUserId(),null);
+        // 인증 정보를 SecurityContext에 설정
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUserId(), null);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwtToken = jwtGenerator.generateToken(authentication);
+        // 세션에 사용자 ID 저장
+        session.setAttribute("user", user.getUserId());
 
-        redirectAttributes.addAttribute("token", jwtToken);
+        // 세션 ID를 쿠키로 설정
+        Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());  // 세션 ID를 쿠키에 담습니다
+        sessionCookie.setPath("/");  // 전체 사이트에 대해 쿠키가 유효하도록 설정
+        sessionCookie.setHttpOnly(true);  // 클라이언트 JS에서 쿠키 접근 불가
+        sessionCookie.setSecure(true);  // HTTPS에서만 쿠키 전송
+        sessionCookie.setMaxAge(60 * 60);  // 쿠키의 유효기간 설정 (예: 1시간)
+        response.addCookie(sessionCookie);  // 응답으로 쿠키를 클라이언트에 추가
+
         return "redirect:/main";
-
     }
 
+    @PostMapping("/logOut")
+    public String logOut(HttpSession session, HttpServletResponse response) {
+        session.invalidate();
+        Cookie cookie = new Cookie("JSESSIONID", null);
+        cookie.setPath("/");  // 애플리케이션의 루트 경로로 설정
+        cookie.setMaxAge(0);  // 쿠키를 즉시 만료시킴
+        response.addCookie(cookie);  // 응답에 쿠키 추가
+        return "redirect:/login";
     }
+
+}

@@ -1,9 +1,6 @@
 package kr.bit.mapper;
 
-import kr.bit.beans.Hobby;
-import kr.bit.beans.User;
-import kr.bit.beans.UserHobby;
-import kr.bit.beans.UserProfile;
+import kr.bit.beans.*;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
@@ -15,10 +12,10 @@ public interface UserMapper {
     @Select("select user_id from users where google_id=#{googleId}")
     String googleLogin(String google_id);
 
-    @Select("select user_id from users where google_id=#{kakaoId}")
+    @Select("select user_id from users where kakao_id=#{kakaoId}")
     String kakaoLogin(long kakao_id);
 
-    @Select("select user_id from users where google_id=#{naverId}")
+    @Select("select user_id from users where naver_id=#{naverId}")
     String naverLogin(String naver_id);
 
     @Select("select * from hobbies")
@@ -37,6 +34,14 @@ public interface UserMapper {
     void createUserHobby(UserHobby userHobby);
 
     @Update("update user_profiles set photo_image_url=#{photoImageUrl} where user_id=#{userId}")
-    void updateUserProfile(long userId, String photoImageUrl);
+    void updateUserProfile(int userId, String photoImageUrl);
 
+    @Select("select * from points where user_id=#{userId}")
+    Point getPoint(int userId);
+
+    @Select("select profile_image_id from user_profiles where user_id=#{userId}")
+    int getUserProfile(int userId);
+
+    @Select("select nickname from users where user_id=#{userId}")
+    String getNickname(int userId);
 }

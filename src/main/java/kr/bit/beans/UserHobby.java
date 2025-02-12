@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class UserHobby {
-    int userId;
-    int hobbyId;
+    private int userId;
+    private int hobbyId;
 }
