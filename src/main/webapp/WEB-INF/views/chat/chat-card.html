@@ -1,0 +1,26 @@
+<div th:fragment="cardTemplate(chat)">
+    <div class="d-flex flex-row justify-content-between align-items-center mt-4">
+        <div class="d-flex flex-row align-items-center" style="width:15%">
+            <img th:src="@{/images/profile-icon/{imageId}.jpg(imageId=${chat.profileImageId})}" alt="아이콘" style="width:80%; height:auto; border-radius: 50%;"/>
+        </div>
+        <div class="d-flex flex-column" style="width:85%">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="fs-4" th:text="${chat.nickname}"></div>
+                <div th:if="${chat.sessionStatus == 'on' or chat.sessionStatus == 'end'}">
+                    <div th:id="'timer'+${chat.chatRoomId}">
+                        <span th:id="${chat.chatRoomId}+'-endTime'" class="d-none" th:text="${chat.endTime}"></span>
+                        대화종료시간: <span th:id="'remainingTime-'+${chat.chatRoomId}"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <div th:text="${chat.content}">채팅 내용</div>
+                <div>
+                    <div th:if="${chat.unReadCount > 0}">
+                        <span class="badge rounded-circle bg-danger" th:text="${chat.unReadCount}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -109,7 +109,7 @@ public class KakaoLoginController {
             // 사용자 정보 JSON 파싱
             JSONObject userInfoJson = new JSONObject(res_userInfo.toString());
             kakaoId = userInfoJson.getLong("id");
-            userId = Integer.parseInt(userService.kakaoLogin(kakaoId));
+            userId = userService.kakaoLogin(kakaoId);
         } catch (Exception e) {
             e.printStackTrace();
         }

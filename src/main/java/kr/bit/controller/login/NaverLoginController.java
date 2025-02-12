@@ -112,7 +112,7 @@ public class NaverLoginController {
             // JSON 파싱 후 사용자 정보 추출
             JSONObject userInfoJson = new JSONObject(res_userInfo.toString());
             naverId = userInfoJson.getJSONObject("response").getString("id"); // 사용자 ID (이메일도 가능)
-            userId = Integer.parseInt(userService.naverLogin(naverId));
+            userId= userService.naverLogin(naverId);
         } catch (Exception e) {
             e.printStackTrace();
         }
