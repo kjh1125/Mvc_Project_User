@@ -67,11 +67,15 @@ public class UserController {
         UserProfile userProfile = userJoinBean.getUserProfile();
         String hobbies = userJoinBean.getHobbies();
 
-        System.out.println(user);
-        System.out.println(userProfile);
-        System.out.println(hobbies);
-        System.out.println(file);
-        System.out.println(uploadDir);
+        if (user.getGoogleId() != null && user.getGoogleId().isEmpty()) {
+            user.setGoogleId(null);
+        }
+        if (user.getKakaoId() != null && user.getKakaoId().isEmpty()) {
+            user.setKakaoId(null);
+        }
+        if (user.getNaverId() != null && user.getNaverId().isEmpty()) {
+            user.setNaverId(null);
+        }
 
         try {
             // 파일 저장 경로 설정 (예: /path/to/upload/directory)

@@ -95,8 +95,8 @@ public class GoogleLoginController {
     }
 
     private String getGoogleUserInfo(String token, RedirectAttributes redirectAttributes, HttpServletResponse response, HttpServletRequest request) {
-        Integer userId = null;
-        String googleId = null;
+        Integer userId;
+        String googleId;
         BufferedReader br = null;
         try {
             String apiURL = "https://oauth2.googleapis.com/tokeninfo?id_token=" + token;
@@ -124,8 +124,6 @@ public class GoogleLoginController {
             // JSON 파싱 후 사용자 정보 추출
             JSONObject jsonResponse = new JSONObject(responseContent.toString());
             googleId = jsonResponse.getString("email");
-            System.out.println(googleId);
-
             userId = userService.googleLogin(googleId);
         } catch (Exception e) {
             e.printStackTrace();  // 예외 로그 출력

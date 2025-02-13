@@ -18,21 +18,52 @@
 
 <div class="mobile-view">
     <div class="back-view" style="position: relative; min-height:100vh; background-color: #f8f9fa;">
-        <div class="p-4 mb-4">
+        <div class="p-1 mb-5">
             <h4>채팅목록</h4>
             <a href="#">
-                <div class="d-flex align-items-center justify-content-between" style="background: #D9D9D9; height: 10%;">
-                    <div style="width:20%"></div>
-                    <div style="width:17.5%"></div>
-                    <div style="width:25%">
-                        <span class="fs-2">매칭하기</span>
+                <div th:if="${waiting}">
+                    <div class="d-flex align-items-center justify-content-between" style="background: #D9D9D9; height: 35%;">
+                        <div style="width:20%"></div>
+                        <div style="width:17.5%"></div>
+                        <div style="width:25%" class="m-2">
+                            <span class="fs-2">매칭중...</span>
+                        </div>
+                        <div class="d-flex align-items-center" style="width:17.5%"></div>
+                        <div style="width:20%"></div>
                     </div>
-                    <div class="d-flex align-items-center" style="width:17.5%">
-                        <i class="fs-1 bi bi-fire text-danger"></i>
-                        <span class="fs-2" th:text="${firewood}"/>
+                </div>
+                <div th:unless="${waiting}">
+                    <div th:if="${firewood}>0">
+                        <div class="d-flex align-items-center justify-content-between" style="background: #D9D9D9; height: 15%;" onclick="matchStart()">
+                            <div style="width:20%"></div>
+                            <div style="width:17.5%"></div>
+                            <div style="width:25%">
+                                <span class="fs-2">매칭하기</span>
+                            </div>
+                            <div class="d-flex align-items-center" style="width:17.5%">
+                                <i class="fs-1 bi bi-fire text-danger"></i>
+                                <span class="fs-2" id="firewood" th:text="${firewood}"/>
+                            </div>
+                            <div style="width:20%">
+                                <i class="fs-2 bi bi-plus-circle"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div style="width:20%">
-                        <i class="fs-2 bi bi-plus-circle" id="icon"></i>
+                    <div th:unless="${firewood}>0">
+                        <div class="d-flex align-items-center justify-content-between" style="background: #D9D9D9; height: 15%;">
+                            <div style="width:20%"></div>
+                            <div style="width:17.5%"></div>
+                            <div style="width:25%">
+                                <span class="fs-2 text-secondary">매칭하기</span>
+                            </div>
+                            <div class="d-flex align-items-center" style="width:17.5%">
+                                <i class="fs-1 bi bi-fire"></i>
+                                <span class="fs-2" id="firewoodDie" th:text="0"/>
+                            </div>
+                            <div style="width:20%">
+                                <i class="fs-2 bi bi-plus-circle"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </a>
@@ -67,6 +98,21 @@
 </div>
 
 <script>
+    const matchStart = () =>{
+        $.ajax({
+            url: '/blindtime/chat/matchStart',
+            type: 'POST',
+            data: { },
+            success: function(response) {
+                alert(response);
+                window.location.reload();
+            },
+            error: function(xhr, status, error) {
+                alert('오류 ' + error);
+            }
+        });
+    }
+
     const handleEnterRoom = (roomId) => {
         $.ajax({
             url: '/blindtime/chat/roomEnter',  // 채팅방 입장 요청 URL

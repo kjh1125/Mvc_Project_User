@@ -59,5 +59,12 @@ public class UserService {
         return userDao.getPoint(userId);
     }
 
+    public String getGender(int userId){
+        return userDao.getGender(userId);
+    }
+
+    public  void updateFirewood(int userId){
+        userDao.updateFirewood(userId);
+    }
 
 }

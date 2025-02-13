@@ -24,7 +24,6 @@ public class ChatService {
     private UserDao userDao;
 
 
-
     public List<ChatRoomDTO> getChatRoomsByUserId(int userId) {
         List<ChatRoom> chatRooms = chatDao.getChatRoomsByUserId(userId);
         if (chatRooms == null) {
@@ -34,18 +33,18 @@ public class ChatService {
         List<ChatRoomDTO> chatRoomDTOs = new ArrayList<>();
 
         for (ChatRoom chatRoom : chatRooms) {
-            System.out.println(chatRoom);
             ChatRoomDTO dto = new ChatRoomDTO();
             int roomId = chatRoom.getId();
             dto.setChatRoomId(roomId);
             dto.setSessionStatus(chatRoom.getSessionStatus());
-
             Timestamp endTime = chatRoom.getEndTime();
-            ZonedDateTime zonedDateTime = endTime.toInstant()
-                    .atZone(ZoneId.of("Asia/Seoul"));  // 한국 시간대로 변환
+            if (endTime != null) {
+                ZonedDateTime zonedDateTime = endTime.toInstant()
+                        .atZone(ZoneId.of("Asia/Seoul"));  // 한국 시간대로 변환
 
-            String endTimeFormatted = zonedDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME); // ISO 8601 형식으로 포맷
-            dto.setEndTime(endTimeFormatted);
+                String endTimeFormatted = zonedDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME); // ISO 8601 형식으로 포맷
+                dto.setEndTime(endTimeFormatted);
+            }
 
             String defaultMessage = "매칭되었습니다! 방에 참가하세요";
             switch (chatRoom.getSessionStatus()) {
@@ -74,7 +73,7 @@ public class ChatService {
                     break;
             }
 
-            int otherUserId = (chatRoom.getParticipant1Id() == userId) ? chatRoom.getParticipant2Id() : chatRoom.getParticipant1Id();
+            int otherUserId = (chatRoom.getManId() == userId) ? chatRoom.getWomanId() : chatRoom.getManId();
 
             // 상대방의 nickname과 profileImageId 가져오기
             String nickname = "알 수 없는 사용자";
@@ -105,18 +104,20 @@ public class ChatService {
 
 
     public void updateIsEnter(int userId, int roomId){
-        System.out.println(userId);
-        System.out.println(roomId);
         chatDao.updateIsEnter(userId, roomId);
     }
 
     public void isEnter(@Param("roomId") int id) {
-        System.out.println(id);
         ChatRoom chatRoom = chatDao.isEnter(id);
-        System.out.println(chatRoom);
-        if(chatRoom.isEnter1()&&chatRoom.isEnter2()){
-            System.out.println("끼얏호우");
+        if(chatRoom.isManEnter()&&chatRoom.isWomanEnter()){
+            System.out.println("시작");
             chatDao.updateSessionStatus("on",id);
         }
+    }
+
+    public void chatStart(String manId, String womanId){
+        int manIdNum = Integer.parseInt(manId);
+        int womanIdNum = Integer.parseInt(womanId);
+        chatDao.chatStart(manIdNum,womanIdNum);
     }
 }
