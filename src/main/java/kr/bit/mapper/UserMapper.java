@@ -44,4 +44,10 @@ public interface UserMapper {
 
     @Select("select nickname from users where user_id=#{userId}")
     String getNickname(int userId);
+
+    @Select("select gender from user_profiles where user_id=#{userId}")
+    String getGender(int userId);
+
+    @Update("update points set firewood=firewood-1 where user_id=#{userId}")
+    void updateFirewood(int userId);
 }

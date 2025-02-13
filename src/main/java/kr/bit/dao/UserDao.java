@@ -57,4 +57,11 @@ public class UserDao {
     public String getNickname(int userId){
         return userMapper.getNickname(userId);
     }
+
+    public String getGender(int userId){
+        return userMapper.getGender(userId);
+    }
+    public  void updateFirewood(int userId){
+        userMapper.updateFirewood(userId);
+    }
 }

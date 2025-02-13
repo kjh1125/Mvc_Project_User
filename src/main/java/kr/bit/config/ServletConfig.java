@@ -19,10 +19,13 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"kr.bit.controller", "kr.bit.service", "kr.bit.dao", "kr.bit.mapper", "kr.bit.security", "kr.bit.dto","kr.bit.restcontroller"})
+@ComponentScan(basePackages = {"kr.bit.controller", "kr.bit.service", "kr.bit.dao", "kr.bit.mapper", "kr.bit.security", "kr.bit.dto"})
 public class ServletConfig implements WebMvcConfigurer {
 
     @Override
@@ -111,6 +114,12 @@ public class ServletConfig implements WebMvcConfigurer {
         resolver.setMaxUploadSizePerFile(41943040); // 한번에 업로드 가능한 최대 크기 40MB
         resolver.setMaxInMemorySize(20971520); // 메모리 임계값
         return resolver;
+    }
+
+
+    @Bean
+    public JedisPool jedisPool(){
+        return new JedisPool("223.130.151.175", 6379);
     }
 
 }

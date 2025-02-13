@@ -41,4 +41,8 @@ public class ChatDao {
     public ChatRoom isEnter(int id){
         return chatMapper.isEnter(id);
     }
+
+    public void chatStart(int manId, int womanId){
+        chatMapper.chatStart(manId,womanId);
+    }
 }
