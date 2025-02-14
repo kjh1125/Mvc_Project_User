@@ -18,6 +18,7 @@
         <org.hikaricp-version>3.4.1</org.hikaricp-version>
         <org.jwt-version>0.12.6</org.jwt-version>
         <org.apache.commons-version>2.7.0</org.apache.commons-version>
+        <redis.clients-version>5.2.0</redis.clients-version>
     </properties>
 
     <dependencies>
@@ -133,6 +134,14 @@
             <artifactId>commons-io</artifactId>
             <version>2.11.0</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/redis.clients/jedis -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>${redis.clients-version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>

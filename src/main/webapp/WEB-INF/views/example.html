@@ -24,6 +24,20 @@
 
     </div>
 </div>
-
+<script>
+    const handleAjax = (number) => {
+        $.ajax({
+            url: '/blindtime/ajax',
+            type: 'POST',
+            data: { num: number },
+            success: function(response) {
+                alert(response);
+            },
+            error: function(xhr, status, error) {
+                alert('오류 ' + error);
+            }
+        });
+    }
+</script>
 </body>
 </html>

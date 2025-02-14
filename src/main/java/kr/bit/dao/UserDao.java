@@ -13,15 +13,15 @@ public class UserDao {
     @Autowired
     private UserMapper userMapper;
 
-    public String googleLogin(String google_id){
+    public Integer googleLogin(String google_id){
         return userMapper.googleLogin(google_id);
     }
 
-    public String kakaoLogin(long kakao_id){
+    public Integer kakaoLogin(long kakao_id){
         return userMapper.kakaoLogin(kakao_id);
     }
 
-    public String naverLogin(String naver_id){
+    public Integer naverLogin(String naver_id){
         return userMapper.naverLogin(naver_id);
     }
 
@@ -56,5 +56,12 @@ public class UserDao {
 
     public String getNickname(int userId){
         return userMapper.getNickname(userId);
+    }
+
+    public String getGender(int userId){
+        return userMapper.getGender(userId);
+    }
+    public  void updateFirewood(int userId){
+        userMapper.updateFirewood(userId);
     }
 }

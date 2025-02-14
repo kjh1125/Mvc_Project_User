@@ -10,7 +10,11 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -25,16 +29,33 @@ public class ChatController {
     @Autowired
     private ChatService chatService;
 
+
+    @Autowired
+    private JedisPool jedisPool;
+
     @GetMapping("/list")
     public String chatList(Model model, HttpSession session) {
         int userId = (int) session.getAttribute("user");
-        System.out.println(userId);
+        String userIdStr = String.valueOf(userId);
+        boolean isWaiting = false;
+        try (Jedis jedis = jedisPool.getResource()) {
+            isWaiting = jedis.zrank("manList", userIdStr) != null ||
+                    jedis.zrank("manQueue", userIdStr) != null   ||
+                    jedis.zrank("womanQueue", userIdStr) != null ||
+                    jedis.zrank("womanList", userIdStr) != null;
+        }
+
+        model.addAttribute("waiting",isWaiting);
         Point point = userService.getPoint(userId);
         model.addAttribute("firewood", point.getFirewood());
         List<ChatRoomDTO> chatRoomList = chatService.getChatRoomsByUserId(userId);
-        System.out.println(chatRoomList);
         model.addAttribute("chatRoomList", chatRoomList);
         return "chat/chatList";
+    }
+
+    @GetMapping("/room")
+    public String chatRoom(Model model, HttpSession session) {
+        return "chat/chatRoom";
     }
 
 }

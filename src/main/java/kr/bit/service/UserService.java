@@ -15,15 +15,15 @@ public class UserService {
     @Autowired
     private UserDao userDao;
 
-    public String googleLogin(String google_id){
+    public Integer googleLogin(String google_id){
         return userDao.googleLogin(google_id);
     }
 
-    public String kakaoLogin(long kakao_id){
+    public Integer kakaoLogin(long kakao_id){
         return userDao.kakaoLogin(kakao_id);
     }
 
-    public String naverLogin(String naver_id){
+    public Integer naverLogin(String naver_id){
         return userDao.naverLogin(naver_id);
     }
 
@@ -57,6 +57,14 @@ public class UserService {
 
     public Point getPoint(int userId){
         return userDao.getPoint(userId);
+    }
+
+    public String getGender(int userId){
+        return userDao.getGender(userId);
+    }
+
+    public  void updateFirewood(int userId){
+        userDao.updateFirewood(userId);
     }
 
 }

@@ -22,11 +22,31 @@
             <button type="submit">로그아웃</button>
         </form>
 
+        <button onclick="ping()">핑</button>
+
     </div>
     <div th:replace="fragments/footer.html :: footer">
 
     </div>
 </div>
+
+<script>
+    const ping = () => {
+        $.ajax({
+            url: '/blindtime/chat/ping',  // 채팅방 입장 요청 URL
+            type: 'POST',
+            data: { room_id: 1 },
+            success: function(response) {
+                alert(response);
+            },
+            error: function(xhr, status, error) {
+                // 오류 처리
+                alert('오류 ' + error);
+            }
+        });
+    }
+
+</script>
 
 </body>
 </html>

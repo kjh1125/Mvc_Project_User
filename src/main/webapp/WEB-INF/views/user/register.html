@@ -605,7 +605,7 @@
         const inputValue = event.target.value;
         if(event.key==='Enter'){
             event.preventDefault();
-            if(inputValue.trim !== ''){
+            if(inputValue != '' ){
                 nextPage(number);
                 switch(number){
                     case 3:{

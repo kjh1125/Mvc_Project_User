@@ -18,46 +18,75 @@
 
 <div class="mobile-view">
     <div class="back-view" style="position: relative; min-height:100vh; background-color: #f8f9fa;">
-        <div class="p-4 mb-4">
+        <div class="p-1 mb-5">
             <h4>채팅목록</h4>
             <a href="#">
-                <div class="d-flex align-items-center justify-content-between" style="background: #D9D9D9; height: 10%;">
-                    <div style="width:20%"></div>
-                    <div style="width:17.5%"></div>
-                    <div style="width:25%">
-                        <span class="fs-2">매칭하기</span>
+                <div th:if="${waiting}">
+                    <div class="d-flex align-items-center justify-content-between" style="background: #D9D9D9; height: 35%;">
+                        <div style="width:20%"></div>
+                        <div style="width:17.5%"></div>
+                        <div style="width:25%" class="m-2">
+                            <span class="fs-2">매칭중...</span>
+                        </div>
+                        <div class="d-flex align-items-center" style="width:17.5%"></div>
+                        <div style="width:20%"></div>
                     </div>
-                    <div class="d-flex align-items-center" style="width:17.5%">
-                        <i class="fs-1 bi bi-fire text-danger"></i>
-                        <span class="fs-2" th:text="${firewood}"/>
+                </div>
+                <div th:unless="${waiting}">
+                    <div th:if="${firewood}>0">
+                        <div class="d-flex align-items-center justify-content-between" style="background: #D9D9D9; height: 15%;" onclick="matchStart()">
+                            <div style="width:20%"></div>
+                            <div style="width:17.5%"></div>
+                            <div style="width:25%">
+                                <span class="fs-2">매칭하기</span>
+                            </div>
+                            <div class="d-flex align-items-center" style="width:17.5%">
+                                <i class="fs-1 bi bi-fire text-danger"></i>
+                                <span class="fs-2" id="firewood" th:text="${firewood}"/>
+                            </div>
+                            <div style="width:20%">
+                                <i class="fs-2 bi bi-plus-circle"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div style="width:20%">
-                        <i class="fs-2 bi bi-plus-circle" id="icon"></i>
+                    <div th:unless="${firewood}>0">
+                        <div class="d-flex align-items-center justify-content-between" style="background: #D9D9D9; height: 15%;">
+                            <div style="width:20%"></div>
+                            <div style="width:17.5%"></div>
+                            <div style="width:25%">
+                                <span class="fs-2 text-secondary">매칭하기</span>
+                            </div>
+                            <div class="d-flex align-items-center" style="width:17.5%">
+                                <i class="fs-1 bi bi-fire"></i>
+                                <span class="fs-2" id="firewoodDie" th:text="0"/>
+                            </div>
+                            <div style="width:20%">
+                                <i class="fs-2 bi bi-plus-circle"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </a>
             <div th:each="chat:${chatRoomList}">
-                <div class="mt-4 d-flex flex-row justify-content-between align-items-center">
-                    <div class="d-flex flex-row align-items-center" style="width:15%">
-                        <img th:src="@{/images/profile-icon/{imageId}.jpg(imageId=${chat.profileImageId})}" alt="아이콘"  style="width:80%; height:auto;  border-radius: 50%;"/>
-                    </div>
-                    <div class="d-flex flex-column" style="width:85%">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="fs-4" th:text="${chat.nickname}"></div>
-                            <div th:id="'timer'+${chat.chatRoomId}">
-                                <span th:id="${chat.chatRoomId}+'-endTime'" class="d-none" th:text="${chat.endTime}"></span>
-                                대화종료시간: <span th:id="'remainingTime-'+${chat.chatRoomId}"></span>
-                            </div>
+                <div class="mt-4 d-flex flex-row justify-content-between align-items-center" >
+                    <div th:switch="${chat.sessionStatus}">
+                        <div th:case="wait" th:onclick="'handleEnterRoom('+${chat.chatRoomId}+')'">
+                            <div th:replace="chat/chat-card :: cardTemplate(chat=${chat})"></div>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div th:text="${chat.content}">
-                                채팅 내용
-                            </div>
-                            <div>
-                                <div th:if="${chat.unReadCount > 0}">
-                                    <span class="badge rounded-circle bg-danger" th:text="${chat.unReadCount}"></span>
-                                </div>
-                            </div>
+                        <div th:case="on">
+                            <a href="">
+                            <div th:replace="chat/chat-card :: cardTemplate(chat=${chat})"></div>
+                            </a>
+                        </div>
+                        <div th:case="end">
+                            <a href="">
+                            <div th:replace="chat/chat-card :: cardTemplate(chat=${chat})"></div>
+                            </a>
+                        </div>
+                        <div th:case="continue">
+                            <a href="">
+                            <div th:replace="chat/chat-card :: cardTemplate(chat=${chat})"></div>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -69,6 +98,38 @@
 </div>
 
 <script>
+    const matchStart = () =>{
+        $.ajax({
+            url: '/blindtime/chat/matchStart',
+            type: 'POST',
+            data: { },
+            success: function(response) {
+                alert(response);
+                window.location.reload();
+            },
+            error: function(xhr, status, error) {
+                alert('오류 ' + error);
+            }
+        });
+    }
+
+    const handleEnterRoom = (roomId) => {
+        $.ajax({
+            url: '/blindtime/chat/roomEnter',  // 채팅방 입장 요청 URL
+            type: 'POST',
+            data: { room_id: roomId },
+            success: function(response) {
+                // 성공적인 응답 처리
+                alert(response); // 예: "채팅방에 성공적으로 접속하였습니다."
+                // 추가로, 채팅방 UI 업데이트 등을 할 수 있습니다.
+            },
+            error: function(xhr, status, error) {
+                // 오류 처리
+                alert('채팅방 접속 실패: ' + error);
+            }
+        });
+    }
+
     const updateTimer = () =>{
         const timerElements = document.querySelectorAll("div[id^='timer']");
 
