@@ -78,6 +78,14 @@ public class UserController {
         }
 
         try {
+            // 디렉토리 경로 생성
+            Path uploadPath = Paths.get(uploadDir, "user_photos");
+
+            // 디렉토리가 존재하지 않으면 생성
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
             // 파일 저장 경로 설정 (예: /path/to/upload/directory)
             String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
             System.out.println(fileName);

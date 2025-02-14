@@ -1,7 +1,9 @@
 package kr.bit.controller;
 
-import kr.bit.beans.Board;
+import kr.bit.entity.Board;
 import kr.bit.beans.Comment;
+import kr.bit.service.BoardService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +19,8 @@ import java.util.List;
 @Controller
 @RequestMapping("/board")
 public class BoardController {
+    @Autowired
+    BoardService boardService;
 
     // 현재 Timestamp 생성
     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -39,8 +43,8 @@ public class BoardController {
         board1.setNickname("123");
         board1.setTitle("안녕하세요");
         board1.setContent("오늘 가입했어요");
-        board1.setHeartCount(2);
-        board1.setCreatedAt(formattedTime);
+        board1.setHeart_count(2);
+        board1.setCreated_at(formattedTime);
 
         List<Comment> commentList = new ArrayList<>();
         Comment comment1 = new Comment(1, 2, 3, "댓글 내용", formattedTime,"치킨1");
@@ -66,8 +70,8 @@ public class BoardController {
 
     @PostMapping("/add")
     public String addBoard(@ModelAttribute Board board) {
-        // 게시글 저장 로직 추가 (예: 서비스 호출)
-        System.out.println(board.getTitle());
+
+        boardService.insertBoard(board);
         return "redirect:/board/list";
     }
 
