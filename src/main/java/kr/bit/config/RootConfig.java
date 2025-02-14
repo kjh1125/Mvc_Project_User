@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.sql.DataSource;
 
@@ -34,9 +35,15 @@ public class RootConfig {
     }
 
     @Bean
-    public SqlSessionFactory sessionFactory() throws Exception{
+    public SqlSessionFactory sessionFactory(DataSource dataSource) throws Exception {
         SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
-        sessionFactoryBean.setDataSource(dataSource());
+        sessionFactoryBean.setDataSource(dataSource);
+
+        // ✅ XML Mapper 파일을 로드할 수 있도록 설정 추가
+        sessionFactoryBean.setMapperLocations(
+                new PathMatchingResourcePatternResolver().getResources("classpath:kr/bit/mapper/*.xml")
+        );
+
         return sessionFactoryBean.getObject();
     }
 

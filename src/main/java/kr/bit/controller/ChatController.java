@@ -72,6 +72,12 @@ public class ChatController {
         model.addAttribute("receiverId", receiverId);
         model.addAttribute("chatRoom", chatRoom);
         model.addAttribute("endTime", chatRoom.getEndTime());
+        System.out.println(roomId);
+        System.out.println(messageList);
+        System.out.println(userId);
+        System.out.println(receiverId);
+        System.out.println(chatRoom);
+        System.out.println(chatRoom.getEndTime());
         return "chat/chatRoom";  // 뷰 이름
     }
 

@@ -1,0 +1,54 @@
+/*board-detail*/
+.card {
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-box {
+    background-color: #f0f0f5;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.input-box {
+    position: fixed; /* 화면 하단에 고정 */
+    bottom: 60px; /* 바텀 메뉴 높이만큼 위로 이동 */
+    width: 100%;
+    max-width: 580px;
+    background: white;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    z-index: 1000; /* 다른 요소 위에 배치 */
+}
+
+.input-box input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.input-box button {
+    margin-left: 10px;
+    padding: 8px 12px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.input-box button:hover {
+    background-color: #0056b3;
+}
+.container {
+    padding-bottom: 110px; /* input-box의 높이 + 여유공간 */
+}

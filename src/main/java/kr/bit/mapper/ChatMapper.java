@@ -39,8 +39,8 @@ public interface ChatMapper {
     @Select("select end_time from chat_rooms where id=#{roomId}")
     Timestamp getEndTime(int roomId);
 
-    @Select("select man_id, woman_id, end_time from chat_rooms where id=#{roomId}")
-    ChatRoom getChatRoom(int roomId);
+    @Select("select man_id as manId, woman_id as womanId, end_time as endTime from chat_rooms where id=#{roomId}")
+    ChatRoom getChatRoom(@Param("roomId")int roomId);
 
     @Select("select count(id) from reports where report_content=#{roomId} and report_type='room'")
     Integer getReportCount(int roomId);

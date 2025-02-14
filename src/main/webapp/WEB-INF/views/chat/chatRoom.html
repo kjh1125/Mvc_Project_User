@@ -120,7 +120,7 @@
                         <div class="d-flex align-items-center justify-content-between p-4 pb-2">
                             <div>
                                 <a th:href="@{/chat/list}">
-                                    <i class="fs-4 bi bi-arrow-left" onclick="prevPage(11)"></i>
+                                    <i class="fs-4 bi bi-arrow-left"></i>
                                 </a>
                                 <span class="ps-2 fs-4">
                                     닉네임
@@ -130,7 +130,7 @@
                                 <i class="fs-4 bi bi-three-dots-vertical"></i>
                                 </div>
                         </div>
-                        <div th:if="${endTime.length()>0}">
+                        <div th:if="${endTime}">
                         <div class="d-flex justify-content-around m-auto border-bottom" style="width: 100%;">
                             <div style="width:25%"></div>
                             <div class="d-flex justify-content-end pe-1" style="width:25%">
@@ -142,7 +142,7 @@
                             </div>
                         </div>
                         </div>
-                        <div th:unless="${endTime.length()>0}">
+                        <div th:unless="${endTime}">
                             <div class="d-flex justify-content-around m-auto border-bottom" style="width: 100%;">
                                 <div style="width:25%"></div>
                                 <div class="d-flex justify-content-center pe-1" style="width:50%">
