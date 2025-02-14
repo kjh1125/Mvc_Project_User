@@ -1,7 +1,7 @@
 package kr.bit.controller;
 
 import kr.bit.entity.Board;
-import kr.bit.beans.Comment;
+import kr.bit.entity.Comment;
 import kr.bit.service.BoardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

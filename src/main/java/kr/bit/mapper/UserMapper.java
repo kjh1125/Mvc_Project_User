@@ -1,6 +1,6 @@
 package kr.bit.mapper;
 
-import kr.bit.beans.*;
+import kr.bit.entity.*;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
@@ -34,7 +34,7 @@ public interface UserMapper {
     void createUserHobby(UserHobby userHobby);
 
     @Update("update user_profiles set photo_image_url=#{photoImageUrl} where user_id=#{userId}")
-    void updateUserProfile(int userId, String photoImageUrl);
+    void updateUserProfile(UserProfile userProfile);
 
     @Select("select * from points where user_id=#{userId}")
     Point getPoint(int userId);

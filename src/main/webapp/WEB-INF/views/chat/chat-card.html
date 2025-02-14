@@ -6,12 +6,24 @@
         <div class="d-flex flex-column" style="width:85%">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="fs-4" th:text="${chat.nickname}"></div>
-                <div th:if="${chat.sessionStatus == 'on' or chat.sessionStatus == 'end'}">
+                <div th:if="${chat.sessionStatus == 'on'}">
                     <div th:id="'timer'+${chat.chatRoomId}">
+                        <span th:text="${chat.chatRoomId}" class="room-id d-none"></span>
                         <span th:id="${chat.chatRoomId}+'-endTime'" class="d-none" th:text="${chat.endTime}"></span>
                         대화종료시간: <span th:id="'remainingTime-'+${chat.chatRoomId}"></span>
+                        <span th:text="${chat.sessionStatus}" class="room-status d-none"></span>
                     </div>
                 </div>
+
+                <div th:if="${chat.sessionStatus == 'end'}">
+                    <div th:id="'timer'+${chat.chatRoomId}">
+                        <span th:text="${chat.chatRoomId}" class="room-id d-none"></span>
+                        <span th:id="${chat.chatRoomId}+'-endTime'" class="d-none" th:text="${chat.endTime}"></span>
+                        선택까지: <span th:id="'remainingTime-'+${chat.chatRoomId}"></span>
+                        <span th:text="${chat.sessionStatus}" class="room-status d-none"></span>
+                    </div>
+                </div>
+
             </div>
             <div class="d-flex justify-content-between align-items-center">
                 <div th:text="${chat.content}">채팅 내용</div>

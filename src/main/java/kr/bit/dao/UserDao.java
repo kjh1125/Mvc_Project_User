@@ -1,6 +1,6 @@
 package kr.bit.dao;
 
-import kr.bit.beans.*;
+import kr.bit.entity.*;
 import kr.bit.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -42,8 +42,8 @@ public class UserDao {
         userMapper.createUserHobby(userHobby);
     }
 
-    public void updateUserProfile(int userId, String photoImageUrl){
-        userMapper.updateUserProfile(userId, photoImageUrl);
+    public void updateUserProfile(UserProfile userprofile){
+        userMapper.updateUserProfile(userprofile);
     }
 
     public Point getPoint(int userId){

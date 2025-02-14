@@ -121,8 +121,11 @@ public class NaverLoginController {
             Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            String gender = userService.getGender(userId);
             HttpSession session = request.getSession();
-            session.setAttribute("user", userId);  // 세션에 사용자 ID 저장
+            session.setAttribute("user", userId);
+            session.setAttribute("gender", gender);
+
             // 세션 ID를 쿠키로 설정
             Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());  // 세션 ID를 쿠키에 담습니다
             sessionCookie.setPath("/");  // 전체 사이트에 대해 쿠키가 유효하도록 설정

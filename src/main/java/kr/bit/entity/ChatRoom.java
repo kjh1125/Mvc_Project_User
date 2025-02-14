@@ -1,4 +1,4 @@
-package kr.bit.beans;
+package kr.bit.entity;
 
 import lombok.Data;
 import java.sql.Timestamp;
@@ -14,4 +14,5 @@ public class ChatRoom {
     private boolean womanContinue;          // is_continue_2 -> isContinue2
     private String sessionStatus;         // session_status -> sessionStatus
     private Timestamp endTime;
+    private int outId;
 }

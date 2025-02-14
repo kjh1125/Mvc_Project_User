@@ -1,11 +1,10 @@
 package kr.bit.mapper;
 
-import kr.bit.beans.ChatRoom;
-import kr.bit.beans.Message;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import kr.bit.entity.ChatRoom;
+import kr.bit.entity.Message;
+import org.apache.ibatis.annotations.*;
+
+import java.sql.Timestamp;
 import java.util.List;
 
 public interface ChatMapper {
@@ -21,19 +20,32 @@ public interface ChatMapper {
     @Select("select count(id) from messages where room_id=#{roomId} and is_read=false")
     Integer getUnReadCountByRoomId(int roomId);
 
-    @Update("update chat_rooms set session_status=#{status} where id=#{id}")
-    void updateSessionStatus(@Param("status") String status,@Param("id")int id);
+    @Update("UPDATE chat_rooms SET man_enter = true WHERE id = #{roomId}")
+    void updateManEnter(int roomId);
 
-    @Update("UPDATE chat_rooms " +
-            "SET man_enter = CASE WHEN man_id = #{userId} THEN TRUE ELSE enter_1 END, " +
-            "woman_enter = CASE WHEN woman_id = #{userId} THEN TRUE ELSE enter_2 END " +
-            "WHERE id = #{roomId}")
-    void updateIsEnter(@Param("userId") int userId, @Param("roomId") int roomId);
+    @Update("UPDATE chat_rooms SET woman_enter = true WHERE id = #{roomId}")
+    void updateWomanEnter(int roomId);
 
-    @Select("select enter_1 as enter1 ,enter_2 as enter2 from chat_rooms where id=#{id}")
-    ChatRoom isEnter(int id);
+    @Select("SELECT (man_enter AND woman_enter) AS both_entered FROM chat_rooms WHERE id = #{roomId}")
+    boolean getBothEnteredStatus(int roomId);
 
-    @Insert("INSERT  into chat_rooms(man_id,woman_id) values(#{manId},#{womanId})")
-    void chatStart(@Param("manId")int manId,@Param("womanId") int womanId);
+    @Insert("INSERT INTO chat_rooms(man_id, woman_id) VALUES(#{manId}, #{womanId})")
+    @Options(useGeneratedKeys = true)
+    void chatStart(ChatRoom chatRoom);
+
+    @Update("UPDATE chat_rooms SET session_status = #{sessionStatus}, end_time = DATE_ADD(NOW(), INTERVAL #{interval} MINUTE) WHERE id = #{roomId}")
+    void updateChatRoom(@Param("roomId")int roomId, @Param("sessionStatus") String sessionStatus, @Param("interval")int interval);
+
+    @Select("select end_time from chat_rooms where id=#{roomId}")
+    Timestamp getEndTime(int roomId);
+
+    @Select("select man_id as manId, woman_id as womanId, end_time as endTime from chat_rooms where id=#{roomId}")
+    ChatRoom getChatRoom(@Param("roomId")int roomId);
+
+    @Select("select count(id) from reports where report_content=#{roomId} and report_type='room'")
+    Integer getReportCount(int roomId);
+
+    @Delete("delete from chat_rooms where id=#{roomId}")
+    void deleteChatRoom(int roomId);
 
 }
