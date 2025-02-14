@@ -3,13 +3,11 @@ package kr.bit.controller;
 import kr.bit.entity.Board;
 import kr.bit.entity.Comment;
 import kr.bit.service.BoardService;
+import kr.bit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.time.format.DateTimeFormatter;
@@ -30,21 +28,18 @@ public class BoardController {
     String formattedTime = timestamp.toLocalDateTime().format(formatter);
 
     @GetMapping(value = "/list")
-    public String boardList(){
+    public String boardList(Model model){
+        List<Board> boards = boardService.getBoards();
+
+        model.addAttribute("boards",boards);
 
         return "board/boardList";
     }
 
     @GetMapping(value = "/detail")
-    public String boardDetail(Model model){
-
+    public String boardDetail(Model model, @RequestParam("id") int id){
         //샘플 게시글 생성
-        Board board1 = new Board();
-        board1.setNickname("123");
-        board1.setTitle("안녕하세요");
-        board1.setContent("오늘 가입했어요");
-        board1.setHeart_count(2);
-        board1.setCreated_at(formattedTime);
+        Board board = boardService.getBoard(id);
 
         List<Comment> commentList = new ArrayList<>();
         Comment comment1 = new Comment(1, 2, 3, "댓글 내용", formattedTime,"치킨1");
@@ -56,7 +51,7 @@ public class BoardController {
         commentList.add(comment2);
         commentList.add(comment2);
 
-        model.addAttribute("board",board1);
+        model.addAttribute("board",board);
         model.addAttribute("commentList",commentList);
 
         return "board/boardDetail";

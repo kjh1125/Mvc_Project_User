@@ -67,4 +67,7 @@ public class UserService {
         userDao.updateFirewood(userId);
     }
 
+    public String getNickname(int userId){
+        return userDao.getNickname(userId);
+    }
 }
