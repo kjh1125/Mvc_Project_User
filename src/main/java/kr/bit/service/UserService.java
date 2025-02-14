@@ -1,7 +1,7 @@
 package kr.bit.service;
 
-import kr.bit.beans.*;
 import kr.bit.dao.UserDao;
+import kr.bit.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

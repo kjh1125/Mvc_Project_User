@@ -1,10 +1,9 @@
-package kr.bit.beans;
+package kr.bit.entity;
 
 import lombok.Data;
 
 @Data
 public class Hobby {
     private int id;
-    private int userId;
     private String name;
 }

@@ -1,9 +1,8 @@
-package kr.bit.beans;
+package kr.bit.bean;
 
+import kr.bit.entity.User;
+import kr.bit.entity.UserProfile;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Data
 public class UserJoinBean {

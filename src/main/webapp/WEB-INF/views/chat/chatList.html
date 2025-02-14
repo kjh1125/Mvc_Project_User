@@ -70,11 +70,16 @@
             <div th:each="chat:${chatRoomList}">
                 <div class="mt-4 d-flex flex-row justify-content-between align-items-center" >
                     <div th:switch="${chat.sessionStatus}">
-                        <div th:case="wait" th:onclick="'handleEnterRoom('+${chat.chatRoomId}+')'">
-                            <div th:replace="chat/chat-card :: cardTemplate(chat=${chat})"></div>
+                        <div th:case="wait">
+                            <form th:action="@{/chat/roomEnter}" method="post" th:id="'chatForm' + ${chat.chatRoomId}">
+                                <input type="hidden" name="room_id" th:value="${chat.chatRoomId}" />
+                                <div th:onclick="|document.getElementById('chatForm' + ${chat.chatRoomId}).submit()|">
+                                    <div th:replace="chat/chat-card :: cardTemplate(chat=${chat})"></div>
+                                </div>
+                            </form>
                         </div>
                         <div th:case="on">
-                            <a href="">
+                            <a th:href="@{'/chat/room/' + ${chat.chatRoomId}}">
                             <div th:replace="chat/chat-card :: cardTemplate(chat=${chat})"></div>
                             </a>
                         </div>
@@ -130,58 +135,86 @@
         });
     }
 
-    const updateTimer = () =>{
+    const updateTimer = () => {
         const timerElements = document.querySelectorAll("div[id^='timer']");
 
         // 각 timer div를 순회
         timerElements.forEach(timerElement => {
-            // 해당 div 내부의 첫 번째 span 요소 찾기
-            const firstSpan = timerElement.querySelector("span");
+            // 해당 div 내부의 첫 번째 span 요소 찾기 (roomId가 있는 span)
+            const roomIdSpan = timerElement.querySelector("span.room-id");
 
-            if (firstSpan) {
-                const endTime = firstSpan.textContent; // 'endTime' 값을 가져옴
+            if (roomIdSpan) {
+                const roomId = roomIdSpan.textContent; // roomId 값을 가져옴
+                const roomStatus = timerElement.querySelector("span.room-status").textContent;
+                // 두 번째 span에서 endTime 값 가져오기
+                const endTimeSpan = timerElement.querySelector(`span[id='${roomId}-endTime']`);
+                if (endTimeSpan) {
+                    const endTime = endTimeSpan.textContent; // 'endTime' 값을 가져옴
 
-                // endTime을 Date 객체로 변환 (예: "2025-02-12T14:30:00" 형식)
-                const endDate = new Date(endTime);
+                    // endTime을 Date 객체로 변환 (예: "2025-02-12T14:30:00" 형식)
+                    const endDate = new Date(endTime);
 
-                // 한국 시간으로 변환 (UTC+9)
-                const koreaOffset = 9 * 60; // 한국은 UTC+9 (9시간)
-                const localOffset = endDate.getTimezoneOffset(); // 현재 지역의 시간대 오프셋 (분 단위)
+                    // 한국 시간으로 변환 (UTC+9)
+                    const koreaOffset = 9 * 60; // 한국은 UTC+9 (9시간)
+                    const localOffset = endDate.getTimezoneOffset(); // 현재 지역의 시간대 오프셋 (분 단위)
 
-                // 한국 시간으로 맞추기 위해 오프셋 차이를 보정
-                endDate.setMinutes(endDate.getMinutes() + (localOffset + koreaOffset));
+                    // 한국 시간으로 맞추기 위해 오프셋 차이를 보정
+                    endDate.setMinutes(endDate.getMinutes() + (localOffset + koreaOffset));
 
-                const currentTime = new Date(); // 현재 시간 (로컬 시간)
+                    const currentTime = new Date(); // 현재 시간 (로컬 시간)
 
-                // 현재 시간도 한국 시간으로 맞추기
-                const currentOffset = currentTime.getTimezoneOffset();
-                currentTime.setMinutes(currentTime.getMinutes() + (currentOffset + koreaOffset));
+                    // 현재 시간도 한국 시간으로 맞추기
+                    const currentOffset = currentTime.getTimezoneOffset();
+                    currentTime.setMinutes(currentTime.getMinutes() + (currentOffset + koreaOffset));
 
-                // 시간 차이 계산 (초 단위)
-                const timeDifference = (endDate - currentTime) / 1000; // 밀리초를 초로 변환
+                    // 시간 차이 계산 (초 단위)
+                    const timeDifference = (endDate - currentTime) / 1000; // 밀리초를 초로 변환
 
-                // 시간이 지나지 않았으면 0 이하가 될 수 있기 때문에 0으로 처리
-                const secondSpan = timerElement.querySelector("span:nth-child(2)");
-                if (secondSpan) {
-                    if (timeDifference > 0) {
-                        const minutes = Math.floor(timeDifference / 60); // 분 계산
-                        const seconds = Math.floor(timeDifference % 60); // 초 계산
-                        secondSpan.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
-                    } else {
-                        // 시간이 종료된 경우, 두 번째 span에 "시간 종료" 표시
-                        secondSpan.textContent = "시간 종료";
+                    // remainingTime을 표시할 세 번째 span을 찾기
+                    const remainingTimeSpan = timerElement.querySelector(`span[id='remainingTime-${roomId}']`);
+                    if (remainingTimeSpan) {
+                        if (timeDifference > 0) {
+                            if(roomStatus === 'on') {
+                                const minutes = Math.floor(timeDifference / 60); // 분 계산
+                                const seconds = Math.floor(timeDifference % 60); // 초 계산
+                                remainingTimeSpan.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+                            }
+                            else if(roomStatus === 'end') {
+                                const hours = Math.floor(timeDifference / 3600); // 시간 계산 (3600초 = 1시간)
+                                const minutes = Math.floor((timeDifference % 3600) / 60); // 분 계산 (남은 초에서 분 계산)
+                                const seconds = Math.floor(timeDifference % 60); // 초 계산 (남은 초에서 초 계산)
+                                remainingTimeSpan.textContent = `${hours}:${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+                            }
+                        } else {
+                            // 시간이 종료된 경우, "시간 종료" 표시
+                            remainingTimeSpan.textContent = "시간 종료";
+
+                            // 시간 종료 시 AJAX 요청으로 roomEnd 호출
+                            $.ajax({
+                                url: `/blindtime/chat/end/${roomId}`,
+                                type: 'POST',
+                                data: {
+                                    status: roomStatus
+                                },
+                                success: function(response) {
+                                    window.location.reload();
+                                },
+                                error: function(xhr, status, error) {
+                                    console.error("Error ending room:", error);
+                                }
+                            });
+                        }
                     }
                 }
             }
         });
-    }
+    };
+
     updateTimer();
 
     setInterval(() => {
         updateTimer();
     }, 1000); // 1000ms = 1초
-
-
 
 </script>
 

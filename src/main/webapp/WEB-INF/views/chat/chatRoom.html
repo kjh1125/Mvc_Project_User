@@ -20,7 +20,7 @@
             margin-bottom:50px;
             padding: 10px;
         }
-        .message {
+        .message-left {
             display: flex;
             align-items: center;
             padding: 10px;
@@ -30,6 +30,7 @@
             flex-direction: row-reverse;
             align-items: center;
             margin-right: 20px;
+            margin-bottom: 10px;
         }
         .message-text-left{
             margin-left: 10px;
@@ -111,9 +112,9 @@
 </head>
 <body>
 <div class="mobile-view">
-    <div class="back-view p-0">
+    <div class="back-view pt-5 p-0">
         <header class="mobile-header">
-            <div class="height-controller">
+            <div class="height-controller mt-5">
                 <div class="top-nav">
                     <div class="d-flex flex-column" style="width: 100%;">
                         <div class="d-flex align-items-center justify-content-between p-4 pb-2">
@@ -129,13 +130,26 @@
                                 <i class="fs-4 bi bi-three-dots-vertical"></i>
                                 </div>
                         </div>
+                        <div th:if="${endTime.length()>0}">
                         <div class="d-flex justify-content-around m-auto border-bottom" style="width: 100%;">
                             <div style="width:25%"></div>
                             <div class="d-flex justify-content-end pe-1" style="width:25%">
                             대화종료:
                             </div>
-                            <div style="width:50%">
-                                9:03
+                            <div class="timer" style="width:50%">
+                                <span th:text="${endTime}" class="d-none"></span>
+                                <span>10:00</span>
+                            </div>
+                        </div>
+                        </div>
+                        <div th:unless="${endTime.length()>0}">
+                            <div class="d-flex justify-content-around m-auto border-bottom" style="width: 100%;">
+                                <div style="width:25%"></div>
+                                <div class="d-flex justify-content-center pe-1" style="width:50%">
+                                    상대방이 아직 들어오지 않았어요
+                                </div>
+                                <div style="width:25%">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -144,113 +158,136 @@
         </header>
 
         <div class="chat-container">
-            <div class="message">
-                <img th:src="@{/images/profile-icon/1.jpg}" alt="아이콘" style="width:10%; height:10%; border-radius: 50%;"/>
-                    <div class="message-text-left">
-                진짜 첫 번째 메시지
+            <!-- 메시지를 반복해서 출력 -->
+            <div th:each="message : ${messageList}">
+                <!-- userId가 같으면 오른쪽 배치 -->
+                <div th:if="${userId} == ${message.userId}" class="message-right">
+                    <div class="message-text-right">
+                        <span th:text="${message.messageContent}"></span>
                     </div>
-            </div>
-            <div class="message-right">
-                <div class="message-text-right">
-                ㅎㅇ
+                </div>
+
+                <!-- userId가 다르면 왼쪽 배치 -->
+                <div th:if="${userId} != ${message.userId}" class="message-left">
+                    <img th:src="@{/images/profile-icon/1.jpg}" alt="아이콘" style="width:10%; height:10%; border-radius: 50%;"/>
+                    <div class="message-text-left">
+                        <span th:text="${message.messageContent}"></span>
+                    </div>
                 </div>
             </div>
-            <div class="message">
-                <img th:src="@{/images/profile-icon/1.jpg}" alt="아이콘" style="width:10%; height:10%; border-radius: 50%;"/>
-                첫 번째 메시지
-            </div>            <div class="message">
-            <img th:src="@{/images/profile-icon/1.jpg}" alt="아이콘" style="width:10%; height:10%; border-radius: 50%;"/>
-            첫 번째 메시지
-        </div>            <div class="message">
-            <img th:src="@{/images/profile-icon/1.jpg}" alt="아이콘" style="width:10%; height:10%; border-radius: 50%;"/>
-            첫 번째 메시지
-        </div>            <div class="message">
-            <img th:src="@{/images/profile-icon/1.jpg}" alt="아이콘" style="width:10%; height:10%; border-radius: 50%;"/>
-            첫 번째 메시지
-        </div>            <div class="message">
-            <img th:src="@{/images/profile-icon/1.jpg}" alt="아이콘" style="width:10%; height:10%; border-radius: 50%;"/>
-            첫 번째 메시지
         </div>
-            <div class="message">
-                <img th:src="@{/images/profile-icon/1.jpg}" alt="아이콘" style="width:10%; height:10%; border-radius: 50%;"/>
-                첫 번째 메시지
-            </div>
-            <div class="message">
-                <img th:src="@{/images/profile-icon/1.jpg}" alt="아이콘" style="width:10%; height:10%; border-radius: 50%;"/>
-                첫 번째 메시지
-            </div>
-            <div class="message">
-                <img th:src="@{/images/profile-icon/1.jpg}" alt="아이콘" style="width:10%; height:10%; border-radius: 50%;"/>
-                첫 번째 메시지
-            </div>
-            <div class="message">
-                <img th:src="@{/images/profile-icon/1.jpg}" alt="아이콘" style="width:10%; height:10%; border-radius: 50%;"/>
-                첫 번째 메시지
-            </div>
-            <div class="message">
-                <img th:src="@{/images/profile-icon/1.jpg}" alt="아이콘" style="width:10%; height:10%; border-radius: 50%;"/>
-                첫 번째 메시지
-            </div>
 
-
-
-
-            <div class="message">
-                <img th:src="@{/images/profile-icon/1.jpg}" alt="아이콘" style="width:10%; height:10%; border-radius: 50%;"/>
-                두 번째 메시지
-            </div>
-
-            <div class="message">
-                <img th:src="@{/images/profile-icon/1.jpg}" alt="아이콘" style="width:10%; height:10%; border-radius: 50%;"/>
-                첫 번째 메시지
-            </div>
-        </div>
     </div>
-    <!-- src/main/resources/templates/fragments/footer.html -->
-    <footer th:fragment="footer" class="mobile-footer" xmlns:th="http://www.thymeleaf.org">
-        <style>
-
-        </style>
-
+    <footer class="mobile-footer">
         <div class="height-controller">
             <div class="bottom-nav">
                 <div style="width:93%">
-                    <div class="border border-info  rounded-pill"  style="background-color: #ECE6F0; width: 100%;">
-                    <label style="width:100%;">
-                        <input class="border-0 ms-1 bg-transparent" style="width:90%;" name="text" type="text"/>
-                    </label>
+                    <div class="border border-info rounded-pill" style="background-color: #ECE6F0; width: 100%;">
+                        <label style="width:100%;">
+                            <input id="roomId" type="hidden" th:value="${roomId}">
+                            <input id="receiverId" type="hidden" th:value="${receiverId}">
+                            <input id="chatInput" class="border-0 ms-1 bg-transparent" style="width:90%;" name="text" type="text"/>
+                        </label>
                     </div>
                 </div>
                 <div style="width:7%">
-                    <i class="fs-2 text-info bi bi-arrow-right-square-fill"></i>
+                    <div onclick="sendMessageToServer()">
+                        <i class="fs-2 text-info bi bi-arrow-right-square-fill"></i>
+                    </div>
                 </div>
             </div>
         </div>
-
     </footer>
-
-
-</div>
 </div>
 <script>
+
     window.onload = function() {
         let bottom = document.body.scrollHeight;
         window.scrollTo({top:bottom, left:0})
     }
 
-    const handleAjax = (number) => {
+    const sendMessageToServer = () => {
+        const roomId = document.getElementById('roomId').value; // roomId 가져오기
+        const msg = document.getElementById('chatInput').value; // 입력된 메시지 가져오기
+        const receiverId = document.getElementById('receiverId').value;
+
+        if (msg.trim() !== "") {
+            sendMessage(roomId, msg,receiverId); // Ajax로 메시지 전송
+        } else {
+            alert("메시지를 입력하세요.");
+        }
+    };
+
+    const sendMessage = (roomId, msg,receiverId) => {
         $.ajax({
-            url: '/blindtime/ajax',
+            url: `/blindtime/chat/send/${roomId}`,
             type: 'POST',
-            data: { num: number },
+            data: { msg: msg,
+                    receiverId: receiverId},
             success: function(response) {
-                alert(response);
+                alert(response); // 성공 메시지
+                document.getElementById('chatInput').value = ""; // 입력 필드 초기화
             },
             error: function(xhr, status, error) {
-                alert('오류 ' + error);
+                alert('오류: ' + error); // 에러 메시지
             }
         });
+    };
+
+    const updateSingleTimer = () => {
+        // .timer 클래스를 가진 div를 선택
+        const timerElement = document.querySelector(".timer");
+
+        if (timerElement) {
+            // 해당 div 내부의 첫 번째 span 요소 찾기 (endTime 값이 들어있음)
+            const firstSpan = timerElement.querySelector("span");
+
+            if (firstSpan) {
+                const endTime = firstSpan.textContent; // 'endTime' 값을 가져옴
+
+                // endTime을 Date 객체로 변환 (예: "2025-02-12T14:30:00" 형식)
+                const endDate = new Date(endTime);
+
+                // 한국 시간으로 변환 (UTC+9)
+                const koreaOffset = 9 * 60; // 한국은 UTC+9 (9시간)
+                const localOffset = endDate.getTimezoneOffset(); // 현재 지역의 시간대 오프셋 (분 단위)
+
+                // 한국 시간으로 맞추기 위해 오프셋 차이를 보정
+                endDate.setMinutes(endDate.getMinutes() + (localOffset + koreaOffset));
+
+                const currentTime = new Date(); // 현재 시간 (로컬 시간)
+
+                // 현재 시간도 한국 시간으로 맞추기
+                const currentOffset = currentTime.getTimezoneOffset();
+                currentTime.setMinutes(currentTime.getMinutes() + (currentOffset + koreaOffset));
+
+                // 시간 차이 계산 (초 단위)
+                const timeDifference = (endDate - currentTime) / 1000; // 밀리초를 초로 변환
+
+                // 시간이 지나지 않았으면 0 이하가 될 수 있기 때문에 0으로 처리
+                const timeDisplay = timerElement.querySelector("span:nth-child(2)");
+                if (timeDisplay) {
+                    if (timeDifference > 0) {
+                        const minutes = Math.floor(timeDifference / 60); // 분 계산
+                        const seconds = Math.floor(timeDifference % 60); // 초 계산
+                        timeDisplay.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+                    } else {
+                        // 시간이 종료된 경우, 두 번째 span에 "시간 종료" 표시
+                        timeDisplay.textContent = "시간 종료";
+                    }
+                }
+            }
+        }
     }
+
+    // 초기 타이머 업데이트
+    updateSingleTimer();
+
+    // 1초마다 타이머 업데이트
+    setInterval(() => {
+        updateSingleTimer();
+    }, 1000); // 1000ms = 1초
+
 </script>
 </body>
 </html>

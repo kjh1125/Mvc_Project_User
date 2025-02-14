@@ -1,6 +1,10 @@
 package kr.bit.controller;
 
-import kr.bit.beans.*;
+import kr.bit.entity.Hobby;
+import kr.bit.entity.Message;
+import kr.bit.entity.User;
+import kr.bit.bean.UserJoinBean;
+import kr.bit.entity.UserProfile;
 import kr.bit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -102,6 +106,7 @@ public class UserController {
 
         // 세션에 사용자 ID 저장
         session.setAttribute("user", user.getUserId());
+        session.setAttribute("gender",userProfile.getGender());
 
         // 세션 ID를 쿠키로 설정
         Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());  // 세션 ID를 쿠키에 담습니다
@@ -121,7 +126,10 @@ public class UserController {
         cookie.setPath("/");  // 애플리케이션의 루트 경로로 설정
         cookie.setMaxAge(0);  // 쿠키를 즉시 만료시킴
         response.addCookie(cookie);  // 응답에 쿠키 추가
+
+
         return "redirect:/login";
     }
+
 
 }

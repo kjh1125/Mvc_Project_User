@@ -1,7 +1,6 @@
 package kr.bit.service;
 
-import kr.bit.beans.ChatRoom;
-import kr.bit.beans.Message;
+import kr.bit.entity.ChatRoom;
 import kr.bit.dao.ChatDao;
 import kr.bit.dao.UserDao;
 import kr.bit.dto.ChatRoomDTO;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -96,28 +96,58 @@ public class ChatService {
         return chatRoomDTOs;
     }
 
-
-
-    public List<Message> getMessagesByRoomId(int roomId){
-        return chatDao.getMessagesByRoomId(roomId);
-    }
-
-
-    public void updateIsEnter(int userId, int roomId){
-        chatDao.updateIsEnter(userId, roomId);
-    }
-
-    public void isEnter(@Param("roomId") int id) {
-        ChatRoom chatRoom = chatDao.isEnter(id);
-        if(chatRoom.isManEnter()&&chatRoom.isWomanEnter()){
-            System.out.println("시작");
-            chatDao.updateSessionStatus("on",id);
+    public void chatEnter (int roomId, String gender) {
+        if(gender.equals("male")){
+            chatDao.updateManEnter(roomId);
+        }
+        else{
+            chatDao.updateWomanEnter(roomId);
+        }
+        if(chatDao.getBothEnteredStatus(roomId)){
+            chatDao.updateChatRoom(roomId,"on",10);
         }
     }
 
-    public void chatStart(String manId, String womanId){
-        int manIdNum = Integer.parseInt(manId);
-        int womanIdNum = Integer.parseInt(womanId);
-        chatDao.chatStart(manIdNum,womanIdNum);
+    public void chatStart(ChatRoom chatRoom) {
+        chatDao.chatStart(chatRoom);
+    }
+
+    public void timeEnd(int roomId,String status){
+        if (status.equals("on")){
+            chatDao.updateChatRoom(roomId,"end",24*60);
+        }
+        else {
+            if(chatDao.getReportCount(roomId)>0){
+                chatDao.updateChatRoom(roomId,"reported",0);
+            }
+            else{
+                chatDao.deleteChatRoom(roomId);
+            }
+        }
+    }
+
+    public ChatRoom getChatRoom(int roomId){
+        return chatDao.getChatRoom(roomId);
+    }
+
+    public String getEndTime(int roomId) {
+        // ChatDao에서 endTime을 가져옴
+        Timestamp endTime = chatDao.getEndTime(roomId);
+        String endTimeFormatted = "";
+
+        if (endTime != null) {
+            // 한국 시간대로 변환 후 ISO 8601 형식으로 포맷
+            ZonedDateTime zonedDateTime = endTime.toInstant()
+                    .atZone(ZoneId.of("Asia/Seoul"));
+            endTimeFormatted = zonedDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        }
+
+        // 현재 시간과 비교해 endTime이 과거일 경우 세션 상태를 업데이트
+        if (endTime != null && endTime.before(Timestamp.valueOf(LocalDateTime.now()))) {
+            chatDao.updateChatRoom(roomId,"end",24*60);
+        }
+
+        // 포맷된 endTime 반환
+        return endTimeFormatted;
     }
 }
