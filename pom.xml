@@ -13,7 +13,7 @@
         <org.thymeleaf-version>3.0.11.RELEASE</org.thymeleaf-version>
         <org.mybatis-version>3.4.6</org.mybatis-version>
         <org.mybatis-spring-version>1.3.2</org.mybatis-spring-version>
-        <org.lombok-version>1.18.12</org.lombok-version>
+        <org.lombok-version>1.18.20</org.lombok-version>
         <org.mysql-version>8.0.16</org.mysql-version>
         <org.hikaricp-version>3.4.1</org.hikaricp-version>
         <org.jwt-version>0.12.6</org.jwt-version>
@@ -141,7 +141,6 @@
             <artifactId>jedis</artifactId>
             <version>${redis.clients-version}</version>
         </dependency>
-
     </dependencies>
 
     <build>

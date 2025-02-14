@@ -10,84 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/board.css}">
 
-    <style>
-        .content-container {
-            width: 100%;
-            min-height: 95vh;
-            overflow-y: auto; /* 스크롤 가능 */
-            padding: 10px;
-            background-color: #f8f9fa;
-        }
-
-        /* 게시글 카드 스타일 */
-        .post-card {
-            background: white;
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .post-title {
-            font-weight: bold;
-            font-size: 15px;
-        }
-        .post-content {
-            color: gray;
-            font-size: 13px;
-        }
-        .post-footer {
-            font-size: 11px;
-            color: gray;
-        }
-        .like-comment {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .like-comment i {
-            color: red;
-        }
-
-        .commonLayoutFab{
-            display: block;
-            width: 100px;
-            min-width: 320px;
-            max-width: var(--max-width);
-            margin: 0 auto;
-            position: fixed;
-            left: 0;
-            right: -100px;
-            bottom: 0;
-            z-index: 200;
-        }
-        /* 플로팅 버튼 */
-        .fab-button {
-            background-color: purple;
-            border-radius: 50%;
-            color: white;
-            box-shadow: 0px 3px 5px rgba(0,0,0,0.2);
-            position: absolute;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap:12px;
-            bottom: 70px;
-            right: 0;
-            width: 45px;
-            height: 45px;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .fab{
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            box-sizing: border-box;
-        }
-    </style>
 </head>
 <body>
 
@@ -133,17 +57,17 @@
 
     <!-- Floating Button -->
     <aside class="commonLayoutFab">
-        <div class="fab-button">
+        <a th:href="@{/board/add}"><div class="fab-button" >
             <div class="fab">
                 <i class="bi bi-pencil"></i>
             </div>
         </div>
+        </a>
     </aside>
 
     <!-- footer.html 포함 -->
-    <div th:replace="fragments/footer.html :: footer">
+    <div th:replace="fragments/footer.html :: footer" />
 
-    </div>
 </div>
 
 </body>
