@@ -15,7 +15,6 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/boardDetail.css}">
 
-
 </head>
 <body>
 
@@ -41,7 +40,10 @@
                     </div>
                 </div>
                 <div class="mt-2">
-                    <i class="bi bi-heart-fill"></i> <span th:text="${board.heart_count}">1</span>
+                    <button style="background: none; border: none; padding: 0;">
+                        <i id="likeBtn" th:class="${checkLikeExists} ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
+                    </button>
+                    <span id="heartCount" th:text="${board.heart_count}">1</span>
                     <i class="bi bi-chat-dots"></i> <span th:text="${board.comment_count}">1</span>
                     <span class="ms-2 text-muted" th:text="${board.created_at}">25-02-05 16:06</span>
                 </div>
@@ -70,6 +72,46 @@
             <div th:replace="fragments/footer.html :: footer" />
     </div>
 </div>
+<script th:inline="javascript">
+    // 모델로 지정한 값 직접 가져오기
+    const user_Id = /*[[${session.user}]]*/ null; //세션에 있는 유저아이디 주입
+    const board_Id = [[${board.id}]]; //게시판 보드아이디
+    //좋아요 카운트 범위 가져오기
+    const heartCountSpan = document.getElementById("heartCount");
 
+    // DOMContentLoaded를 넣어서 DOM이 모두 Load된 후 해당 Action이 작동되도록 설정.
+    document.addEventListener('DOMContentLoaded', function() {
+    const likeBtn = document.querySelector('#likeBtn');
+
+    likeBtn.addEventListener('click', async function (e) {
+    e.preventDefault(); // 기본 동작 방지
+
+        try {
+            const response = await fetch('/blindtime/board/like', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // JSON 데이터임을 명시
+                },
+                body: JSON.stringify({
+                    "user_id": user_Id,
+                    "board_id": board_Id
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json(); // JSON 응답 받기
+                heartCountSpan.textContent = data.heartCount; // 좋아요 개수 업데이트
+
+                // 아이콘 클래스 토글
+                likeBtn.classList.toggle('bi-heart-fill',!data.liked);
+                likeBtn.classList.toggle('bi-heart',data.liked);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+
+    });
+</script>
 </body>
 </html>

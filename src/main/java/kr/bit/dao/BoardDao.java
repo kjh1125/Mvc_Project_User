@@ -1,6 +1,7 @@
 package kr.bit.dao;
 
 import kr.bit.entity.Board;
+import kr.bit.entity.Like;
 import kr.bit.mapper.BoardMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -23,5 +24,19 @@ public class BoardDao {
 
     public Board getBoard(int id){
         return boardMapper.getBoard(id);
+    }
+
+    public int checkLikeExists(Like like){return boardMapper.checkLikeExists(like);}
+
+    public void insertLike(Like like){
+        boardMapper.insertLike(like);
+    }
+
+    public void deleteLike(Like like){
+        boardMapper.deleteLike(like);
+    }
+
+    public int getHeartCount(int board_id){
+        return boardMapper.getHeartCount(board_id);
     }
 }

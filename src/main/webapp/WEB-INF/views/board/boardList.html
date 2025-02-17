@@ -29,6 +29,7 @@
                 <div class="post-footer" th:text="${board.created_at} + ' | ' + ${board.nickname}">25-02-05 16:06</div>
             </div>
         </div>
+    </div>
 
     <!-- Floating Button -->
     <aside class="commonLayoutFab">
@@ -41,7 +42,7 @@
     </aside>
 
     <!-- footer.html 포함 -->
-    <div th:replace="fragments/footer.html :: footer" />
+    <div th:replace="fragments/footer.html :: footer"> </div>
 
 </div>
 

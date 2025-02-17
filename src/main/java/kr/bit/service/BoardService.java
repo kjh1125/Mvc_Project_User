@@ -2,6 +2,7 @@ package kr.bit.service;
 
 import kr.bit.entity.Board;
 import kr.bit.dao.BoardDao;
+import kr.bit.entity.Like;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +40,23 @@ public class BoardService {
         board.setNickname(userService.getNickname(board.getWriter_id()));
 
         return board;
+    }
+
+    public boolean checkLikeExists(Like like){
+        int count = boardDao.checkLikeExists(like);
+        return count > 0; //0보다 클 경우 true 값 리턴
+    }
+
+    public void insertLike(Like like){
+        boardDao.insertLike(like);
+    }
+
+    public void deleteLike(Like like){
+        boardDao.deleteLike(like);
+    }
+
+    public int getHeartCount(int board_id){
+        return boardDao.getHeartCount(board_id);
     }
 
 }
