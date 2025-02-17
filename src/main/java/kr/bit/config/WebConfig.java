@@ -29,8 +29,9 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
 
     @Override
     protected Class<?>[] getServletConfigClasses() {
-        return new Class[] { ServletConfig.class };
+        return new Class[] { ServletConfig.class, WebSocketStompConfig.class };
     }
+
 
     @Override
     protected String[] getServletMappings() {
@@ -45,20 +46,6 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
         return new Filter[]{encodingFilter};
     }
 
-    @Bean
-    public MultipartResolver multipartResolver() throws IOException {
-        CommonsMultipartResolver resolver = new CommonsMultipartResolver();
-
-        resolver.setUploadTempDir(new FileSystemResource("C:/bootcamp/spring1/testtest/src/main/resources/static/images/photo"));
-
-        resolver.setMaxUploadSize(20971520);
-
-        resolver.setMaxUploadSizePerFile(41943040);
-
-        resolver.setMaxInMemorySize(20971520);
-
-        return resolver;
-    }
     @Bean
     public ConversionService conversionService() {
         return new DefaultConversionService();

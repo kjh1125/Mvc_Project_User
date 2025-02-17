@@ -50,4 +50,8 @@ public interface UserMapper {
 
     @Update("update points set firewood=firewood-1 where user_id=#{userId}")
     void updateFirewood(int userId);
+
+    @Select("select profile_image_id from user_profiles where user_id= #{userId}")
+    String getProfileImage(int userId);
+
 }
