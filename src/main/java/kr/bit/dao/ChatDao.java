@@ -1,7 +1,10 @@
 package kr.bit.dao;
 
+import kr.bit.dto.RoomStatusDTO;
+import kr.bit.entity.ChatClosure;
 import kr.bit.entity.ChatRoom;
 import kr.bit.entity.Message;
+import kr.bit.entity.Report;
 import kr.bit.mapper.ChatMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -29,6 +32,7 @@ public class ChatDao {
     public Integer getUnReadCountByRoomId(int roomId){
         return chatMapper.getUnReadCountByRoomId(roomId);
     }
+
     public void updateManEnter(int roomId){
         chatMapper.updateManEnter(roomId);
     }
@@ -64,4 +68,22 @@ public class ChatDao {
     public void deleteChatRoom(int roomId){
         chatMapper.deleteChatRoom(roomId);
     }
+
+    public void insertMessage(Message message){chatMapper.insertMessage(message);}
+
+    public void insertChatClosure(ChatClosure chatClosure){chatMapper.insertChatClosure(chatClosure);}
+
+    public Integer getClosureId(ChatClosure chatClosure){return chatMapper.getClosureId(chatClosure);}
+
+    public RoomStatusDTO getSessionStatus(int roomId){return chatMapper.getSessionStatus(roomId);}
+
+    public void manOut(int roomId){chatMapper.manOut(roomId);}
+
+    public void womanOut(int roomId){chatMapper.womanOut(roomId);}
+
+    public void report(Report report){chatMapper.report(report);}
+
+    public void setIsReported(int roomId){chatMapper.setIsReported(roomId);}
 }
+
+
