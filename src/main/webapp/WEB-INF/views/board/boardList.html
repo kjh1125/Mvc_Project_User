@@ -24,7 +24,7 @@
             <div class="d-flex justify-content-between mt-2">
                 <div class="like-comment">
                     <i class="bi bi-heart-fill"></i> <span th:text="${board.heart_count}">1</span>
-                    <i class="bi bi-chat-dots"></i> <span >1</span>
+                    <i class="bi bi-chat-dots"></i> <span th:text="${board.comment_count}">1</span>
                 </div>
                 <div class="post-footer" th:text="${board.created_at} + ' | ' + ${board.nickname}">25-02-05 16:06</div>
             </div>
