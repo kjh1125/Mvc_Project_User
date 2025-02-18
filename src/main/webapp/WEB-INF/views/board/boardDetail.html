@@ -40,12 +40,14 @@
                                 <i class="bi bi-three-dots-vertical"></i>
                             </button>
                             <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item">
+                                <!-- 작성자만 수정/삭제 버튼이 보이도록 -->
+                                <li id="modifyBtn" th:if="${session.user == board.writer_id}">
+                                    <a class="dropdown-item" href="#" onclick="modifyPost()">
                                         <i class="bi bi-pencil-square"></i> 수정
                                     </a>
                                 </li>
-                                <li>
+                                <!-- 작성자만 수정/삭제 버튼이 보이도록 -->
+                                <li id="deleteBtn" th:if="${session.user == board.writer_id}">
                                     <a class="dropdown-item" href="#" onclick="deletePost()">
                                         <i class="bi bi-trash"></i> 삭제
                                     </a>
@@ -159,6 +161,8 @@
     const reportModal = document.getElementById('reportModal');
     //기본알림창으로 사용할 모달창
     let alert = new bootstrap.Modal(document.getElementById('alert'));
+    //삭제 버튼
+    const deleteBtn = document.querySelector('#deleteBtn');
 
     // DOMContentLoaded를 넣어서 DOM이 모두 Load된 후 해당 Action이 작동되도록 설정.
     document.addEventListener('DOMContentLoaded', function() {
@@ -233,12 +237,34 @@
         }
         });
 
-        //알림창 함수
-        function showAlert(message) {
+        //삭제 버튼 실행
+        deleteBtn.addEventListener('click', async function (e) {
+        e.preventDefault(); // 기본 동작 방지
+
+            confirm("삭제하시겠습니까?");
+
+            try {
+                const response = await fetch('/blindtime/board/delete?board_id='+board_id, {
+                    method: 'delete'
+                });
+                if (response.ok) {
+                    showAlert("삭제되었습니다.","/blindtime/board/list");
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+
+        //알림창 함수, redirectUrl이 같이 오는 경우 확인 후 해당 Url로 이동.
+        function showAlert(message, redirectUrl = null) {
             document.querySelector("#alert .modal-body").innerHTML = message;
             alert.show();
             document.getElementById('confirmBtn').addEventListener('click', function () {
                 alert.hide();
+                if (redirectUrl) {
+                    location.href = redirectUrl; // 이동
+                }
             });
         }
     });

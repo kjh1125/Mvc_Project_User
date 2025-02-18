@@ -48,4 +48,8 @@ public class BoardDao {
     public void insertReportContent(ReportContent reportContent){
         boardMapper.insertReportContent(reportContent);
     }
+
+    public void deleteContent(int board_id){
+        boardMapper.deleteContent(board_id);
+    }
 }

@@ -37,5 +37,8 @@ public interface BoardMapper {
     //게시물 신고
     @Insert("insert into reportContent values(#{user_id},#{board_id},#{reason_id})")
     void insertReportContent(ReportContent reportContent);
+    //게시물 삭제
+    @Delete("delete from boards where id = #{board_id}")
+    void deleteContent(int board_id);
 
 }

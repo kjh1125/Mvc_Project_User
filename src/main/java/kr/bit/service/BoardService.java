@@ -69,4 +69,8 @@ public class BoardService {
         boardDao.insertReportContent(reportContent);
     }
 
+    public void deleteContent(int board_id){
+        boardDao.deleteContent(board_id);
+    }
+
 }

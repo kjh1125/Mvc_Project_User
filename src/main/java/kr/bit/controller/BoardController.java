@@ -130,6 +130,16 @@ public class BoardController {
 
     }
 
+    @DeleteMapping("/delete")
+    @ResponseBody
+    public ResponseEntity<String> deleteContent(@RequestBody @RequestParam("board_id") int board_id) {
+
+        //게시물 삭제, 본인만 삭제할 수 있도록 Front에서 제어
+        boardService.deleteContent(board_id);
+
+        return ResponseEntity.ok("success");
+    }
+
 
 
 }
