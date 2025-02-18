@@ -4,9 +4,11 @@ import com.mysql.cj.Session;
 import kr.bit.entity.Board;
 import kr.bit.entity.Comment;
 import kr.bit.entity.Like;
+import kr.bit.entity.ReportContent;
 import kr.bit.service.BoardService;
 import kr.bit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -109,5 +111,25 @@ public class BoardController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/report")
+    @ResponseBody
+    public ResponseEntity<String> reportContent(@RequestBody ReportContent reportContent) {
+
+        //신고 중복 확인 중복일 경우 true 값이 나옴
+        boolean duplicated = boardService.checkReportExists(reportContent);
+
+        if(duplicated){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("duplicate"); // 409 Conflict 응답
+        }
+        else {
+            //중복이 아닐 경우 db에 값 추가
+            boardService.insertReportContent(reportContent);
+            return ResponseEntity.ok("success");
+        }
+
+    }
+
+
 
 }

@@ -3,6 +3,7 @@ package kr.bit.service;
 import kr.bit.entity.Board;
 import kr.bit.dao.BoardDao;
 import kr.bit.entity.Like;
+import kr.bit.entity.ReportContent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -57,6 +58,15 @@ public class BoardService {
 
     public int getHeartCount(int board_id){
         return boardDao.getHeartCount(board_id);
+    }
+
+    public boolean checkReportExists(ReportContent reportContent){
+        int count = boardDao.checkReportExists(reportContent);
+        return count > 0; //0보다 클 경우 true 값 리턴
+    }
+
+    public void insertReportContent(ReportContent reportContent){
+        boardDao.insertReportContent(reportContent);
     }
 
 }

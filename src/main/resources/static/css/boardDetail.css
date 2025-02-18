@@ -1,5 +1,6 @@
 /*board-detail*/
 .card {
+    position: relative;
     border-radius: 10px;
     margin-bottom: 10px;
 }
@@ -51,4 +52,12 @@
 }
 .container {
     padding-bottom: 110px; /* input-box의 높이 + 여유공간 */
+}
+
+/* 햄버거 메뉴 컨테이너 */
+.dropdown {
+    position: absolute;
+    top: 10px;    /* 위에서 떨어진 거리 */
+    right: 10px;  /* 오른쪽에서 떨어진 거리 */
+    z-index: 100; /* 다른 컨텐츠 위에 표시되도록 */
 }

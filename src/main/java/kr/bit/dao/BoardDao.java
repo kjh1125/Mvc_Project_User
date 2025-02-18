@@ -2,6 +2,7 @@ package kr.bit.dao;
 
 import kr.bit.entity.Board;
 import kr.bit.entity.Like;
+import kr.bit.entity.ReportContent;
 import kr.bit.mapper.BoardMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -38,5 +39,13 @@ public class BoardDao {
 
     public int getHeartCount(int board_id){
         return boardMapper.getHeartCount(board_id);
+    }
+
+    public int checkReportExists(ReportContent reportContent){
+        return boardMapper.checkReportExists(reportContent);
+    }
+
+    public void insertReportContent(ReportContent reportContent){
+        boardMapper.insertReportContent(reportContent);
     }
 }
