@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import java.sql.Timestamp;
@@ -29,6 +30,7 @@ public class BoardController {
     BoardService boardService;
     @Autowired
     private HttpSession session;
+
 
     // 현재 Timestamp 생성
     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -140,6 +142,48 @@ public class BoardController {
         return ResponseEntity.ok("success");
     }
 
+    //게시물 수정 작성 화면
+    @GetMapping("/edit/{board_id}")
+    public String editBoard(@PathVariable int board_id, Model model) {
+        // 현재 로그인한 사용자 ID 가져오기
+        int sessionUserId = (int) session.getAttribute("user");
+
+        // 게시글 정보 조회
+        Board board = boardService.getBoard(board_id);
+
+        // 작성자 확인
+        if (board.getWriter_id()!=sessionUserId) {
+            return "redirect:/board/list"; // 권한 없음 - 목록으로 리다이렉트
+        }
+
+        model.addAttribute("board", board);
+        return "board/boardEdit";
+    }
+
+    //게시물 수정 작성 화면
+    @PostMapping("/edit")
+    public String editBoardPost(Board board, RedirectAttributes redirectAttributes) {
+        boardService.updateContent(board);
+
+        // Flash 메시지 추가
+        redirectAttributes.addFlashAttribute("message", "게시물이 성공적으로 수정되었습니다!");
+
+        return "redirect:/board/list"; // 리다이렉트 후 메시지 표시됨
+    }
+
+
+    //권한 체크용
+    @PostMapping("/check-auth/{board_id}")
+    @ResponseBody
+    public Map<String, Boolean> checkAuthority(@PathVariable int board_id) {
+        int sessionUserId = (int) session.getAttribute("user");
+        Board board = boardService.getBoard(board_id);
+
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("authorized", board.getWriter_id()==sessionUserId);
+
+        return response;
+    }
 
 
 }

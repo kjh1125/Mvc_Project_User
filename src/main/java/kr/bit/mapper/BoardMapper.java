@@ -6,6 +6,7 @@ import kr.bit.entity.ReportContent;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -40,5 +41,8 @@ public interface BoardMapper {
     //게시물 삭제
     @Delete("delete from boards where id = #{board_id}")
     void deleteContent(int board_id);
+    //게시물 수정
+    @Update("update boards set title=#{title},content=#{content} where id=#{id} and writer_id=#{writer_id}")
+    void updateContent(Board board);
 
 }

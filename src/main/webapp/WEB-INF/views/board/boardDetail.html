@@ -41,14 +41,14 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <!-- 작성자만 수정/삭제 버튼이 보이도록 -->
-                                <li id="modifyBtn" th:if="${session.user == board.writer_id}">
-                                    <a class="dropdown-item" href="#" onclick="modifyPost()">
+                                <li id="editBtn" th:if="${session.user == board.writer_id}">
+                                    <a class="dropdown-item" href="#" onclick="editPost()">
                                         <i class="bi bi-pencil-square"></i> 수정
                                     </a>
                                 </li>
                                 <!-- 작성자만 수정/삭제 버튼이 보이도록 -->
                                 <li id="deleteBtn" th:if="${session.user == board.writer_id}">
-                                    <a class="dropdown-item" href="#" onclick="deletePost()">
+                                    <a class="dropdown-item" href="#">
                                         <i class="bi bi-trash"></i> 삭제
                                     </a>
                                 </li>
@@ -163,6 +163,8 @@
     let alert = new bootstrap.Modal(document.getElementById('alert'));
     //삭제 버튼
     const deleteBtn = document.querySelector('#deleteBtn');
+    //수정 버튼
+    const editBtn = document.querySelector('#editBtn');
 
     // DOMContentLoaded를 넣어서 DOM이 모두 Load된 후 해당 Action이 작동되도록 설정.
     document.addEventListener('DOMContentLoaded', function() {
@@ -255,6 +257,23 @@
             }
         });
 
+        //수정버튼 실행
+        editBtn.addEventListener("click", function() {
+            $.ajax({
+                type: "POST",
+                url: "/blindtime/board/check-auth/" + board_id,
+                success: function(response) {
+                    if (response.authorized) {
+                        location.href = "/blindtime/board/edit/" + board_id;
+                    } else {
+                        showAlert("수정 권한이 없습니다.");
+                    }
+                },
+                error: function() {
+                    showAlert("권한 확인 중 오류가 발생했습니다.");
+                }
+            });
+        });
 
         //알림창 함수, redirectUrl이 같이 오는 경우 확인 후 해당 Url로 이동.
         function showAlert(message, redirectUrl = null) {

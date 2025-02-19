@@ -73,4 +73,10 @@ public class BoardService {
         boardDao.deleteContent(board_id);
     }
 
+    public void updateContent(Board board){
+        int userId = (int)session.getAttribute("user");
+        board.setWriter_id(userId); //로그인 된(session) 아이디를 writer_id로 세팅.
+        boardDao.updateContent(board);
+    }
+
 }

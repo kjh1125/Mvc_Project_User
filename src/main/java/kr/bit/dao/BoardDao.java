@@ -52,4 +52,8 @@ public class BoardDao {
     public void deleteContent(int board_id){
         boardMapper.deleteContent(board_id);
     }
+
+    public void updateContent(Board board){
+        boardMapper.updateContent(board);
+    }
 }

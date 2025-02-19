@@ -14,6 +14,10 @@
 
 </head>
 <body>
+<!--message가 redirect로 넘어 온 경우 해당 메시지 출력-->
+<div th:if="${message}" class="alert alert-success">
+    <span th:text="${message}"></span>
+</div>
 
 <div class="mobile-view">
     <!-- 게시글 리스트 -->
@@ -45,6 +49,13 @@
     <div th:replace="fragments/footer.html :: footer"> </div>
 
 </div>
-
+<script>
+    setTimeout(function() {
+        let alertBox = document.querySelector(".alert");
+        if (alertBox) {
+            alertBox.style.display = "none";
+        }
+    }, 2000); // 2초 후 메시지 숨김
+</script>
 </body>
 </html>
