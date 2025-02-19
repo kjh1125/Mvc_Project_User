@@ -70,7 +70,6 @@ public class UserController {
         User user = userJoinBean.getUser();
         UserProfile userProfile = userJoinBean.getUserProfile();
         String hobbies = userJoinBean.getHobbies();
-
         if (user.getGoogleId() != null && user.getGoogleId().isEmpty()) {
             user.setGoogleId(null);
         }
@@ -92,7 +91,6 @@ public class UserController {
 
             // 파일 저장 경로 설정 (예: /path/to/upload/directory)
             String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            System.out.println(fileName);
             Path path = Paths.get(uploadDir, "user_photos", fileName);
 
             // 파일을 지정된 디렉토리에 저장

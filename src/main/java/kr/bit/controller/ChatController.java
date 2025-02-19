@@ -4,6 +4,7 @@ import kr.bit.dto.RoomStatusDTO;
 import kr.bit.entity.*;
 import kr.bit.dto.ChatRoomDTO;
 import kr.bit.service.ChatService;
+import kr.bit.service.ChatSocketService;
 import kr.bit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +18,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import javax.servlet.http.HttpSession;
+import java.sql.SQLOutput;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -32,6 +34,11 @@ public class ChatController {
 
     @Autowired
     private JedisPool jedisPool;
+
+    @Autowired
+    private ChatSocketService chatSocketService;
+    @Autowired
+    private UserController userController;
 
     @GetMapping("/list")
     public String chatList(Model model, HttpSession session) {
@@ -57,6 +64,7 @@ public class ChatController {
         }
 
         model.addAttribute("waiting", isWaiting);
+        model.addAttribute("userId", userId);
         return "chat/chatList";
     }
 
@@ -72,25 +80,50 @@ public class ChatController {
             Set<String> keys = jedis.keys(redisPattern);
 
             int unReadCount = 0;
+            String latestMessage = null; // 최근 메시지
+            String latestMessageTime = null; // 최근 메시지의 타임스탬프
+
             for (String key : keys) {
                 Map<String, String> chatData = jedis.hgetAll(key);
+
                 // 메시지가 현재 사용자가 보낸 것이 아니고, 읽지 않은 메시지인 경우
                 if (!chatData.get("user_id").equals(String.valueOf(userId))
                         && chatData.get("read").equals("false")) {
                     unReadCount++;
                 }
+
+                // 타임스탬프가 최신 메시지인지 확인
+                String messageTime = chatData.get("created_at");
+                if (latestMessageTime == null || messageTime.compareTo(latestMessageTime) > 0) {
+                    latestMessageTime = messageTime;
+                    latestMessage = chatData.get("msg"); // 가장 최신 메시지 저장
+                }
             }
 
-            // unread count 설정
-            chatRoom.setUnReadCount(unReadCount);
+            // 최근 메시지 설정
+            if (latestMessage != null) {
+                chatRoom.setContent(latestMessage); // content에 최근 메시지 설정
+            }
+
+            // 채팅방에 읽지 않은 메시지 개수 설정
+            if(unReadCount>0) {
+                chatRoom.setUnReadCount(unReadCount);
+            }else{
+                chatRoom.setUnReadCount(null);
+            }
         }
 
         return chatRoomList;
     }
 
+
     @GetMapping("/room/{roomId}")
     public String chatRoom(@PathVariable("roomId") int roomId, Model model, HttpSession session) {
         int userId = (int) session.getAttribute("user");
+        ChatRoom chatRoom = chatService.getChatRoom(roomId);
+        if(chatRoom.getWomanId()!=userId&&chatRoom.getManId()!=userId){
+            return "redirect:/chat/list";
+        }
         String gender = (String) session.getAttribute("gender");
         RoomStatusDTO roomStatus = chatService.getSessionStatus(roomId);
         if(gender.equals("male")&&roomStatus.isManOut()){
@@ -106,7 +139,6 @@ public class ChatController {
 
         List<Message> messageList = getMessagesByRoomId(roomId);
         Collections.reverse(messageList);
-        ChatRoom chatRoom = chatService.getChatRoom(roomId);
         int receiverId;
         if(gender.equals("male")){
             receiverId = chatRoom.getWomanId();
@@ -114,7 +146,15 @@ public class ChatController {
         else{
             receiverId = chatRoom.getManId();
         }
-        String profileImageId = userService.getProfileImage(receiverId);
+        int profileImageId = userService.getProfileImage(receiverId);
+        if(roomStatus.isManOut()|| roomStatus.isWomanOut()){
+            model.addAttribute("out", true);
+        }
+        else{
+            model.addAttribute("out", false);
+        }
+        chatService.markMessagesAsRead(roomId,userId);
+
         model.addAttribute("roomId", roomId);
         model.addAttribute("messageList", messageList);
         model.addAttribute("userId", userId);
@@ -122,6 +162,7 @@ public class ChatController {
         model.addAttribute("chatRoom", chatRoom);
         model.addAttribute("endTime", chatRoom.getEndTime());
         model.addAttribute("status", sessionStatus);
+        model.addAttribute("receiverId", receiverId);
         return "chat/chatRoom";  // 뷰 이름
     }
 
@@ -162,7 +203,6 @@ public class ChatController {
         return messageList;
     }
 
-
     @PostMapping("/roomEnter")
     public String roomEnter(@RequestParam("room_id") int roomId, HttpSession session) {
         String gender = (String) session.getAttribute("gender");
@@ -179,6 +219,7 @@ public class ChatController {
     public String outRoom(@PathVariable("roomId") int roomId, Model model, HttpSession session) {
         String gender = (String) session.getAttribute("gender");
         chatService.updateOutRoom(roomId,gender);
+        chatSocketService.notifyRoomUpdate(roomId);
         return "redirect:/chat/list";  // 뷰 이름
     }
 
@@ -187,7 +228,6 @@ public class ChatController {
         int userId = (int) session.getAttribute("user");
         String gender = (String) session.getAttribute("gender");
         ChatRoom chatRoom = chatService.getChatRoom(roomId);
-        System.out.println(roomId);
         if(userId==chatRoom.getWomanId()||userId==chatRoom.getManId()) {
             int receiverId;
             if (gender.equals("male")) {
@@ -207,30 +247,84 @@ public class ChatController {
 
     @GetMapping("/end/{roomId}")
     public String endRoom(@PathVariable("roomId") int roomId, Model model, HttpSession session) {
-        // Redis에서 데이터를 가져와 Message 객체로 변환
-//        List<Message> messageList = getMessagesByRoomId(roomId);
-//        Collections.reverse(messageList);
-//        int userId = (int) session.getAttribute("user");
-//        String gender = (String) session.getAttribute("gender");
-//        ChatRoom chatRoom = chatService.getChatRoom(roomId);
-//        int receiverId;
-//        if(gender.equals("male")){
-//            receiverId = chatRoom.getWomanId();
-//        }
-//        else{
-//            receiverId = chatRoom.getManId();
-//        }
-//        String profileImageId = userService.getProfileImage(receiverId);
-//        model.addAttribute("roomId", roomId);
-//        model.addAttribute("messageList", messageList);
-//        model.addAttribute("userId", userId);
-//        model.addAttribute("profileImageId", profileImageId);
-//        model.addAttribute("chatRoom", chatRoom);
-//        model.addAttribute("endTime", chatRoom.getEndTime());
+        int userId = (int) session.getAttribute("user");
+        String gender = (String) session.getAttribute("gender");
+        RoomStatusDTO roomStatus = chatService.getSessionStatus(roomId);
+        if(!roomStatus.getSessionStatus().equals("end")){
+            return "redirect:/chat/room/" + roomId;
+        }
+        boolean isContinue;
+        if(gender.equals("male")) {
+            isContinue = roomStatus.isManContinue();
+        }
+        else{
+            isContinue = roomStatus.isWomanContinue();
+        }
+        ChatClosure chatClosure = new ChatClosure();
+        chatClosure.setUserId(userId);
+        chatClosure.setRoomId(roomId);
+        int closureId = chatService.getClosureId(chatClosure);
+        String otherId = chatService.getOppositeNickname(chatClosure);
+        Card card = chatService.getCardByChatEndId(closureId);
+        int readingGlass = userService.getPoint(userId).getReadingGlass();
+        List<String> hobbyList;
+        if(card.getCardStatus1().equals("open")){
+            model.addAttribute("cardType1", card.getCardType1());
+            if(card.getCardType1().equals("취미")){
+                hobbyList = new ArrayList<>(Arrays.asList(card.getCardContent1().split(":")));
+                if(hobbyList.isEmpty()){
+                    hobbyList.add("없음");
+                }
+                model.addAttribute("cardContent1", hobbyList);
+            }else{
+                model.addAttribute("cardContent1", card.getCardContent1());
+            }
+        }
+        if(card.getCardStatus2().equals("open")){
+            model.addAttribute("cardType2", card.getCardType2());
+            if(card.getCardType2().equals("취미")){
+                hobbyList = new ArrayList<>(Arrays.asList(card.getCardContent2().split(":")));
+                if(hobbyList.isEmpty()){
+                    hobbyList.add("없음");
+                }
+                model.addAttribute("cardContent2", hobbyList);
+            }else{
+                model.addAttribute("cardContent2", card.getCardContent2());
+            }
+        }
+        if(card.getCardStatus3().equals("open")){
+            model.addAttribute("cardType3", card.getCardType3());
+            if(card.getCardType3().equals("취미")){
+                hobbyList = new ArrayList<>(Arrays.asList(card.getCardContent3().split(":")));
+                if(hobbyList.isEmpty()){
+                    hobbyList.add("없음");
+                }
+                model.addAttribute("cardContent3", hobbyList);
+            }else{
+                model.addAttribute("cardContent3", card.getCardContent3());
+            }
+        }
+        if(card.getCardStatus1().equals("close")&&card.getCardStatus2().equals("close")&&card.getCardStatus3().equals("close")){
+            model.addAttribute("freeChance", true);
+        }
+        else{
+            model.addAttribute("freeChance", false);
+        }
+        model.addAttribute("isContinue",isContinue);
+        model.addAttribute("readingGlass", readingGlass);
+        model.addAttribute("userId",userId);
+        model.addAttribute("endTime", chatService.getChatRoom(roomId).getEndTime());
+        model.addAttribute("otherId", otherId);
+        model.addAttribute("closureId", closureId);
         return "chat/endRoom";  // 뷰 이름
     }
 
-
-
+    @PostMapping("/continue/{roomId}")
+    public String chatContinue(@PathVariable int roomId, HttpSession session) {
+        int userId = (int) session.getAttribute("user");
+        String gender = (String) session.getAttribute("gender");
+        chatService.userContinue(gender, roomId);
+        return "redirect:/chat/end/" + roomId;
+    }
 
 }

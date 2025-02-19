@@ -1,9 +1,13 @@
 package kr.bit.controller;
 
+import kr.bit.dto.MessageDTO;
 import kr.bit.entity.Message;
+import kr.bit.service.ChatService;
+import kr.bit.service.ChatSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -24,15 +28,22 @@ public class ChatSocketController {
 
     @Autowired
     private JedisPool jedisPool;
+    @Autowired
+    private ChatService chatService;
+    @Autowired
+    private ChatSocketService chatSocketService;
 
     // STOMP 메시지를 수신하면 Redis에 저장한 후, 해당 메시지를 /topic/room/{roomId}로 브로드캐스트합니다.
     @MessageMapping("/room/{roomId}")
     @SendTo("/topic/room/{roomId}")
-    public String handleChatMessage(@DestinationVariable String roomId, String message,
-                                    SimpMessageHeaderAccessor headerAccessor) {        Object userObj = headerAccessor.getSessionAttributes().get("user");
+    public String handleChatMessage(@DestinationVariable String roomId,
+                                    @Payload MessageDTO messageDTO,
+                                    SimpMessageHeaderAccessor headerAccessor) {
+        Object userObj = headerAccessor.getSessionAttributes().get("user");
         int userId = userObj != null ? (Integer) userObj : 0;
-        System.out.println("메시지:" + message);
-        System.out.println("User ID: " + userId);
+
+        String message = messageDTO.getMsg();
+        int receiverId = messageDTO.getReceiverId();
 
         // 현재 시간 및 포맷 설정
         LocalDateTime now = LocalDateTime.now();
@@ -59,6 +70,8 @@ public class ChatSocketController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        chatSocketService.messageUpdate(Integer.parseInt(roomId),receiverId);
 
         // 저장 후 받은 메시지를 그대로 브로드캐스트합니다.
         return message+"userId="+userId;

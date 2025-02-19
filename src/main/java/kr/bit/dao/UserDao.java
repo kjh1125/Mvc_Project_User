@@ -50,10 +50,6 @@ public class UserDao {
         return userMapper.getPoint(userId);
     }
 
-    public int getUserProfile(int userId){
-        return userMapper.getUserProfile(userId);
-    }
-
     public String getNickname(int userId){
         return userMapper.getNickname(userId);
     }
@@ -66,5 +62,11 @@ public class UserDao {
         userMapper.updateFirewood(userId);
     }
 
-    public String getProfileImage(int userId){ return userMapper.getProfileImage(userId); }
+    public int getProfileImage(int userId){ return userMapper.getProfileImage(userId); }
+
+    public UserProfile getProfile(int userId){ return userMapper.getProfile(userId); }
+
+    public List<String> getUserHobbies(int userId){ return userMapper.getUserHobbies(userId); }
+
+    public void updateReadingGlass(int userId){ userMapper.updateReadingGlass(userId); }
 }
