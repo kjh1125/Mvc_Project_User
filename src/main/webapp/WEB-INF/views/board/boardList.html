@@ -14,43 +14,23 @@
 
 </head>
 <body>
+<!--message가 redirect로 넘어 온 경우 해당 메시지 출력-->
+<div th:if="${message}" class="alert alert-success">
+    <span th:text="${message}"></span>
+</div>
 
 <div class="mobile-view">
     <!-- 게시글 리스트 -->
     <div class="back-view">
-        <div class="post-card">
-            <div class="post-title">안녕하세요</div>
-            <div class="post-content">안녕하세요! 오늘 가입했어요</div>
+        <div class="post-card" th:each="board : ${boards}">
+            <a th:href="@{./detail(id=${board.id})}"><div class="post-title" th:text="${board.title}">안녕하세요</div>
+            <div class="post-content" th:text="${board.content}">안녕하세요! 오늘 가입했어요</div></a>
             <div class="d-flex justify-content-between mt-2">
                 <div class="like-comment">
-                    <i class="bi bi-heart-fill"></i> <span>1</span>
-                    <i class="bi bi-chat-dots"></i> <span>1</span>
+                    <i class="bi bi-heart-fill"></i> <span th:text="${board.heart_count}">1</span>
+                    <i class="bi bi-chat-dots"></i> <span th:text="${board.comment_count}">1</span>
                 </div>
-                <div class="post-footer">25-02-05 16:06 | <a href="#">하리보</a></div>
-            </div>
-        </div>
-
-        <div class="post-card">
-            <div class="post-title">안녕하세요</div>
-            <div class="post-content">안녕하세요! 오늘 가입했어요</div>
-            <div class="d-flex justify-content-between mt-2">
-                <div class="like-comment">
-                    <i class="bi bi-heart-fill"></i> <span>1</span>
-                    <i class="bi bi-chat-dots"></i> <span>1</span>
-                </div>
-                <div class="post-footer">25-02-05 16:06 | <a href="#" class="text-danger">치킨</a></div>
-            </div>
-        </div>
-
-        <div class="post-card">
-            <div class="post-title">안녕하세요</div>
-            <div class="post-content">안녕하세요! 오늘 가입했어요</div>
-            <div class="d-flex justify-content-between mt-2">
-                <div class="like-comment">
-                    <i class="bi bi-heart-fill"></i> <span>1</span>
-                    <i class="bi bi-chat-dots"></i> <span>1</span>
-                </div>
-                <div class="post-footer">25-02-05 16:06 | <a href="#">하리보</a></div>
+                <div class="post-footer" th:text="${board.created_at} + ' | ' + ${board.nickname}">25-02-05 16:06</div>
             </div>
         </div>
     </div>
@@ -66,9 +46,16 @@
     </aside>
 
     <!-- footer.html 포함 -->
-    <div th:replace="fragments/footer.html :: footer" />
+    <div th:replace="fragments/footer.html :: footer"> </div>
 
 </div>
-
+<script>
+    setTimeout(function() {
+        let alertBox = document.querySelector(".alert");
+        if (alertBox) {
+            alertBox.style.display = "none";
+        }
+    }, 2000); // 2초 후 메시지 숨김
+</script>
 </body>
 </html>
