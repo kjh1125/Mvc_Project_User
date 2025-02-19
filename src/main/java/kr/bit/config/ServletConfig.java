@@ -32,12 +32,15 @@ import redis.clients.jedis.JedisPoolConfig;
 @ComponentScan(basePackages = {"kr.bit.controller", "kr.bit.service", "kr.bit.dao", "kr.bit.mapper", "kr.bit.security", "kr.bit.dto","kr.bit.entity","kr.bit.handler"})
 public class ServletConfig implements WebMvcConfigurer {
 
+    @Value("${upload.path}")
+    private String uploadDir;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // static 리소스 처리
         registry.addResourceHandler("/resources/**").addResourceLocations("/resources/");
-        registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");  // static 폴더에 있는 리소스를 처리하도록 설정
         registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");  // 모든 정적 리소스를 포함하도록 설정
+        registry.addResourceHandler("/uploads/**").addResourceLocations("file:///"+uploadDir);
     }
 
     @Bean

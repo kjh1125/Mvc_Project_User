@@ -4,6 +4,7 @@ import kr.bit.dao.UserDao;
 import kr.bit.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +32,7 @@ public class UserService {
         return userDao.getHobby();
     }
 
+    @Transactional
     public void registerUserWithHobbies(User user, UserProfile userProfile, String hobbies) {
         // 사용자 생성 (user_id가 자동으로 생성되어 user 객체에 설정됨)
         userDao.createUser(user);
@@ -67,9 +69,6 @@ public class UserService {
         userDao.updateFirewood(userId);
     }
 
-    public String getProfileImage(int userId) {return userDao.getProfileImage(userId);}
+    public int getProfileImage(int userId){return userDao.getProfileImage(userId);}
 
-    public String getNickname(int userId){
-        return userDao.getNickname(userId);
-    }
 }

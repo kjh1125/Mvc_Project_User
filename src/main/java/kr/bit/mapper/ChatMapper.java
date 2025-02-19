@@ -1,10 +1,7 @@
 package kr.bit.mapper;
 
 import kr.bit.dto.RoomStatusDTO;
-import kr.bit.entity.ChatClosure;
-import kr.bit.entity.ChatRoom;
-import kr.bit.entity.Message;
-import kr.bit.entity.Report;
+import kr.bit.entity.*;
 import org.apache.ibatis.annotations.*;
 
 import java.sql.Timestamp;
@@ -55,13 +52,14 @@ public interface ChatMapper {
     @Insert("INSERT INTO messages (room_id,user_id,message_content,created_at,is_read) values(#{roomId},#{userId},#{messageContent},#{createdAt},#{read})")
     void insertMessage(Message message);
 
-    @Insert("INSERT INTO chat_closures (room_id,user_id) values(#{roomId},#{userId})")
-    void insertChatClosure(ChatClosure chatClosure);
+    @Insert("INSERT IGNORE INTO chat_closures (room_id, user_id) VALUES (#{roomId}, #{userId})")
+    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+    int insertChatClosure(ChatClosure chatClosure);
 
     @Select("SELECT id from chat_closures where room_id=#{roomId} and user_id=#{userId}")
     Integer getClosureId(ChatClosure chatClosure);
 
-    @Select("select session_status as sessionStatus, man_out as manOut, woman_out as womanOut, is_reported as reported from chat_rooms where id=#{roomId}")
+    @Select("select session_status as sessionStatus, man_out as manOut, woman_out as womanOut, man_continue as manContinue, woman_continue as womanContinue, is_reported as reported from chat_rooms where id=#{roomId}")
     RoomStatusDTO getSessionStatus(int roomId);
 
     @Update("UPDATE chat_rooms set man_out=true where id= #{roomId}")
@@ -70,10 +68,41 @@ public interface ChatMapper {
     @Update("UPDATE chat_rooms set woman_out=true where id= #{roomId}")
     void womanOut(int roomId);
 
+    @Update("UPDATE chat_rooms set man_continue=true where id=#{roomId}")
+    void manContinue(int roomId);
+
+    @Update("UPDATE chat_rooms set woman_continue=true where id=#{roomId}")
+    void womanContinue(int roomId);
+
     @Update("update  chat_rooms set is_reported = true where id=#{roomId}")
     void setIsReported(int roomId);
 
     @Insert("insert into reports(reporter_id,reported_id,report_type,current_id,report_content) values(#{reporterId},#{reportedId},#{reportType},#{currentId},#{reportContent})")
     void report(Report report);
+
+    @Select("SELECT u.nickname " +
+            "FROM users u " +
+            "JOIN chat_rooms c " +
+            "ON (u.user_id = CASE " +
+            "WHEN c.man_id = #{userId} THEN c.woman_id " +
+            "WHEN c.woman_id = #{userId} THEN c.man_id " +
+            "ELSE NULL " +
+            "END) " +
+            "WHERE c.id = #{roomId} ")
+    String getOppositeNickname(ChatClosure chatClosure);
+
+    @Insert("INSERT INTO cards(chat_end_id, card_type_1,card_content_1,card_type_2,card_content_2,card_type_3,card_content_3) values(#{chatEndId},#{cardType1},#{cardContent1},#{cardType2},#{cardContent2},#{cardType3},#{cardContent3})")
+    void insertCard(Card card);
+
+    @Select("SELECT chat_end_id AS cardEndId, " +
+            "card_type_1 AS cardType1, card_content_1 AS cardContent1, card_status_1 AS cardStatus1, " +
+            "card_type_2 AS cardType2, card_content_2 AS cardContent2, card_status_2 AS cardStatus2, " +
+            "card_type_3 AS cardType3, card_content_3 AS cardContent3, card_status_3 AS cardStatus3 " +
+            "FROM cards WHERE chat_end_id = #{chatEndId}")
+    Card getCardByChatEndId(int chatEndId);
+
+    @Update("update cards set card_status_#{cardNumber}='open' where chat_end_id=#{closureId}")
+    void updateCardStatus(@Param("closureId") int closureId, @Param("cardNumber") int cardNumber);
+
 
 }

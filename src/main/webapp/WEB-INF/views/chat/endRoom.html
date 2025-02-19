@@ -10,34 +10,635 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://cdn.jsdelivr.net/sockjs/1.0.2/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
 
     <style>
+        .mobile-header {
+            position: relative;
+            z-index: 200;
+            width: 100%;
+            height: 15%;
+        }
+
+        .height-controller {
+            height: 100%; /* 화면 전체 높이에 맞춰 설정 */
+        }
+
+        .top-nav {
+            width: 100%;
+            min-width: 320px;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            z-index: 1050;
+            background-color: #f8f9fa;
+            border-left: 1px solid #ccc;
+            border-right: 1px solid #ccc;
+            transform: translateZ(0);
+        }
+
+        .custom-modal {
+            display: none; /* 기본적으로 숨겨짐 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+            z-index: 1050; /* 다른 요소들 위에 표시되도록 설정 */
+        }
+
+        #leaveModal {
+            display: none; /* 기본적으로 숨겨짐 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+            z-index: 1050; /* 다른 요소들 위에 표시되도록 설정 */
+        }
+
+
+        /* 모달 콘텐츠 */
+        .custom-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 닫기 버튼 */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .card-container {
+            perspective: 1000px;
+        }
+
+        .card {
+            width: 150px;
+            height: 210px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 150px;
+            height: 210px;
+            backface-visibility: hidden;
+        }
+
+        .flipped{
+            transform: rotateY(180deg);
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
     </style>
 </head>
 <body>
-
-<div class="mobile-view">
-    <div class="back-view">
-    채팅이끝났습니다
-    </div>
-    <div th:replace="fragments/footer.html :: footer">
-
+<div id="reportModal" class="custom-modal">
+    <div class="custom-modal-content">
+        <form th:action="@{/chat/report/{roomId}(roomId=${roomId})}" method="post">
+            <span id="closeModalBtn" class="close-btn">&times;</span>
+            <h5>신고 사유</h5>
+            <textarea id="reportReason" class="form-control" rows="4" name="reason" placeholder="신고 사유를 입력하세요"></textarea>
+            <div class="d-flex justify-content-around mt-3">
+                <button id="reportSubmitBtn" type="submit" class="btn btn-danger">신고하기</button>
+                <button id="cancelReportBtn" type="button" class="btn btn-secondary">취소</button>
+            </div>
+        </form>
     </div>
 </div>
+
+
+<div id="leaveModal" class="custom-modal">
+    <div class="custom-modal-content">
+        <form th:action="@{/chat/out/{roomId}(roomId=${roomId})}" method="post">
+            <span id="closeLeaveModal" class="close-btn">&times;</span>
+            <h5>정말 나가시겠습니까?</h5>
+            <p>나가면 다시 채팅방에 들어올 수 없습니다.</p>
+            <div class="d-flex justify-content-around mt-3">
+                <button id="leaveConfirmBtn" type="submit" class="btn btn-danger">나가기</button>
+                <button id="cancelLeaveBtn" type="button" class="btn btn-secondary">취소</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="cardModal" class="custom-modal">
+    <div class="custom-modal-content">
+            <span id="closeCardModal" class="close-btn">&times;</span>
+        <h5 id="modalText">번 카드를 뒤집으시겠습니까?</h5>
+            <p id="modalContent"></p>
+            <div class="d-flex justify-content-around mt-3">
+                <button id="flipBtn" onclick="flip()" class="btn btn-danger">뒤집기</button>
+                <button id="cancelCardBtn" class="btn btn-secondary">취소</button>
+            </div>
+    </div>
+</div>
+
+
+<div class="mobile-view">
+    <div class="back-view pt-5 p-0">
+        <header class="mobile-header">
+            <div class="height-controller mt-5">
+                <div class="top-nav">
+                    <div class="d-flex flex-column" style="width: 100%;">
+                        <div class="d-flex align-items-center justify-content-between p-4 pb-2">
+                            <div>
+                                <a th:href="@{/chat/list}">
+                                    <i class="fs-4 bi bi-arrow-left"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ps-3">
+                            채팅 종료
+                        </div>
+                        <div class="d-flex flex-row justify-content-around border pt-4 pb-4" style="width: 100%;">
+                            <div th:if="${cardType1 != null}">
+                                <div class="card-container">
+                                    <div class="card">
+                                        <div class="card-front">
+                                            <div style="width:150px; height: 210px;">
+                                                <div class="d-flex justify-content-center border-bottom">
+                                                    <span th:text="${cardType1}"></span>
+                                                </div>
+                                                <div class="d-flex justify-content-center">
+                                                    <!-- cardType1이 "취미"일 때 리스트 출력 -->
+                                                    <div th:switch="${cardType1}">
+                                                        <div th:case="'취미'">
+                                                                <div th:each="item : ${cardContent1}" th:text="${item}">
+
+                                                                </div>
+                                                        </div>
+                                                        <!-- cardType1이 "사진"일 때 이미지 출력 -->
+                                                        <div th:case="'사진'">
+                                                            <img th:src="@{/uploads/user_photos/{cardContent1}(cardContent1=${cardContent1})}" class="cards" alt="사진" width="150" height="185"/>
+                                                        </div>
+                                                        <div th:if="${cardType1 != '취미' and cardType1 != '사진'}">
+                                                            <span th:text="${cardContent1}"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:if="${cardType1 == null}">
+                                <!-- cardType1이 null일 때 카드 뒷면을 보여줌 -->
+                                <div class="card-container" onclick="flipCard(1)">
+                                    <div class="card" id="card1">
+                                        <div class="card-front">
+                                            <img th:src="@{/images/card.png}" class="cards" alt="카드" width="150" height="210"/>
+                                        </div>
+                                        <div class="card-back">
+                                            <div id="card-front1" style="width:150px; height: 210px;">
+                                                <div class="d-flex justify-content-center border-bottom">
+                                                    <span></span>
+                                                </div>
+                                                <div class="d-flex justify-content-center">
+                                                    <span></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- cardType2에 대해 동일한 처리 -->
+                            <div th:if="${cardType2 != null}">
+                                <div class="card-container">
+                                    <div class="card">
+                                        <div class="card-front">
+                                            <div style="width:150px; height: 210px;">
+                                                <div class="d-flex justify-content-center border-bottom">
+                                                    <span th:text="${cardType2}"></span>
+                                                </div>
+                                                <div class="d-flex justify-content-center">
+                                                    <div th:switch="${cardType2}">
+                                                        <div th:case="'취미'">
+                                                                <div th:each="item : ${cardContent2}" th:text="${item}"></div>
+                                                        </div>
+                                                        <div th:case="'사진'">
+                                                            <img th:src="@{/uploads/user_photos/{cardContent2}(cardContent2=${cardContent2})}" class="cards" alt="사진" width="150" height="185"/>
+                                                        </div>
+
+                                                        <div th:if="${cardType2 != '취미' and cardType2 != '사진'}">
+                                                            <span th:text="${cardContent2}"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:if="${cardType2 == null}">
+                                <!-- cardType2가 null일 때 카드 뒷면을 보여줌 -->
+                                <div class="card-container" onclick="flipCard(2)">
+                                    <div class="card" id="card2">
+                                        <div class="card-front">
+                                            <img th:src="@{/images/card.png}" class="cards" alt="카드" width="150" height="210"/>
+                                        </div>
+                                        <div class="card-back">
+                                            <div id="card-front2" style="width:150px; height: 210px;">
+                                                <div class="d-flex justify-content-center border-bottom">
+                                                    <span></span>
+                                                </div>
+                                                <div class="d-flex justify-content-center">
+                                                    <span></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- cardType3에 대해 동일한 처리 -->
+                            <div th:if="${cardType3 != null}">
+                                <div class="card-container">
+                                    <div class="card">
+                                        <div class="card-front">
+                                            <div style="width:150px; height: 210px;">
+                                                <div class="d-flex justify-content-center border-bottom">
+                                                    <span th:text="${cardType3}"></span>
+                                                </div>
+                                                <div class="d-flex justify-content-center">
+                                                    <div th:switch="${cardType3}">
+                                                        <div th:case="'취미'">
+                                                                <div th:each="item : ${cardContent3}" th:text="${item}"></div>
+                                                        </div>
+                                                        <div th:case="'사진'">
+                                                            <img th:src="@{/uploads/user_photos/{cardContent3}(cardContent3=${cardContent3})}" class="cards" alt="사진" width="150" height="185"/>
+                                                        </div>
+
+                                                        <div th:if="${cardType3 != '취미' and cardType3 != '사진'}">
+                                                            <span th:text="${cardContent3}"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:if="${cardType3 == null}">
+                                <!-- cardType3이 null일 때 카드 뒷면을 보여줌 -->
+                                <div class="card-container" onclick="flipCard(3)">
+                                    <div class="card" id="card3">
+                                        <div class="card-front">
+                                            <img th:src="@{/images/card.png}" class="cards" alt="카드" width="150" height="210"/>
+                                        </div>
+                                        <div class="card-back">
+                                            <div id="card-front3" style="width:150px; height: 210px;">
+                                                <div class="d-flex justify-content-center border-bottom">
+                                                    <span></span>
+                                                </div>
+                                                <div class="d-flex justify-content-center">
+                                                    <span></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-around fs-3">
+                            <div style="width: 15%"></div>
+                            <div style="width: 20%"></div>
+                            <div class="border d-flex justify-content-center timer" style="width: 30%">
+                                <span th:text="${endTime}" class="d-none"></span>
+                                <span></span>
+                            </div>
+                            <div class="d-flex justify-content-center" style="width: 20%">
+                                <i class="bi bi-search pe-2"></i>
+                                <span id="reading-glass" th:text="${readingGlass}"></span>
+                            </div>
+                            <div class="d-flex justify-content-left" style="width: 15%">
+                                <i class="bi bi-plus-circle"></i>
+                            </div>
+                        </div>
+                        <div th:if="${isContinue==true}">
+                            <div class="d-flex align-items-center justify-content-center m-5">
+                                <div class="p-4" style="background-color:#f5f5f5; color:#333; border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 80%; text-align: center;">
+                                    <p style="font-size: 18px; font-weight: bold;">상대방의 선택을 기다리고 있습니다...</p>
+                                    <p style="font-size: 16px; color: #777;">잠시만 기다려 주세요, 상대방이 결정을 내리면 대화가 계속됩니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:unless="${isContinue==true}">
+                        <div class="d-flex align-items-center justify-content-center mt-5" style="width: 100%;">
+                            <div class="p-1" style=" background-color:#d9d9d9; color:#fff; border-radius: 10px;">
+                                <span th:text="${otherId}"></span>
+                                <span>님과의</span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mt-3" style="width: 100%;">
+                            <div class="p-3" style=" background-color:#d9d9d9; color:#fff; border-radius: 10px;">
+                            대화를 계속 이어나갈까요?
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-center m-auto mt-5" style="width: 70%;">
+                            <div class="d-flex justify-content-around" style="width: 100%;">
+                                <form th:action="@{/chat/continue/{roomId}(roomId=${roomId})}" method="post">
+                            <button class="btn btn-primary rounded-pill" style="width:150px; height: 60px">네</button>
+                                </form>
+                                <a th:href="@{/chat/list}">
+                            <button class="btn btn-primary rounded-pill" style="width:150px; height: 60px">조금 더 생각해 볼래요</button>
+                                </a>
+                            </div>
+                        </div>
+                        </div>
+                        <div class="d-flex justify-content-center m-auto mt-3" style="width: 70%;">
+                            <div class="d-flex justify-content-around" style="width: 100%;">
+                            <button id="leaveButton"  class="btn btn-danger rounded-pill" style="width:150px; height: 60px">나가기</button>
+                            <button id="reportButton" class="btn btn-danger rounded-pill" style="width:150px; height: 60px">신고하고 나가기</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </div>
+</div>
+<span th:text="${freeChance}" class="d-none" id="freeChance"></span>
+<span th:text="${closureId}" class="d-none" id="closureId"></span>
+<span th:text="${userId}" class="d-none" id="userId"></span>
 <script>
-    const handleAjax = (number) => {
-        $.ajax({
-            url: '/blindtime/ajax',
-            type: 'POST',
-            data: { num: number },
-            success: function(response) {
-                alert(response);
-            },
-            error: function(xhr, status, error) {
-                alert('오류 ' + error);
-            }
+    const freeChance = $('#freeChance').text();
+    const closureId = $("#closureId").text();
+    const userId = $("#userId").text();
+
+    let socket = null;
+    let stompClient = null;
+
+    // STOMP 연결 함수
+    function connectStomp() {
+        socket = new SockJS("/blindtime/chat");
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log("STOMP 연결됨: " + frame);
+
+            // 특정 채팅방 구독
+            stompClient.subscribe("/topic/user/" + currentUserId, function (messageFrame) {
+                let received = messageFrame.body;
+
+                if (received === "refresh") {
+                    window.location.reload();
+                    return;
+                }
+
+            });
+        }, function (error) {
+            console.error("STOMP 연결 오류:", error);
+            setTimeout(connectStomp, 5000);
         });
     }
+
+    connectStomp();
+
+
+    const updateSingleTimer = () => {
+        // .timer 클래스를 가진 div를 선택
+        const timerElement = document.querySelector(".timer");
+
+        if (timerElement) {
+            // 해당 div 내부의 첫 번째 span 요소 찾기 (endTime 값이 들어있음)
+            const firstSpan = timerElement.querySelector("span");
+
+            if (firstSpan) {
+                const endTime = firstSpan.textContent; // 'endTime' 값을 가져옴
+
+                // endTime을 Date 객체로 변환 (예: "2025-02-12T14:30:00" 형식)
+                const endDate = new Date(endTime);
+
+                // 한국 시간으로 변환 (UTC+9)
+                const koreaOffset = 9 * 60; // 한국은 UTC+9 (9시간)
+                const localOffset = endDate.getTimezoneOffset(); // 현재 지역의 시간대 오프셋 (분 단위)
+
+                // 한국 시간으로 맞추기 위해 오프셋 차이를 보정
+                endDate.setMinutes(endDate.getMinutes() + (localOffset + koreaOffset));
+
+                const currentTime = new Date(); // 현재 시간 (로컬 시간)
+
+                // 현재 시간도 한국 시간으로 맞추기
+                const currentOffset = currentTime.getTimezoneOffset();
+                currentTime.setMinutes(currentTime.getMinutes() + (currentOffset + koreaOffset));
+
+                // 시간 차이 계산 (초 단위)
+                const timeDifference = (endDate - currentTime) / 1000; // 밀리초를 초로 변환
+
+                // 시간이 지나지 않았으면 0 이하가 될 수 있기 때문에 0으로 처리
+                const timeDisplay = timerElement.querySelector("span:nth-child(2)");
+                if (timeDisplay) {
+                    if (timeDifference > 0) {
+                        const hours = Math.floor(timeDifference / 3600); // 시간 계산 (3600초 = 1시간)
+                        const minutes = Math.floor((timeDifference % 3600) / 60); // 분 계산 (남은 초에서 분 계산)
+                        const seconds = Math.floor(timeDifference % 60); // 초 계산 (남은 초에서 초 계산)
+                        timeDisplay.textContent = `${hours}:${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+                    } else {
+
+                        timeDisplay.textContent = "시간 종료";
+                        $.ajax({
+                            url: `/blindtime/chat/end/${roomId}`,
+                            type: 'POST',
+                            data: {
+                                status: "on"
+                            },
+                            success: function(response) {
+                                window.location.reload();
+                            },
+                            error: function(xhr, status, error) {
+                                console.error("Error ending room:", error);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    // 초기 타이머 업데이트
+    updateSingleTimer();
+
+    // 1초마다 타이머 업데이트
+    setInterval(() => {
+        updateSingleTimer();
+    }, 1000); // 1000ms = 1초
+
+    const cardModal = document.getElementById('cardModal');
+    let currentCardNum = null;  // 현재 선택된 카드 번호를 저장할 변수
+
+    const flipCard = (num) => {
+        const card = $("#card" + num);
+        if (card.hasClass('flipped')) {
+            // 이미 뒤집힌 카드라면 아무것도 하지 않음
+        } else {
+            // 현재 선택된 카드 번호를 저장
+            currentCardNum = num;
+
+            // 카드 뒤집기 확인 모달을 표시하고, 모달 내용도 업데이트
+            cardModal.style.display = 'flex';
+            $('#modalText').text(`${num}번 카드를 뒤집으시겠습니까?`);
+            if(freeChance==='true'){
+                $('#modalContent').text('첫번째는 돋보기를 소모하지 않습니다');
+            }else{
+                $('#modalContent').text('돋보기를 소모합니다');
+            }
+
+            // 뒤집기 버튼에 num을 넘겨주어 뒤집을 카드 번호를 알 수 있게 함
+            document.getElementById('flipBtn').onclick = () => flip(currentCardNum);
+            $('#flipBtn').text("뒤집기");
+        }
+    }
+
+    const flip = (num) => {
+        console.log(num+"!!"+userId+"!!"+closureId);
+        const card = $("#card" + num);
+        $.ajax({
+            url: '/blindtime/chat/flip/'+closureId,
+            type: 'POST',
+            data: { num: num,
+                    userId: userId
+            },
+            success: function(response) {
+                // card-back 내부에 들어갈 HTML을 생성할 변수
+                let newHtml = `<div style="width:150px; height:210px;">` +
+                    `<div class="d-flex justify-content-center border-bottom">` +
+                    `<span>${response.cardType}</span>` +
+                    `</div>`;
+
+                // cardType에 따라 내용 다르게 처리
+                if(response.cardType === "취미") {
+                    newHtml += `<div class="d-flex justify-content-center"><div>`;
+                    response.cardContent.forEach(function(item) {
+                        newHtml += `<div>${item}</div>`;
+                    });
+                    newHtml += `</div></div>`;
+                } else if(response.cardType === "사진") {
+                    newHtml += `<div class="d-flex justify-content-center">` +
+                        `<img src="/blindtime/uploads/user_photos/${response.cardContent}" class="cards" alt="사진" width="150" height="185"/>` +
+                        `</div>`;
+                } else {
+                    // 기타 타입 처리 (문자열)
+                    newHtml += `<div class="d-flex justify-content-center">` +
+                        `<span>${response.cardContent}</span>` +
+                        `</div>`;
+                }
+                newHtml += `</div>`;
+
+                // 현재 카드의 card-back 영역을 업데이트
+                // 여기서는 id가 "card-front{num}"인 영역을 업데이트할 수도 있고,
+                // 전체 card-back 영역을 업데이트할 수도 있습니다.
+                $("#card" + num + " .card-back").html(newHtml);
+
+                // 카드에 flipped 클래스 토글(앞/뒤 전환)
+                card.toggleClass('flipped');
+                // 모달 닫기
+                cardModal.style.display = 'none';
+            },
+            error: function(xhr, status, error) {
+                // 카드 뒤집기 확인 모달을 표시하고, 모달 내용도 업데이트
+                cardModal.style.display = 'flex';
+                $('#modalText').text(`돋보기 갯수가 모자랍니다`);
+                    $('#modalContent').text('돋보기를 충전하시겠습니까?');
+
+                // 뒤집기 버튼에 num을 넘겨주어 뒤집을 카드 번호를 알 수 있게 함
+                document.getElementById('flipBtn').onclick = () => charge();
+                $('#flipBtn').text("충전하기");
+            }
+        });
+        cardModal.style.display = 'none';  // 모달 닫기
+    }
+
+    const charge = () => {
+        //TODO 충전하기 구현
+        cardModal.style.display = 'none';  // 모달 닫기
+    }
+
+    // 신고 버튼 클릭 시 모달 열기
+    const reportButton = document.getElementById('reportButton');
+    const reportModal = document.getElementById('reportModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelReportBtn = document.getElementById('cancelReportBtn');
+    const leaveButton = document.getElementById('leaveButton');
+    const leaveModal = document.getElementById('leaveModal');
+    const closeLeaveModal = document.getElementById('closeLeaveModal');
+    const cancelLeaveBtn = document.getElementById('cancelLeaveBtn');
+    const closeCardModal = document.getElementById('closeCardModal');
+    const cancelCardBtn = document.getElementById('cancelCardBtn');
+
+    // 모달 열기
+    reportButton.onclick = function() {
+        reportModal.style.display = 'flex';
+    };
+
+    // 모달 닫기 (닫기 버튼)
+    closeModalBtn.onclick = function() {
+        reportModal.style.display = 'none';
+    };
+
+    // 모달 닫기 (취소 버튼)
+    cancelReportBtn.onclick = function() {
+        reportModal.style.display = 'none';
+    };
+
+
+    // 모달 열기
+    leaveButton.onclick = function() {
+        leaveModal.style.display = 'flex';
+    };
+
+    // 모달 닫기 (닫기 버튼)
+    closeLeaveModal.onclick = function() {
+        leaveModal.style.display = 'none';
+    };
+
+    // 모달 닫기 (취소 버튼)
+    cancelLeaveBtn.onclick = function() {
+        leaveModal.style.display = 'none';
+    };
+
+
+    // 모달 닫기 (닫기 버튼)
+    closeCardModal.onclick = function() {
+        cardModal.style.display = 'none';
+    };
+
+    // 모달 닫기 (취소 버튼)
+    cancelCardBtn.onclick = function() {
+        cardModal.style.display = 'none';
+    };
 </script>
 </body>
 </html>
