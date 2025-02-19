@@ -1,14 +1,18 @@
 package kr.bit.mapper;
 
+import kr.bit.dto.RoomStatusDTO;
+import kr.bit.entity.ChatClosure;
 import kr.bit.entity.ChatRoom;
 import kr.bit.entity.Message;
+import kr.bit.entity.Report;
 import org.apache.ibatis.annotations.*;
 
 import java.sql.Timestamp;
 import java.util.List;
 
 public interface ChatMapper {
-    @Select("SELECT id, man_id AS manId, man_enter AS manEnter, man_continue AS manContinue, woman_id AS womanId, woman_enter AS womanEnter, woman_continue AS womanContinue, session_status AS sessionStatus, end_time AS endTime FROM chat_rooms WHERE man_id = #{userId} OR woman_id = #{userId}")
+    @Select("SELECT id, man_id AS manId, man_enter AS manEnter, man_continue AS manContinue, man_out AS manOut, woman_id AS womanId, woman_enter AS womanEnter, woman_continue AS womanContinue, woman_out AS womanOut, session_status AS sessionStatus, end_time AS endTime " +
+            "FROM chat_rooms WHERE (man_id = #{userId} AND man_out = false) OR (woman_id = #{userId} AND woman_out = false)")
     List<ChatRoom> getChatRoomsByUserId(int userId);
 
     @Select("select * from messages where room_id=#{roomId}")
@@ -47,5 +51,29 @@ public interface ChatMapper {
 
     @Delete("delete from chat_rooms where id=#{roomId}")
     void deleteChatRoom(int roomId);
+
+    @Insert("INSERT INTO messages (room_id,user_id,message_content,created_at,is_read) values(#{roomId},#{userId},#{messageContent},#{createdAt},#{read})")
+    void insertMessage(Message message);
+
+    @Insert("INSERT INTO chat_closures (room_id,user_id) values(#{roomId},#{userId})")
+    void insertChatClosure(ChatClosure chatClosure);
+
+    @Select("SELECT id from chat_closures where room_id=#{roomId} and user_id=#{userId}")
+    Integer getClosureId(ChatClosure chatClosure);
+
+    @Select("select session_status as sessionStatus, man_out as manOut, woman_out as womanOut, is_reported as reported from chat_rooms where id=#{roomId}")
+    RoomStatusDTO getSessionStatus(int roomId);
+
+    @Update("UPDATE chat_rooms set man_out=true where id= #{roomId}")
+    void manOut(int roomId);
+
+    @Update("UPDATE chat_rooms set woman_out=true where id= #{roomId}")
+    void womanOut(int roomId);
+
+    @Update("update  chat_rooms set is_reported = true where id=#{roomId}")
+    void setIsReported(int roomId);
+
+    @Insert("insert into reports(reporter_id,reported_id,report_type,current_id,report_content) values(#{reporterId},#{reportedId},#{reportType},#{currentId},#{reportContent})")
+    void report(Report report);
 
 }

@@ -63,9 +63,12 @@ public class UserService {
         return userDao.getGender(userId);
     }
 
-    public  void updateFirewood(int userId){
+    public void updateFirewood(int userId){
         userDao.updateFirewood(userId);
     }
+
+    public String getProfileImage(int userId)
+    {return userDao.getProfileImage(userId);}
 
     public String getNickname(int userId){
         return userDao.getNickname(userId);

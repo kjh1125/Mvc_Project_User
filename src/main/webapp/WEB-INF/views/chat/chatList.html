@@ -10,7 +10,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-
     <style>
     </style>
 </head>
@@ -84,7 +83,7 @@
                             </a>
                         </div>
                         <div th:case="end">
-                            <a href="">
+                            <a th:href="@{'/chat/end/' + ${chat.chatRoomId}}">
                             <div th:replace="chat/chat-card :: cardTemplate(chat=${chat})"></div>
                             </a>
                         </div>
@@ -102,6 +101,10 @@
     </div>
 </div>
 
+
+
+
+
 <script>
     const matchStart = () =>{
         $.ajax({
@@ -114,23 +117,6 @@
             },
             error: function(xhr, status, error) {
                 alert('오류 ' + error);
-            }
-        });
-    }
-
-    const handleEnterRoom = (roomId) => {
-        $.ajax({
-            url: '/blindtime/chat/roomEnter',  // 채팅방 입장 요청 URL
-            type: 'POST',
-            data: { room_id: roomId },
-            success: function(response) {
-                // 성공적인 응답 처리
-                alert(response); // 예: "채팅방에 성공적으로 접속하였습니다."
-                // 추가로, 채팅방 UI 업데이트 등을 할 수 있습니다.
-            },
-            error: function(xhr, status, error) {
-                // 오류 처리
-                alert('채팅방 접속 실패: ' + error);
             }
         });
     }
