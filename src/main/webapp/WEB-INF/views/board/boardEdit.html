@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>모바일 게시판</title>
+
+    <!-- Bootstrap 및 스타일 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/boardAdd.css}">
+
+</head>
+<body>
+
+<div class="mobile-view">
+    <div class="back-view">
+        <!-- 뒤로 가기 버튼 -->
+        <div class="d-flex align-items-center mb-3">
+            <a th:href="@{/board/list}" class="me-2 text-dark">
+                <i class="bi bi-arrow-left fs-4"></i>
+            </a>
+            <h4 class="m-0">게시판 수정</h4>
+        </div>
+
+        <!-- 게시글 작성 폼 -->
+        <div class="custom-form">
+            <form th:action="@{/board/edit}" method="post" th:object="${board}">
+                <input type="hidden" th:field="*{id}">
+                <div class="mb-3">
+                    <label for="title" class="form-label">제목</label>
+                    <input type="text" class="form-control" id="title" th:field="*{title}" placeholder="제목 입력">
+                </div>
+                <div class="mb-3">
+                    <label for="content" class="form-label">내용</label>
+                    <textarea class="form-control" id="content" th:field="*{content}" rows="10" placeholder="내용 입력"></textarea>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-secondary">완료</button>
+                    <button type="reset" class="btn btn-light border">취소</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- footer.html 포함 -->
+        <div th:replace="fragments/footer.html :: footer"></div>
+
+    </div>
+</div>
+
+</body>
+</html>
