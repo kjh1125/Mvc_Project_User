@@ -62,6 +62,14 @@
     z-index: 100; /* 다른 컨텐츠 위에 표시되도록 */
 }
 
+.comment-container {
+    position: relative;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
 .delete-icon {
     position: absolute;
     top: 10px;
