@@ -71,4 +71,10 @@ public class UserService {
 
     public int getProfileImage(int userId){return userDao.getProfileImage(userId);}
 
+    public String getNickname(int userId){return userDao.getNickname(userId);}
+
+    public UserProfile getProfile(int userId){return userDao.getProfile(userId);}
+
+    public void updateProfileImage(UserProfile userProfile){userDao.updateProfileImage(userProfile);}
+
 }

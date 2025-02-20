@@ -69,4 +69,6 @@ public class UserDao {
     public List<String> getUserHobbies(int userId){ return userMapper.getUserHobbies(userId); }
 
     public void updateReadingGlass(int userId){ userMapper.updateReadingGlass(userId); }
+
+    public void updateProfileImage(UserProfile userProfile){ userMapper.updateProfileImage(userProfile); }
 }

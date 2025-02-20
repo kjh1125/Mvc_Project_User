@@ -146,6 +146,7 @@ public class ChatController {
         else{
             receiverId = chatRoom.getManId();
         }
+        String nickname = userService.getNickname(receiverId);
         int profileImageId = userService.getProfileImage(receiverId);
         if(roomStatus.isManOut()|| roomStatus.isWomanOut()){
             model.addAttribute("out", true);
@@ -163,6 +164,7 @@ public class ChatController {
         model.addAttribute("endTime", chatRoom.getEndTime());
         model.addAttribute("status", sessionStatus);
         model.addAttribute("receiverId", receiverId);
+        model.addAttribute("nickname", nickname);
         return "chat/chatRoom";  // 뷰 이름
     }
 
@@ -264,7 +266,7 @@ public class ChatController {
         chatClosure.setUserId(userId);
         chatClosure.setRoomId(roomId);
         int closureId = chatService.getClosureId(chatClosure);
-        String otherId = chatService.getOppositeNickname(chatClosure);
+        String otherNickname = chatService.getOppositeNickname(chatClosure);
         Card card = chatService.getCardByChatEndId(closureId);
         int readingGlass = userService.getPoint(userId).getReadingGlass();
         List<String> hobbyList;
@@ -314,7 +316,7 @@ public class ChatController {
         model.addAttribute("readingGlass", readingGlass);
         model.addAttribute("userId",userId);
         model.addAttribute("endTime", chatService.getChatRoom(roomId).getEndTime());
-        model.addAttribute("otherId", otherId);
+        model.addAttribute("otherNickname", otherNickname);
         model.addAttribute("closureId", closureId);
         return "chat/endRoom";  // 뷰 이름
     }
