@@ -125,7 +125,7 @@ public class UserController {
         return "redirect:/main";
     }
 
-    @PostMapping("/logOut")
+    @PostMapping("/logout")
     public String logOut(HttpSession session, HttpServletResponse response) {
         session.invalidate();
         Cookie cookie = new Cookie("JSESSIONID", null);

@@ -62,4 +62,7 @@ public interface UserMapper {
             "WHERE uh.user_id = #{userId}")
     List<String> getUserHobbies(int userId);
 
+    @Update("UPDATE user_profiles set profile_image_id=${profileImageId} where user_id=#{userId}")
+    void updateProfileImage(UserProfile userProfile);
+
 }
