@@ -2,8 +2,12 @@ package kr.bit.service;
 
 import kr.bit.entity.Board;
 import kr.bit.dao.BoardDao;
+import kr.bit.entity.Comment;
 import kr.bit.entity.Like;
 import kr.bit.entity.ReportContent;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -77,6 +81,22 @@ public class BoardService {
         int userId = (int)session.getAttribute("user");
         board.setWriter_id(userId); //로그인 된(session) 아이디를 writer_id로 세팅.
         boardDao.updateContent(board);
+    }
+    public void insertComment(Comment comment){
+        boardDao.insertComment(comment);
+    };
+    public void deleteComment(int id){
+        boardDao.deleteComment(id);
+    }
+    public List<Comment> getComments(int board_id){
+
+        List<Comment> comments = boardDao.getComments(board_id);
+
+        for(Comment comment : comments){
+            comment.setNickname(userService.getNickname(comment.getWriter_id()));
+        }
+
+        return comments;
     }
 
 }
