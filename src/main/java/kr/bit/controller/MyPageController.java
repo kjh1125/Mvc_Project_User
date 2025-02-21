@@ -35,4 +35,12 @@ public class MyPageController {
     public String faq(HttpSession session, Model model) {
         return "myPage/faq";
     }
+
+    @GetMapping("/charge")
+    public String charge(HttpSession session, Model model) {
+        int userId = (int) session.getAttribute("user");
+        Point point = userService.getPoint(userId);
+        model.addAttribute("point", point.getPoints());
+        return "myPage/charge";
+    }
 }

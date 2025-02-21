@@ -1,7 +1,9 @@
 package kr.bit.mapper;
 
 import kr.bit.entity.Event;
+import kr.bit.entity.Point;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -11,5 +13,6 @@ public interface EventMapper {
             "FROM events " +
             "WHERE start_date <= CURDATE() AND end_date >= CURDATE()")
     List<Event> getCurrentEvents();
+
 
 }

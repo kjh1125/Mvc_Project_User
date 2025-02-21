@@ -65,4 +65,7 @@ public interface UserMapper {
     @Update("UPDATE user_profiles set profile_image_id=${profileImageId} where user_id=#{userId}")
     void updateProfileImage(UserProfile userProfile);
 
+
+    @Update("update points set points = points+ ${points} where user_id=#{userId}")
+    void setPoints(Point point);
 }

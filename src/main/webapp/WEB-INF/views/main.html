@@ -52,13 +52,17 @@
 <div class="mobile-view">
     <div class="back-view">
         <!-- 이미지 컨테이너: 첫 이미지는 보이고, 나머지는 d-none -->
-        <div style="height: 100%" th:each="event, iterStat : ${eventList}" th:class="${iterStat.first} ? '' : 'd-none'">
+        <div>
+        <img th:src="@{/images/eventDefault.png}" style="width: 100%; height: 100%; object-fit: fill;" alt="기본이벤트배경"/>
+        </div>
+        <div style="height: 100%" th:each="event, iterStat : ${eventList}" class="d-none">
             <img th:src="@{/uploads/events/{eventUrl}(eventUrl=${event.imageUrl})}"
                  style="width:100%; height:100%; object-fit: fill;" />
         </div>
         <div class="bottom-box">
             <div class="d-flex flex-row justify-content-around" style="width:50%">
                 <!-- 각 이미지에 해당하는 아이콘, 초기에는 모두 white-to-black -->
+                <i class="bi bi-circle fs-4 white-to-black"></i>
                 <div th:each="event, iterStat : ${eventList}">
                     <i class="bi bi-circle fs-4 white-to-black"></i>
                 </div>

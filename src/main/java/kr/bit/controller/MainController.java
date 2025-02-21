@@ -24,6 +24,7 @@ public class MainController {
         if (session != null && session.getAttribute("user") != null) {
             List<Event> eventList = eventService.getCurrentEvents();
             model.addAttribute("eventList", eventList);
+            System.out.println(eventList);
             return "main";  // main.html 페이지로 이동
         } else {
             return "redirect:/login";  // login.html 페이지로 리다이렉트

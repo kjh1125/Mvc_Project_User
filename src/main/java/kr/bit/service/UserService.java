@@ -77,4 +77,5 @@ public class UserService {
 
     public void updateProfileImage(UserProfile userProfile){userDao.updateProfileImage(userProfile);}
 
+    public void setPoints(Point point){userDao.setPoints(point);}
 }
