@@ -71,4 +71,7 @@ public class UserDao {
     public void updateReadingGlass(int userId){ userMapper.updateReadingGlass(userId); }
 
     public void updateProfileImage(UserProfile userProfile){ userMapper.updateProfileImage(userProfile); }
+
+
+    public void setPoints(Point point){userMapper.setPoints(point);}
 }

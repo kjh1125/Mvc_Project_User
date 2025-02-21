@@ -1,6 +1,7 @@
 package kr.bit.dao;
 
 import kr.bit.entity.Event;
+import kr.bit.entity.Point;
 import kr.bit.mapper.EventMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -13,6 +14,8 @@ public class EventDao {
     private EventMapper eventMapper;
 
     public List<Event> getCurrentEvents(){
+        System.out.println("dao,"+eventMapper.getCurrentEvents());
         return eventMapper.getCurrentEvents();
     }
+
 }

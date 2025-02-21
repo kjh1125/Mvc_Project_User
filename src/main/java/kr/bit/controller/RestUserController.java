@@ -1,13 +1,10 @@
 package kr.bit.controller;
 
+import kr.bit.entity.Point;
 import kr.bit.entity.UserProfile;
 import kr.bit.service.UserService;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 @RestController
@@ -28,6 +25,17 @@ public class RestUserController {
         userProfile.setProfileImageId(profileImageId);
         userService.updateProfileImage(userProfile);
 
+        return "success";
+    }
+
+    @PostMapping("/charge")
+    public String charge(@RequestParam("points") int points,
+            HttpSession session) {
+        int userId = (int)session.getAttribute("user");
+        Point point = new Point();
+        point.setPoints(points);
+        point.setUserId(userId);
+        userService.setPoints(point);
         return "success";
     }
 }
