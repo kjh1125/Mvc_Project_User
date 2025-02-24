@@ -161,4 +161,6 @@ public class RestChatController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error marking messages as read");
         }
     }
+
+
 }

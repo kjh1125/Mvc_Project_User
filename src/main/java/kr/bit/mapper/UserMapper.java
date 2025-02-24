@@ -1,10 +1,7 @@
 package kr.bit.mapper;
 
 import kr.bit.entity.*;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -54,7 +51,7 @@ public interface UserMapper {
     @Select("select profile_image_id from user_profiles where user_id= #{userId}")
     int getProfileImage(int userId);
 
-    @Select("select birth_date as birthDate, height, weight, photo_image_url as photoImageUrl, religion, mbti, drinking_level as drinkingLevel, smoking_status as smokingStatus from user_profiles where user_id=#{userId}")
+    @Select("select gender, birth_date as birthDate, height, weight, photo_image_url as photoImageUrl, religion, mbti, drinking_level as drinkingLevel, smoking_status as smokingStatus from user_profiles where user_id=#{userId}")
     UserProfile getProfile(int userId);
 
     @Select("SELECT h.name FROM hobbies h " +
@@ -68,4 +65,31 @@ public interface UserMapper {
 
     @Update("update points set points = points+ ${points} where user_id=#{userId}")
     void setPoints(Point point);
+
+    @Update("UPDATE users SET nickname = #{value} WHERE user_id = #{userId}")
+    void updateNickname(@Param("value") String value, @Param("userId") int userId);
+
+    @Update("UPDATE user_profiles SET height = #{value} WHERE user_id = #{userId}")
+    void updateHeight(@Param("value") int value, @Param("userId") int userId);
+
+    @Update("UPDATE user_profiles SET weight = #{value} WHERE user_id = #{userId}")
+    void updateWeight(@Param("value") int value, @Param("userId") int userId);
+
+    @Update("UPDATE user_profiles SET photo_image_url = #{value} WHERE user_id = #{userId}")
+    void updatePhotoImageUrl(@Param("value") String value, @Param("userId") int userId);
+
+    @Update("UPDATE user_profiles SET religion = #{value} WHERE user_id = #{userId}")
+    void updateReligion(@Param("value") String value, @Param("userId") int userId);
+
+    @Update("UPDATE user_profiles SET mbti = #{value} WHERE user_id = #{userId}")
+    void updateMbti(@Param("value") String value, @Param("userId") int userId);
+
+    @Update("UPDATE user_profiles SET drinking_level = #{value} WHERE user_id = #{userId}")
+    void updateDrinkingLevel(@Param("value") String value, @Param("userId") int userId);
+
+    @Update("UPDATE user_profiles SET smoking_status = #{value} WHERE user_id = #{userId}")
+    void updateSmokingStatus(@Param("value") String value, @Param("userId") int userId);
+
+    @Delete("DELETE FROM user_hobbies where user_id=#{userId}")
+    void deleteUserHobby(int userId);
 }

@@ -78,4 +78,55 @@ public class UserService {
     public void updateProfileImage(UserProfile userProfile){userDao.updateProfileImage(userProfile);}
 
     public void setPoints(Point point){userDao.setPoints(point);}
+
+    public List<String> getUserHobbies(int userId){return userDao.getUserHobbies(userId);}
+
+    public void changeUserProfile(String type, Object value, int userId) {
+        switch (type) {
+            case "nickname":
+                System.out.println((String)value);
+                userDao.updateNickname((String)value, userId);
+                break;
+            case "height":
+                userDao.updateHeight(Integer.parseInt((String) value), userId);
+                break;
+            case "weight":
+                userDao.updateWeight(Integer.parseInt((String) value), userId);
+                break;
+            case "photo_image_url":
+                userDao.updatePhotoImageUrl((String) value, userId);
+                break;
+            case "religion":
+                userDao.updateReligion((String) value, userId);
+                break;
+            case "mbti":
+                userDao.updateMbti((String) value, userId);
+                break;
+            case "drinking_level":
+                userDao.updateDrinkingLevel((String) value, userId);
+                break;
+            case "smoking_status":
+                userDao.updateSmokingStatus((String) value, userId);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid user profile type: " + type);
+        }
+    }
+
+    @Transactional
+    public void updateUserHobby(String hobbies, int userId){
+        userDao.deleteUserHobby(userId);
+
+        List<Integer> hobbyIds = Arrays.stream(hobbies.split(","))
+                .map(Integer::parseInt)
+                .collect(Collectors.toList());
+
+        for (Integer hobbyId : hobbyIds) {
+            UserHobby userHobby = new UserHobby();
+            userHobby.setUserId(userId);
+            userHobby.setHobbyId(hobbyId);
+            userDao.createUserHobby(userHobby);
+        }
+
+    }
 }

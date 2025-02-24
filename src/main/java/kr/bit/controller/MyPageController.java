@@ -1,6 +1,9 @@
 package kr.bit.controller;
 
+import kr.bit.dao.UserDao;
+import kr.bit.entity.Hobby;
 import kr.bit.entity.Point;
+import kr.bit.entity.UserHobby;
 import kr.bit.entity.UserProfile;
 import kr.bit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @Controller
 @RequestMapping("/myPage")
@@ -18,6 +22,9 @@ public class MyPageController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserDao userDao;
 
     @GetMapping("")
     public String myPage(HttpSession session, Model model) {
@@ -42,5 +49,20 @@ public class MyPageController {
         Point point = userService.getPoint(userId);
         model.addAttribute("point", point.getPoints());
         return "myPage/charge";
+    }
+
+    @GetMapping("/info")
+    public String info(HttpSession session, Model model) {
+        int userId = (int) session.getAttribute("user");
+        String nickname = userService.getNickname(userId);
+        UserProfile userProfile = userService.getProfile(userId);
+        System.out.println(userProfile);
+        List<String> userHobbyList = userService.getUserHobbies(userId);
+        List<Hobby> hobbyList = userService.getHobby();
+        model.addAttribute("hobbyList", hobbyList);
+        model.addAttribute("nickname", nickname);
+        model.addAttribute("userProfile", userProfile);
+        model.addAttribute("userHobbyList", userHobbyList);
+        return "myPage/info";
     }
 }
