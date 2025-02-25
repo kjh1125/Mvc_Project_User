@@ -15,8 +15,15 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/boardDetail.css}">
 
+
+
 </head>
 <body>
+<!--외부 js에 값 전달용-->
+<div id="pageData"
+     th:data-user-id="${session.user}"
+     th:data-board-id="${board.id}"
+     style="display:none;"></div>
 
 <div class="mobile-view">
     <div class="back-view">
@@ -80,10 +87,14 @@
             <div class="comment-box mt-2" th:each="comment : ${commentList}">
                 <div class="d-flex align-items-center">
                     <img alt="프로필" class="profile-img me-2" th:src="@{/images/profile-icon/1.jpg}">
-                    <div>
+                    <div class="comment-container" style="">
                         <strong th:text="${comment.nickname}">치킨</strong>
+                        <a href="#" class="delete-icon" th:if="${session.user == comment.writer_id}"
+                           th:attr="data-comment-id=${comment.id}">
+                            <i class="bi bi-trash"></i>
+                        </a>
                         <p class="mb-1" th:text="${comment.content}">안녕하세요!</p>
-                        <small class="text-muted" th:text="${comment.createdAt}">25-02-05 16:18</small>
+                        <small class="text-muted" th:text="${comment.created_at}">25-02-05 16:18</small>
                     </div>
                 </div>
             </div>
@@ -91,202 +102,23 @@
 
         <!-- 댓글 입력창 -->
         <div class="input-box">
-            <input class="form-control me-2" placeholder="댓글을 달아주세요" type="text">
-            <button class="btn btn-primary">전송</button>
+            <input id="cmtContent" class="form-control me-2" placeholder="댓글을 달아주세요" type="text">
+            <button id="cmtBtn" class="btn btn-primary">전송</button>
         </div>
 
         <!-- footer.html 포함 -->
         <div th:replace="fragments/footer.html :: footer"></div>
+
+        <!-- 신고 모달 포함 -->
+        <div th:replace="fragments/modal.html :: report-modal"></div>
+
+        <!-- 알림 모달 포함 -->
+        <div th:replace="fragments/modal.html :: alert-modal"></div>
+
     </div>
 </div>
 
-<!-- 신고 창 모달 -->
-<div aria-hidden="true" aria-labelledby="reportModalLabel" class="modal fade" id="reportModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="reportModalLabel">게시글 신고</h5>
-                <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
-            </div>
-            <form id="reportForm">
-                <div class="modal-body">
-                    <p>이 게시글을 신고하시겠습니까?</p>
-                    <div class="mb-3">
-                        <label class="form-label" for="reportReason">신고 사유</label>
-                        <select class="form-select" id="reportReason">
-                            <option value="">신고 사유를 선택해주세요</option>
-                            <option value="1">스팸</option>
-                            <option value="2">욕설/비방</option>
-                            <option value="3">음란물</option>
-                            <option value="4">기타</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">취소</button>
-                    <button class="btn btn-danger" type="submit">신고하기</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- 알림창 모달 -->
-<div aria-hidden="true" class="modal fade" id="alert" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">알림</h5>
-            </div>
-            <div class="modal-body">
-                신고가 접수되었습니다.
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" id="confirmBtn" type="button">확인</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script th:inline="javascript">
-    // 모델로 지정한 값 직접 가져오기
-    const user_id = /*[[${session.user}]]*/ null; //세션에 있는 유저아이디 주입
-    const board_id = [[${board.id}]]; //게시판 보드아이디
-    //좋아요 버튼
-    const likeBtn = document.querySelector('#likeBtn');
-    //좋아요 카운트 범위 가져오기
-    const heartCountSpan = document.getElementById("heartCount");
-    //신고창에서 사용하는 요소
-    const reportForm = document.getElementById('reportForm');
-    const reportModal = document.getElementById('reportModal');
-    //기본알림창으로 사용할 모달창
-    let alert = new bootstrap.Modal(document.getElementById('alert'));
-    //삭제 버튼
-    const deleteBtn = document.querySelector('#deleteBtn');
-    //수정 버튼
-    const editBtn = document.querySelector('#editBtn');
-
-    // DOMContentLoaded를 넣어서 DOM이 모두 Load된 후 해당 Action이 작동되도록 설정.
-    document.addEventListener('DOMContentLoaded', function() {
-
-        //좋아요 버튼 실행
-        likeBtn.addEventListener('click', async function (e) {
-        e.preventDefault(); // 기본 동작 방지
-
-            try {
-                const response = await fetch('/board/like', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json' // JSON 데이터임을 명시
-                    },
-                    body: JSON.stringify({
-                        "user_id": user_id,
-                        "board_id": board_id
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json(); // JSON 응답 받기
-                    heartCountSpan.textContent = data.heartCount; // 좋아요 개수 업데이트
-
-                    // 아이콘 클래스 토글
-                    likeBtn.classList.toggle('bi-heart-fill',!data.liked);
-                    likeBtn.classList.toggle('bi-heart',data.liked);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        });
-
-        // 신고 모달 창 submit 시 작동하는 함수
-        reportForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); // 기본 폼 제출 동작 방지
-
-        const reason = document.getElementById('reportReason').value;
-        const modal = bootstrap.Modal.getInstance(reportModal);
-
-        if (!reason) {
-            alert('신고 사유를 선택해주세요.');
-            return;
-        }
-
-        try {
-            const response = await fetch('./report', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    user_id: user_id,
-                    board_id: board_id,
-                    reason_id: reason
-                })
-            });
-
-            if (response.status === 409) {  // 중복 신고 (409 Conflict 응답)
-                showAlert("이미 신고한 게시물입니다.");
-                modal.hide();
-            } else if (response.ok) {  // 성공적으로 신고됨 (200 OK 응답)
-                showAlert("신고가 완료되었습니다.");
-                modal.hide();
-
-            } else {
-                alert("오류가 발생했습니다. 다시 시도해주세요.");
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('신고 처리 중 오류가 발생했습니다.');
-        }
-        });
-
-        //삭제 버튼 실행
-        deleteBtn.addEventListener('click', async function (e) {
-        e.preventDefault(); // 기본 동작 방지
-
-            confirm("삭제하시겠습니까?");
-
-            try {
-                const response = await fetch('/board/delete?board_id='+board_id, {
-                    method: 'delete'
-                });
-                if (response.ok) {
-                    showAlert("삭제되었습니다.","/board/list");
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        });
-
-        //수정버튼 실행
-        editBtn.addEventListener("click", function() {
-            $.ajax({
-                type: "POST",
-                url: "/board/check-auth/" + board_id,
-                success: function(response) {
-                    if (response.authorized) {
-                        location.href = "/board/edit/" + board_id;
-                    } else {
-                        showAlert("수정 권한이 없습니다.");
-                    }
-                },
-                error: function() {
-                    showAlert("권한 확인 중 오류가 발생했습니다.");
-                }
-            });
-        });
-
-        //알림창 함수, redirectUrl이 같이 오는 경우 확인 후 해당 Url로 이동.
-        function showAlert(message, redirectUrl = null) {
-            document.querySelector("#alert .modal-body").innerHTML = message;
-            alert.show();
-            document.getElementById('confirmBtn').addEventListener('click', function () {
-                alert.hide();
-                if (redirectUrl) {
-                    location.href = redirectUrl; // 이동
-                }
-            });
-        }
-    });
-</script>
+<!-- detail에서 사용하는 js파일 모음   -->
+<script th:src="@{/js/boardDetail.js}" defer></script>
 </body>
 </html>

@@ -1,0 +1,51 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- 신고 창 모달 -->
+<div aria-hidden="true" aria-labelledby="reportModalLabel" class="modal fade" id="reportModal" tabindex="-1"
+     th:fragment="report-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportModalLabel">게시글 신고</h5>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+            </div>
+            <form id="reportForm">
+                <div class="modal-body">
+                    <p>이 게시글을 신고하시겠습니까?</p>
+                    <div class="mb-3">
+                        <label class="form-label" for="reportReason">신고 사유</label>
+                        <select class="form-select" id="reportReason">
+                            <option value="">신고 사유를 선택해주세요</option>
+                            <option value="1">스팸</option>
+                            <option value="2">욕설/비방</option>
+                            <option value="3">음란물</option>
+                            <option value="4">기타</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">취소</button>
+                    <button class="btn btn-danger" type="submit">신고하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 알림창 모달 -->
+<div aria-hidden="true" class="modal fade" id="alert" tabindex="-1"
+     th:fragment="alert-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">알림</h5>
+            </div>
+            <div class="modal-body">
+                신고가 접수되었습니다.
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="confirmBtn" type="button">확인</button>
+            </div>
+        </div>
+    </div>
+</div>
