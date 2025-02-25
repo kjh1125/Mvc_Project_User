@@ -68,8 +68,8 @@
                 충전할 포인트
             </div>
             <div class="fs-2 fw-bold border-bottom border-secondary d-flex justify-content-end pe-5">
-                <input id="charge" class="d-none border-0 fw-bold" type="text" value="10000" style="text-align: right" onFocusout="formatInput()" />
-                <div id="formatted-output" class="fs-2 fw-bold" onclick="handleChange(event)">12,345</div> <!-- 출력할 위치 -->
+                <input id="charge" class="border-0 fw-bold" type="text" value="10000" style="text-align: right" onFocusout="formatInput()" onkeyup="checkEnter(event)" />
+                <div id="formatted-output" class="d-none fs-2 fw-bold" onclick="handleChange(event)">12,345</div> <!-- 출력할 위치 -->
                 <span>P</span>
             </div>
         </div>
@@ -77,7 +77,7 @@
             충전하기
         </div>
         <div class="d-flex justify-content-end w-100 pe-4" style="color:lightslategray; font-size: 0.9rem">
-            충전 비율: 100P = 1,000원
+            충전 비율: 1,000P = 100원
         </div>
         <div class="d-flex justify-content-between w-50 ps-3 pe-3 m-auto mt-3">
             <div>보유 포인트</div>
@@ -110,6 +110,7 @@
     </div>
 </div>
 <script>
+    let currentPoint = $('#current-point').text();
     const $point = $('#current-point');
     const $afterPoint = $('#after-point');
     const $formatOutput = $('#formatted-output');
@@ -118,26 +119,30 @@
     const $warn = $('#warn');
     const $purchase = $('#purchase');
 
-    function formatInput() {
+    const checkEnter = (event) =>{
+        if(event.keyCode === 13){
+            $chargeInput.blur();
+        }
+    }
+
+
+    const formatInput = () => {
         let value = $chargeInput.val();
         if(value%1000!==0){
             alert("최소 입력단위는 1000입니다")
             $chargeInput.val($formatOutput.text());
             return;
         }
-        if (!isNaN(value) && value !== "") {
-            const afterValue = (parseInt(value) + parseInt($point.text())).toLocaleString();
+        if (!isNaN(value) && value !== "" && value!=='0') {
+            const afterValue = (parseInt(value) + parseInt(currentPoint)).toLocaleString();
             const moneyValue = (parseInt(value)/10).toLocaleString();
             value = Number(value).toLocaleString();
             $formatOutput.text(value);
             $afterPoint.text(afterValue);
             $money.text(moneyValue);
-            if(value==='0'){
-                alert("최소 결제금액은 100원입니다")
-            }
         } else {
             $formatOutput.text('0');
-            $afterPoint.text($point.text());
+            $afterPoint.text(currentPoint);
             $money.text('0');
             $warn.text('최소 결제금액은 100원 입니다.');
             $purchase.toggleClass('disabled',true);
@@ -146,30 +151,70 @@
         $chargeInput.toggleClass("d-none");
     }
 
-    function handleChange(event) {
-        const divText = event.target.textContent.replace(/,/g, '');
-        const $inputField = $('#charge');
-        const clickedIndex = getClickedIndex(divText, event.clientX, event.clientY);
+    const handleChange = (event) => {
+        const inputField = document.getElementById('charge');
+        const clickedText = event.target.textContent;
 
-        $inputField.removeClass('d-none');
-        $formatOutput.addClass('d-none');
+        // 클릭한 위치의 x, y 좌표 얻기
+        const x = event.clientX;
+        const y = event.clientY;
 
+        // div에서 클릭한 위치에 해당하는 숫자의 인덱스를 계산
+        const clickedIndex = getClickedIndex(clickedText, x, y);
+        inputField.classList.remove('d-none');
+        event.target.classList.add('d-none');
+
+        // 그 인덱스를 사용하여 input에서 포커스 설정
         if (clickedIndex !== -1) {
-            setCursorPosition($inputField[0], clickedIndex);
+            setCursorPosition(inputField, clickedIndex);
         }
     }
 
-    function getClickedIndex(clickedText, x, y) {
+    const getClickedIndex = (clickedText, x, y) => {
         const range = document.caretRangeFromPoint(x, y);
-        return range ? range.startOffset : 0;
+        const charOffset = range.startOffset;
+
+        const length = clickedText.length;
+        let index=0;
+        if(length>7){
+            if(charOffset <= length-8){
+                index=charOffset;
+            }
+            else if(charOffset <= length-4){
+                index=charOffset-1;
+            }
+            else{
+                index=charOffset-2;
+            }
+        }
+        else if(length>3){
+            if(charOffset <= length-4){
+                index=charOffset;
+            }
+            else{
+                index=charOffset-1;
+            }
+        }
+        else{
+            index=charOffset;
+        }
+
+
+
+        if(charOffset===clickedText.length){
+            return charOffset;
+        }
+        return index;
     }
 
-    function setCursorPosition(inputField, index) {
+    const setCursorPosition = (inputField, index) => {
         const inputLength = inputField.value.length;
+        // 커서가 위치할 인덱스가 input의 범위 내에 있을 때만 처리
         if (index >= 0 && index <= inputLength) {
-            inputField.setSelectionRange(index, index);
-            inputField.focus();
-        } else {
+            inputField.setSelectionRange(index, index); // 커서 위치 설정
+            inputField.focus(); // 포커스 설정
+        }
+        else{
             inputField.setSelectionRange(inputLength, inputLength);
             inputField.focus();
         }
@@ -177,12 +222,13 @@
 
     $(document).ready(function() {
         formatInput();
+        $point.text(parseInt(currentPoint).toLocaleString());
     });
 
     $purchase.on('click', function() {
         if (!$purchase.prop('disabled')) {  // disabled 속성을 확인
             $.ajax({
-                url: '/blindtime/user/charge',
+                url: '/user/charge',
                 type: 'POST',
                 data: { points: $chargeInput.val() },
                 success: function(response) {

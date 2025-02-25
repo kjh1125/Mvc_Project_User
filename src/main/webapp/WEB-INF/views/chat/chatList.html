@@ -107,7 +107,7 @@
 <script>
     const matchStart = () =>{
         $.ajax({
-            url: '/blindtime/chat/matchStart',
+            url: '/chat/matchStart',
             type: 'POST',
             data: { },
             success: function(response) {
@@ -223,7 +223,7 @@
                             clearInterval(timerInterval);
                             // 시간 종료 시 AJAX 요청으로 roomEnd 호출
                             $.ajax({
-                                url: `/blindtime/chat/end/${roomId}`,
+                                url: `/chat/end/${roomId}`,
                                 type: 'POST',
                                 data: {
                                     status: roomStatus

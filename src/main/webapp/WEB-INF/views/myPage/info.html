@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>모바일 게시판</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        .cursor-pointer:hover {
+            cursor: pointer;
+        }
+
+        input[type="radio"] {
+            display: none;
+        }
+
+        .radioChecked{
+            background-color: #4285F4;
+            color:#ffffff;
+        }
+
+        #errorModal{
+            z-index: 99999;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-view">
+    <div class="back-view p-4">
+        <!--        닉네임 변경-->
+        <div id="nicknameChange" class="d-none">
+            <div class="d-flex flex-column justify-content-between" style="height:95vh;" >
+                <div class="d-flex flex-column">
+                    <div class="d-flex justify-content-between">
+                        <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prev()"></i>
+                    </div>
+                    <label class="mt-2 pb-3 fs-3" for="ch-nickname">
+                        닉네임을 변경하시겠습니까?
+                    </label>
+                    <input id="ch-nickname" type="text" th:value="${nickname}" class="border-0 fs-3" placeholder="닉네임" onkeyup="updateNickname()">
+                </div>
+                <div>
+                    <button type="button" id="button-nickname" class="btn border w-100" onclick="handleSubmit('nickname')" disabled>변경</button>
+                </div>
+            </div>
+        </div>
+        <!--        키 변경-->
+        <div id="heightChange" class="d-none">
+            <div class="d-flex flex-column justify-content-between" style="height:95vh;" >
+                <div class="d-flex flex-column">
+                    <div class="d-flex justify-content-between">
+                        <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prev()"></i>
+                    </div>
+                    <label class="mt-2 pb-3 fs-3" for="ch-height">
+                        키를 알려주세요
+                    </label>
+                    <input id="ch-height" type="number" th:value="${userProfile.height}" class="border-0 fs-3" placeholder="000cm" onkeyup="updateHeight()">
+                </div>
+                <div>
+                    <button type="button" id="button-height" class="btn border w-100" onclick="handleSubmit('height')" disabled>변경</button>
+                </div>
+            </div>
+        </div>
+
+        <!--        몸무게 변경-->
+        <div id="weightChange" class="d-none">
+            <div class="d-flex flex-column justify-content-between" style="height:95vh;" >
+                <div class="d-flex flex-column">
+                    <div class="d-flex justify-content-between">
+                        <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prev()"></i>
+                    </div>
+                    <label class="mt-2 pb-3 fs-3" for="ch-weight">
+                        몸무게를 알려주세요
+                    </label>
+                    <input id="ch-weight" type="number" th:value="${userProfile.weight}" class="border-0 fs-3" placeholder="000kg" onkeyup="updateWeight()">
+                </div>
+                <div>
+                    <button type="button" id="button-weight" class="btn border w-100" onclick="handleSubmit('weight')" disabled>변경</button>
+                </div>
+            </div>
+        </div>
+
+        <!--        mbti 변경-->
+        <div id="mbtiChange" class="d-none">
+            <div class="d-flex flex-column justify-content-between" style="height:95vh;" >
+                <div class="d-flex flex-column">
+                    <div class="d-flex justify-content-between">
+                        <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prev()"></i>
+                    </div>
+                    <label class="mt-2 pb-3 fs-3" for="ch-mbti">
+                        MBTI를 알려주세요
+                    </label>
+                    <select id="ch-mbti" th:field="*{userProfile.mbti}" class="fs-5 form-select w-auto m-auto">
+                        <option value="INFP">INFP</option>
+                        <option value="INFJ">INFJ</option>
+                        <option value="INTP">INTP</option>
+                        <option value="INTJ">INTJ</option>
+                        <option value="ISFP">ISFP</option>
+                        <option value="ISFJ">ISFJ</option>
+                        <option value="ISTP">ISTP</option>
+                        <option value="ISTJ">ISTJ</option>
+                        <option value="ENFP">ENFP</option>
+                        <option value="ENFJ">ENFJ</option>
+                        <option value="ENTP">ENTP</option>
+                        <option value="ENTJ">ENTJ</option>
+                        <option value="ESFP">ESFP</option>
+                        <option value="ESFJ">ESFJ</option>
+                        <option value="ESTP">ESTP</option>
+                        <option value="ESTJ">ESTJ</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="button" id="button-mbti" class="btn border w-100" onclick="handleSubmit('mbti')" >변경</button>
+                </div>
+            </div>
+        </div>
+
+        <!--        smoke 변경-->
+        <div id="smokeChange" class="d-none">
+            <div class="d-flex flex-column justify-content-between" style="height:95vh;" >
+                <div class="d-flex flex-column">
+                    <div class="d-flex justify-content-between">
+                        <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prev()"></i>
+                    </div>
+                    <label class="mt-2 pb-3 fs-3" for="ch-weight">
+                        흡연하시나요?
+                    </label>
+                    <div class="d-flex flex-wrap">
+                        <div class="d-flex align-items-center m-2 mb-3" onclick="smokeCheck(1)">
+                            <input class="form-check-input" type="radio" name="smoking_status" value="술 마실 때만" id="smoke1">
+                            <label class="form-check-label" for="smoke1">
+                                <span class="check-smoke border border-info rounded-pill p-2" id="smokeCheck1">술 마실 때만</span>
+                            </label>
+                        </div>
+
+                        <div class="d-flex align-items-center m-2 mb-3" onclick="smokeCheck(2)">
+                            <input class="form-check-input" type="radio" name="smoking_status" value="흡연" id="smoke2">
+                            <label class="form-check-label" for="smoke2">
+                                <span class="check-smoke border border-info rounded-pill p-2" id="smokeCheck2">흡연</span>
+                            </label>
+                        </div>
+
+                        <div class="d-flex align-items-center m-2 mb-3" onclick="smokeCheck(3)">
+                            <input class="form-check-input" type="radio" name="smoking_status" value="비흡연" id="smoke3">
+                            <label class="form-check-label" for="smoke3">
+                                <span class="check-smoke border border-info rounded-pill p-2" id="smokeCheck3">비흡연</span>
+                            </label>
+                        </div>
+
+                        <div class="d-flex align-items-center m-2 mb-3" onclick="smokeCheck(4)">
+                            <input class="form-check-input" type="radio" name="smoking_status" value="전자담배" id="smoke4">
+                            <label class="form-check-label" for="smoke4">
+                                <span class="check-smoke border border-info rounded-pill p-2" id="smokeCheck4">전자담배</span>
+                            </label>
+                        </div>
+
+                        <div class="d-flex align-items-center m-2 mb-3" onclick="smokeCheck(5)">
+                            <input class="form-check-input" type="radio" name="smoking_status" value="금연" id="smoke5">
+                            <label class="form-check-label" for="smoke5">
+                                <span class="check-smoke border border-info rounded-pill p-2" id="smokeCheck5">금연</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <button type="button" id="button-smoke" class="btn border w-100" onclick="smokeSubmit()" disabled>변경</button>
+                </div>
+            </div>
+        </div>
+
+        <!--        drink 변경-->
+        <div id="drinkChange" class="d-none">
+            <div class="d-flex flex-column justify-content-between" style="height:95vh;" >
+                <div class="d-flex flex-column">
+                    <div class="d-flex justify-content-between">
+                        <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prev()"></i>
+                    </div>
+                    <label class="mt-2 pb-3 fs-3" for="ch-weight">
+                        술은 얼마나 드시나요?
+                    </label>
+                    <div class="d-flex flex-wrap">
+                        <div class="d-flex align-items-center m-2 mb-3" onclick="drinkCheck(1)">
+                            <input class="form-check-input" type="radio" name="drinking_level" value="아예 안 마심" id="drink1">
+                            <label class="form-check-label" for="drink1">
+                                <span class="check-drink border border-info rounded-pill p-2" id="drinkCheck1">아예 안 마심</span>
+                            </label>
+                        </div>
+
+                        <div class="d-flex align-items-center m-2 mb-3" onclick="drinkCheck(2)">
+                            <input class="form-check-input" type="radio" name="drinking_level" value="가끔 마심" id="drink2">
+                            <label class="form-check-label" for="drink2">
+                                <span class="check-drink border border-info rounded-pill p-2" id="drinkCheck2">가끔 마심</span>
+                            </label>
+                        </div>
+
+                        <div class="d-flex align-items-center m-2 mb-3" onclick="drinkCheck(3)">
+                            <input class="form-check-input" type="radio" name="drinking_level" value="자주 마심" id="drink3">
+                            <label class="form-check-label" for="drink3">
+                                <span class="check-drink border border-info rounded-pill p-2" id="drinkCheck3">자주 마심</span>
+                            </label>
+                        </div>
+
+                        <div class="d-flex align-items-center m-2 mb-3" onclick="drinkCheck(4)">
+                            <input class="form-check-input" type="radio" name="drinking_level" value="매일 마심" id="drink4">
+                            <label class="form-check-label" for="drink4">
+                                <span class="check-drink border border-info rounded-pill p-2" id="drinkCheck4">매일 마심</span>
+                            </label>
+                        </div>
+
+                        <div class="d-flex align-items-center m-2 mb-3" onclick="drinkCheck(5)">
+                            <input class="form-check-input" type="radio" name="drinking_level" value="금주중" id="drink5">
+                            <label class="form-check-label" for="drink5">
+                                <span class="check-drink border border-info rounded-pill p-2" id="drinkCheck5">금주중</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <button type="button" id="button-drink" class="btn border w-100" onclick="drinkSubmit()" disabled>변경</button>
+                </div>
+            </div>
+        </div>
+
+        <!--        religion 변경-->
+        <div id="religionChange" class="d-none">
+            <div class="d-flex flex-column justify-content-between" style="height:95vh;" >
+                <div class="d-flex flex-column">
+                    <div class="d-flex justify-content-between">
+                        <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prev()"></i>
+                    </div>
+                    <label class="mt-2 pb-3 fs-3" for="ch-weight">
+                        종교를 선택해주세요
+                    </label>
+                    <select id="ch-religion" th:field="*{userProfile.religion}" class="fs-5 form-select w-auto m-auto">
+                        <option value="무교">무교</option>
+                        <option value="기독교">기독교</option>
+                        <option value="불교">불교</option>
+                        <option value="천주교">천주교</option>
+                        <option value="이슬람교">이슬람교</option>
+                        <option value="힌두교">힌두교</option>
+                        <option value="원불교">원불교</option>
+                        <option value="유대교">유대교</option>
+                        <option value="시크교">시크교</option>
+                        <option value="성공회">성공회</option>
+                        <option value="동방정교회">동방정교회</option>
+                        <option value="민속 신앙">민속 신앙</option>
+                        <option value="기타">기타</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="button" id="button-religion" class="btn border w-100" onclick="handleSubmit('religion')">변경</button>
+                </div>
+            </div>
+        </div>
+
+        <!--        hobby 변경-->
+        <div id="hobbyChange" class="d-none">
+            <div class="d-flex flex-column justify-content-between" style="height:95vh;" >
+                <div class="d-flex flex-column">
+                    <div class="d-flex justify-content-between">
+                        <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prev()"></i>
+                    </div>
+                    <label class="mt-2 pb-3 fs-3" id="hobby-label" for="ch-weight">
+                        취미는 어떤게 있으신가요?<span th:text="'(' + ${userHobbyList.size()} + '/5)'"></span>
+                    </label>
+                    <input style="display: none" id="hobbiesInput">
+                    <div class="d-flex flex-row flex-wrap">
+                        <div th:each="hobby : ${hobbyList}">
+                            <div class="d-flex align-items-center m-2 mb-3" th:onclick="'toggleHobbySelection('+${hobby.id}+')'">
+                                <span class="check-hobby border border-info rounded-pill p-2" th:id="'hobbyCheck'+${hobby.id}" th:text="${hobby.name}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <button type="button" id="button-hobby" class="btn border w-100" onclick="hobbySubmit()" disabled>변경</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="main">
+            <div class="mb-4 d-flex align-items-center">
+                <a th:href="@{/myPage}">
+                    <i class="fs-4 bi bi-arrow-left"></i>
+                </a>
+                <div class="ms-1 pt-1">
+                    내 정보 보기
+                </div>
+            </div>
+            <div class="d-flex flex-row align-items-center">
+                <div class="border border-secondary cursor-pointer" style="width: 100px; height: 100px;" onclick="openImageChange()">
+                    <img th:src="@{/uploads/user_photos/{url} (url=${userProfile.photoImageUrl})}" style="width: 100px; height: 100px;">
+                </div>
+                <div class="ms-3 cursor-pointer" onclick="openChange('#nicknameChange')">
+                    <span class="fs-3" id="nickname" th:text="${nickname}"></span>
+                </div>
+            </div>
+            <div class="mt-4 d-flex">
+                <div class="d-inline-block" style="width:100px;">
+                    성별
+                </div>
+                <div class="ms-2 text-secondary" th:if="${userProfile.gender=='male'}">
+                    남성
+                </div>
+                <div class="ms-2 text-secondary" th:unless="${userProfile.gender=='male'}">
+                    여성
+                </div>
+            </div>
+            <div class="mt-4 d-flex">
+                <span id="birth" class="d-none" th:text="${userProfile.birthDate}">1970-01-01</span>
+                <div class="d-inline-block" style="width:100px;">
+                    생일
+                </div>
+                <div class="ms-2 text-secondary">
+                    <span id="year">1919</span>년
+                    <span id="month">12</span>월
+                    <span id="day">10</span>일
+                </div>
+            </div>
+            <div class="mt-4 d-flex">
+                <div class="d-inline-block" style="width:100px;">
+                    키
+                </div>
+                <div class="ms-2 cursor-pointer" onclick="openChange('#heightChange')">
+                    <span id="height" th:text="${userProfile.height}">123</span>cm
+                </div>
+            </div>
+            <div class="mt-4 d-flex">
+                <div class="d-inline-block" style="width:100px;">
+                    몸무게
+                </div>
+                <div class="ms-2 cursor-pointer" onclick="openChange('#weightChange')">
+                    <span id="weight" th:text="${userProfile.weight}">34</span>kg
+                </div>
+            </div>
+            <div class="mt-4 d-flex">
+                <div class="d-inline-block" style="width:100px;">
+                    MBTI
+                </div>
+                <div class="ms-2 cursor-pointer" id="mbti" th:text="${userProfile.mbti}" onclick="openChange('#mbtiChange')">
+                    infp
+                </div>
+            </div>
+            <div class="mt-4 d-flex">
+                <div class="d-inline-block" style="width:100px;">
+                    흡연
+                </div>
+                <div class="ms-2 cursor-pointer" th:text="${userProfile.smokingStatus}" id="smoke" onclick="openChange('#smokeChange')">
+                    비흡연
+                </div>
+            </div>
+            <div class="mt-4 d-flex">
+                <div class="d-inline-block" style="width:100px;">
+                    음주
+                </div>
+                <div class="ms-2 cursor-pointer" th:text="${userProfile.drinkingLevel}" id="drink" onclick="openChange('#drinkChange')">
+                    자주 마심
+                </div>
+            </div>
+            <div class="mt-4 d-flex">
+                <div class="d-inline-block" style="width:100px;">
+                    종교
+                </div>
+                <div class="ms-2 cursor-pointer" th:text="${userProfile.religion}" id="religion" onclick="openChange('#religionChange')">
+                    무교
+                </div>
+            </div>
+            <div class="mt-4 d-flex">
+                <div class="d-inline-block" style="width:100px;">
+                    취미
+                </div>
+                <div class="ms-2 d-flex flex-column cursor-pointer" onclick="openChange('#hobbyChange')">
+                    <div th:each="hobby: ${userHobbyList}">
+                        <span class="userHobby" th:text="${hobby}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <div th:replace="fragments/footer.html :: footer">
+
+    </div>
+</div>
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">오류</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+            </div>
+            <div id="errorMessage" class="modal-body">
+                닉네임을 입력해주세요.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">확인</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 확인 모달: 변경 확인 -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">닉네임 변경 확인</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+            </div>
+            <div id="confirmMessage" class="modal-body">
+                정말로 닉네임을 변경하시겠습니까?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="confirmBtn">변경<span id="price" class="text-warning">(50000P)</span></button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 이미지 변경 모달 -->
+<div class="modal fade" id="imageChangeModal" tabindex="-1" aria-labelledby="imageChangeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageChangeModalLabel">이미지 변경</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+            </div>
+            <div class="modal-body ">
+                <!-- 이미지 미리보기 영역 (클릭 시 파일 선택) -->
+                <div id="imagePreview" class="border border-secondary cursor-pointer d-flex align-items-center justify-content-center"
+                     style="width: 100px; height: 100px;" onclick="triggerFileInput()">
+                    <i class="bi bi-plus-circle ps-1"></i>
+                </div>
+                <!-- 실제 파일 입력 (숨김 처리) -->
+                <input type="file" id="fileInput" style="display:none;" accept="image/*">
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="confirmImageBtn" class="btn btn-primary">확인</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const currentHobbyList = $('.userHobby').map((i, el) => el.textContent).get();
+    let currentHobbyId = [];
+
+    let selectedHobbies = [];
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // #smoke 요소의 텍스트에서 현재 흡연 상태 값을 가져옵니다.
+        const currentSmoke = $('#smoke').text().trim();
+        const $smokeInput = $('input[name="smoking_status"][value="' + currentSmoke + '"]');
+        $smokeInput.prop("checked", true);
+        const smokeNum = $smokeInput.attr('id').replace("smoke", "");
+        $('#smokeCheck' + smokeNum).addClass('radioChecked');
+        const currentDrink = $('#drink').text().trim();
+        const $drinkInput = $('input[name="drinking_level"][value="' + currentDrink + '"]');
+        $drinkInput.prop("checked", true);
+        const drinkNum = $drinkInput.attr('id').replace("drink", "");
+        $('#drinkCheck' + drinkNum).addClass('radioChecked');
+
+        $('.check-hobby').each(function() {
+            const hobbyName = $(this).text().trim();
+            for( currentHobby of currentHobbyList ) {
+                if(hobbyName === currentHobby) {
+                    $(this).addClass('radioChecked');
+                    const thisHobby = $(this).attr('id')
+                    const numericId = parseInt(thisHobby.replace(/\D/g, ''), 10);
+                    selectedHobbies.push(numericId);
+                    currentHobbyId.push(numericId);
+                }
+            }
+        });
+
+        var birth = document.getElementById("birth").textContent.trim();
+        if (birth) {
+            var parts = birth.split("-"); // ["1970", "01", "01"]
+            if (parts.length === 3) {
+                // 각 부분을 해당 span에 넣어줌
+                document.getElementById("year").textContent = parts[0];
+                document.getElementById("month").textContent = parts[1];
+                document.getElementById("day").textContent = parts[2];
+            }
+        }
+    });
+
+    const prev = () => {
+        window.location.reload();
+    }
+
+    const openChange = (modalSelector) => {
+        $(modalSelector).removeClass('d-none').addClass('changing');
+        $('.mobile-footer').toggleClass("d-none");
+        $('.main').toggleClass("d-none");
+    }
+
+    const updateNickname = () => {
+        const value = $('#ch-nickname').val();
+        const nickname = $('#nickname').text();
+        if(value!==nickname){
+            $('#button-nickname').prop('disabled', false);
+        }else{
+            $('#button-nickname').prop('disabled', true);
+        }
+    }
+
+    const updateHeight = () => {
+        const value = $('#ch-height').val();
+        const nickname = $('#height').text();
+        if(value!==nickname){
+            $('#button-height').prop('disabled', false);
+        }else{
+            $('#button-height').prop('disabled', true);
+        }
+    }
+
+    const updateWeight = () => {
+        const value = $('#ch-weight').val();
+        const nickname = $('#weight').text();
+        if(value!==nickname){
+            $('#button-weight').prop('disabled', false);
+        }else{
+            $('#button-weight').prop('disabled', true);
+        }
+    }
+    const smokeCheck = (smokeNum) => {
+        $("#smoke" + smokeNum).prop("checked", true);
+        $('.check-smoke').removeClass('radioChecked');
+        $('#smokeCheck'+smokeNum).addClass('radioChecked');
+        if($("#smoke"+smokeNum).val()===$("#smoke").text()){
+            $('#button-smoke').prop('disabled', true);
+        }else{
+            $('#button-smoke').prop('disabled', false);
+        }
+    }
+
+    const drinkCheck = (drinkNum) => {
+        $("#drink" + drinkNum).prop("checked", true);
+        $('.check-drink').removeClass('radioChecked');
+        $('#drinkCheck'+drinkNum).addClass('radioChecked');
+        if($("#drink"+drinkNum).val()===$("#drink").text()){
+            $('#button-drink').prop('disabled', true);
+        }else{
+            $('#button-drink').prop('disabled', false);
+        }
+    }
+
+
+    function toggleHobbySelection(hobbyId) {
+        const hobbyElement = document.getElementById('hobbyCheck' + hobbyId);
+        const hobbyLabel = $('#hobby-label')
+        // 선택 여부에 따라 'check-radio' 클래스를 추가/제거
+        if (hobbyElement.classList.contains('radioChecked')) {
+            // 이미 선택된 상태이면 선택 해제
+            hobbyElement.classList.remove('radioChecked');
+            // 선택된 취미 목록에서 해당 취미 ID 제거
+            selectedHobbies = selectedHobbies.filter(id => id !== hobbyId);
+        } else {
+            if(selectedHobbies.length<5)
+            {
+                // 선택되지 않은 상태이면 선택 추가
+                hobbyElement.classList.add('radioChecked');
+                // 선택된 취미 목록에 해당 취미 ID 추가
+                selectedHobbies.push(hobbyId);
+            }
+        }
+
+        hobbyLabel.text(`취미는 어떤게 있으신가요?(${selectedHobbies.length}/5)`);
+        // 선택된 취미 ID들을 콤마로 구분된 문자열로 변환하여 input 필드에 설정
+        document.getElementById('hobbiesInput').value = selectedHobbies.join(',');
+        if (arraysEqualIgnoreOrder(selectedHobbies, currentHobbyId) || selectedHobbies.length === 0) {
+            $('#button-hobby').prop('disabled', true);
+        } else {
+            $('#button-hobby').prop('disabled', false);
+        }
+    }
+
+    function arraysEqualIgnoreOrder(arr1, arr2) {
+        // 배열 길이가 다르면 바로 false 반환
+        if (arr1.length !== arr2.length) return false;
+
+        // 배열을 복사한 후 정렬
+        const sortedArr1 = arr1.slice().sort();
+        const sortedArr2 = arr2.slice().sort();
+
+        // 각 요소를 비교
+        for (let i = 0; i < sortedArr1.length; i++) {
+            if (sortedArr1[i] !== sortedArr2[i]) return false;
+        }
+        return true;
+    }
+
+    const smokeSubmit = () =>{
+        const selectedSmoke = $('input[name="smoking_status"]:checked').val();
+
+        // 여기서 submitChange() 함수를 호출하거나 Ajax 요청을 보내는 등 이후 작업 수행
+        submitChange("smoking_status", selectedSmoke);
+    }
+
+    const drinkSubmit = () =>{
+        const selectedDrink = $('input[name="drinking_level"]:checked').val();
+
+        // 여기서 submitChange() 함수를 호출하거나 Ajax 요청을 보내는 등 이후 작업 수행
+        submitChange("drinking_level", selectedDrink);
+    }
+
+
+    const handleSubmit = (type) => {
+        const value = $('#ch-'+type).val();
+        if (value.trim().length === 0) {
+            // 입력값이 없으면 오류 모달 띄움
+            $('#errorMessage').text("값이 없습니다.");
+            $('#errorModal').modal('show');
+            return;
+        }
+        switch (type) {
+            case 'nickname':{
+                $('#confirmModalLabel').text('닉네임 변경 확인');
+                $('#confirmMessage').text('닉네임을 변경하시겠습니까?');
+                $('#price').text('(50000P)');
+                break;
+            }
+            case 'height':{
+                $('#confirmModalLabel').text('키 변경 확인');
+                $('#confirmMessage').text('키를 변경하시겠습니까?');
+                $('#price').text('');
+                break;
+            }
+            case 'weight':{
+                $('#confirmModalLabel').text('몸무게 변경 확인');
+                $('#confirmMessage').text('몸무게를 변경하시겠습니까?');
+                $('#price').text('');
+            }
+            case 'mbti':{
+                $('#confirmModalLabel').text('MBTI 변경 확인');
+                $('#confirmMessage').text('MBTI를 변경하시겠습니까?');
+                $('#price').text('');
+                break;
+            }
+            case 'religion':{
+                $('#confirmModalLabel').text('종교 변경 확인');
+                $('#confirmMessage').text('종교를 변경하시겠습니까?');
+                $('#price').text('');
+                break;
+            }
+        }
+        const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        confirmModal.show();
+
+        // 확인 모달의 "확인" 버튼에 이벤트 등록 (한번만 실행되도록 off 후 on)
+        $('#confirmBtn').off('click').on('click', function() {
+            // 확인 버튼 클릭 시 다시 한번 입력값 체크
+            const newValue = $('#ch-'+type).val();
+            if (newValue.trim().length === 0) {
+                // 만약 중간에 입력값이 사라졌다면 오류 모달 띄움
+                $('#errorMessage').text("값이 없습니다.");
+                confirmModal.hide();
+                $('#errorModal').modal('show');
+            } else {
+                // 확인되었으면 변경 요청 전송
+                submitChange(type, newValue);
+            }
+        });
+    }
+
+    const submitChange = (type,value) => {
+        $.ajax({
+            url: '/user/change',
+            type: 'POST',
+            data: { type: type,
+                    value: value },
+            success: function(response) {
+                window.location.reload();
+            },
+            error: function(xhr, status, error) {
+                alert('오류 ' + error);
+            }
+        });
+    }
+
+    const hobbySubmit = () =>{
+        $('#confirmModalLabel').text('취미 변경 확인');
+        $('#confirmMessage').text('취미를 변경하시겠습니까?');
+        $('#price').text('');
+        const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        confirmModal.show();
+        const data = $('#hobbiesInput').val();
+
+        $('#confirmBtn').off('click').on('click', function() {
+            $.ajax({
+                url: '/user/changeHobby',
+                type: 'POST',
+                data: { data },
+                success: function(response) {
+                    window.location.reload();
+                },
+                error: function(xhr, status, error) {
+                    alert('오류 ' + error);
+                }
+            });
+        })
+    }
+
+    // 메인 이미지 클릭 시 모달 열기
+    function openImageChange() {
+        const modal = new bootstrap.Modal(document.getElementById('imageChangeModal'));
+        modal.show();
+    }
+
+    // 미리보기 div 클릭 시 파일 입력 창 열기
+    function triggerFileInput() {
+        document.getElementById('fileInput').click();
+    }
+
+    // 파일 선택 시 미리보기 표시
+    $('#fileInput').on('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // 미리보기 div에 이미지 삽입 (object-fit:cover로 크기에 맞춤)
+                $('#imagePreview').html(`<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;" />`);
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // 확인 버튼 클릭 시 AJAX를 통해 이미지 업로드
+    $('#confirmImageBtn').on('click', function() {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            $('#errorMessage').text("이미지가 없습니다.");
+            $('#errorModal').modal('show');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('image', file); // 서버에서 받을 파라미터 이름
+
+        $.ajax({
+            url: '/user/changePhoto',
+            type: 'POST',
+            data: formData,
+            processData: false,  // FormData 객체를 그대로 전송
+            contentType: false,  // multipart/form-data로 전송
+            success: function(response) {
+                alert('이미지 업로드 성공');
+                location.reload();
+            },
+            error: function(xhr, status, error) {
+                alert('이미지 업로드 실패: ' + error);
+            }
+        });
+    });
+
+</script>
+</body>
+</html>

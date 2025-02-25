@@ -470,7 +470,7 @@
 
                         timeDisplay.textContent = "시간 종료";
                         $.ajax({
-                            url: `/blindtime/chat/end/${roomId}`,
+                            url: `/chat/end/${roomId}`,
                             type: 'POST',
                             data: {
                                 status: "on"
@@ -526,7 +526,7 @@
         console.log(num+"!!"+userId+"!!"+closureId);
         const card = $("#card" + num);
         $.ajax({
-            url: '/blindtime/chat/flip/'+closureId,
+            url: '/chat/flip/'+closureId,
             type: 'POST',
             data: { num: num,
                     userId: userId
@@ -547,7 +547,7 @@
                     newHtml += `</div></div>`;
                 } else if(response.cardType === "사진") {
                     newHtml += `<div class="d-flex justify-content-center">` +
-                        `<img src="/blindtime/uploads/user_photos/${response.cardContent}" class="cards" alt="사진" width="150" height="185"/>` +
+                        `<img src="/uploads/user_photos/${response.cardContent}" class="cards" alt="사진" width="150" height="185"/>` +
                         `</div>`;
                 } else {
                     // 기타 타입 처리 (문자열)

@@ -174,7 +174,7 @@
         e.preventDefault(); // 기본 동작 방지
 
             try {
-                const response = await fetch('/blindtime/board/like', {
+                const response = await fetch('/board/like', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json' // JSON 데이터임을 명시
@@ -246,11 +246,11 @@
             confirm("삭제하시겠습니까?");
 
             try {
-                const response = await fetch('/blindtime/board/delete?board_id='+board_id, {
+                const response = await fetch('/board/delete?board_id='+board_id, {
                     method: 'delete'
                 });
                 if (response.ok) {
-                    showAlert("삭제되었습니다.","/blindtime/board/list");
+                    showAlert("삭제되었습니다.","/board/list");
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -261,10 +261,10 @@
         editBtn.addEventListener("click", function() {
             $.ajax({
                 type: "POST",
-                url: "/blindtime/board/check-auth/" + board_id,
+                url: "/board/check-auth/" + board_id,
                 success: function(response) {
                     if (response.authorized) {
-                        location.href = "/blindtime/board/edit/" + board_id;
+                        location.href = "/board/edit/" + board_id;
                     } else {
                         showAlert("수정 권한이 없습니다.");
                     }
