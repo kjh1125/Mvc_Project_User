@@ -4,6 +4,7 @@ import kr.bit.dao.UserDao;
 import kr.bit.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +32,7 @@ public class UserService {
         return userDao.getHobby();
     }
 
+    @Transactional
     public void registerUserWithHobbies(User user, UserProfile userProfile, String hobbies) {
         // 사용자 생성 (user_id가 자동으로 생성되어 user 객체에 설정됨)
         userDao.createUser(user);
@@ -67,9 +69,137 @@ public class UserService {
         userDao.updateFirewood(userId);
     }
 
-    public String getProfileImage(int userId) {return userDao.getProfileImage(userId);}
+    public int getProfileImage(int userId){return userDao.getProfileImage(userId);}
 
-    public String getNickname(int userId){
-        return userDao.getNickname(userId);
+    public String getNickname(int userId){return userDao.getNickname(userId);}
+
+    public UserProfile getProfile(int userId){return userDao.getProfile(userId);}
+
+    public void updateProfileImage(UserProfile userProfile){userDao.updateProfileImage(userProfile);}
+
+    public void setPoints(Point point){userDao.setPoints(point);}
+
+    public List<String> getUserHobbies(int userId){return userDao.getUserHobbies(userId);}
+
+    public void changeUserProfile(String type, Object value, int userId) {
+        switch (type) {
+            case "nickname":
+                userDao.updateNickname((String)value, userId);
+                break;
+            case "height":
+                userDao.updateHeight(Integer.parseInt((String) value), userId);
+                break;
+            case "weight":
+                userDao.updateWeight(Integer.parseInt((String) value), userId);
+                break;
+            case "photo_image_url":
+                userDao.updatePhotoImageUrl((String) value, userId);
+                break;
+            case "religion":
+                userDao.updateReligion((String) value, userId);
+                break;
+            case "mbti":
+                userDao.updateMbti((String) value, userId);
+                break;
+            case "drinking_level":
+                userDao.updateDrinkingLevel((String) value, userId);
+                break;
+            case "smoking_status":
+                userDao.updateSmokingStatus((String) value, userId);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid user profile type: " + type);
+        }
+    }
+
+    @Transactional
+    public void updateUserHobby(String hobbies, int userId){
+        userDao.deleteUserHobby(userId);
+
+        List<Integer> hobbyIds = Arrays.stream(hobbies.split(","))
+                .map(Integer::parseInt)
+                .collect(Collectors.toList());
+
+        for (Integer hobbyId : hobbyIds) {
+            UserHobby userHobby = new UserHobby();
+            userHobby.setUserId(userId);
+            userHobby.setHobbyId(hobbyId);
+            userDao.createUserHobby(userHobby);
+        }
+
+    }
+
+    public Point purchaseGlass(String value, int userId){
+        Point newPoint = new Point();
+        switch(value){
+            case "1":{
+                if(userDao.getPoint(userId).getPoints()<200){
+                    return null;
+                }
+                newPoint.setReadingGlass(20);
+                newPoint.setUserId(userId);
+                newPoint.setPoints(200);
+                userDao.purchaseGlass(newPoint);
+                break;
+            }
+            case "2":{
+                if(userDao.getPoint(userId).getPoints()<600){
+                    return null;
+                }
+                newPoint.setReadingGlass(65);
+                newPoint.setUserId(userId);
+                newPoint.setPoints(600);
+                userDao.purchaseGlass(newPoint);
+                break;
+            }
+            case "3":{
+                if(userDao.getPoint(userId).getPoints()<1200){
+                    return null;
+                }
+                newPoint.setReadingGlass(135);
+                newPoint.setUserId(userId);
+                newPoint.setPoints(1200);
+                userDao.purchaseGlass(newPoint);
+                break;
+            }
+        }
+        return userDao.getPoint(userId);
+    }
+
+    public Point purchaseFirewood(String value, int userId){
+        Point newPoint = new Point();
+        switch(value){
+            case "1":{
+                if(userDao.getPoint(userId).getPoints()<200){
+                    return null;
+                }
+                newPoint.setFirewood(20);
+                newPoint.setUserId(userId);
+                newPoint.setPoints(200);
+                userDao.purchaseFirewood(newPoint);
+                break;
+            }
+            case "2":{
+                if(userDao.getPoint(userId).getPoints()<600){
+                    return null;
+                }
+                newPoint.setFirewood(65);
+                newPoint.setUserId(userId);
+                newPoint.setPoints(600);
+                userDao.purchaseFirewood(newPoint);
+                break;
+            }
+            case "3":{
+                if(userDao.getPoint(userId).getPoints()<1200){
+                    return null;
+                }
+                newPoint.setFirewood(135);
+                newPoint.setUserId(userId);
+                newPoint.setPoints(1200);
+                userDao.purchaseFirewood(newPoint);
+                break;
+            }
+        }
+        return userDao.getPoint(userId);
     }
 }

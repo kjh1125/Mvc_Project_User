@@ -1,10 +1,13 @@
 package kr.bit.controller;
 
+import kr.bit.entity.Card;
 import kr.bit.entity.ChatRoom;
 import kr.bit.entity.Message;
 import kr.bit.service.ChatService;
 import kr.bit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -13,9 +16,7 @@ import javax.servlet.http.HttpSession;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/chat")
@@ -111,51 +112,55 @@ public class RestChatController {
         }
     }
 
-    @PostMapping("/send/{roomId}")
-    public String send(@PathVariable("roomId") int roomId,
-                       @RequestParam("msg") String msg,
-                       @RequestParam("receiverId")int receiverId,
-                       HttpSession session) {
-        int userId = (int) session.getAttribute("user"); // 세션에서 userId 가져오기
-        System.out.println(userId);
-
-        try (Jedis jedis = jedisPool.getResource()) {
-            // 현재 시간을 포맷팅하여 생성 시간 설정
-            LocalDateTime now = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            String createdAt = now.format(formatter);
-
-            // Message 객체 생성
-            Message message = new Message();
-            message.setRoomId(roomId);
-            message.setMessageContent(msg);
-            message.setUserId(userId);
-            message.setCreatedAt(Timestamp.valueOf(now)); // Timestamp로 변환
-
-            // Redis에 저장할 데이터 준비
-            Map<String, String> chatData = new HashMap<>();
-            chatData.put("room_id", String.valueOf(message.getRoomId()));
-            chatData.put("msg", message.getMessageContent());
-            chatData.put("user_id", String.valueOf(message.getUserId()));
-            chatData.put("created_at", createdAt);
-            chatData.put("read", String.valueOf(message.isRead()));
-            chatData.put("receiver_id", String.valueOf(receiverId));
-
-            String redisKey = "chat:" + roomId + ":" + System.currentTimeMillis();
-            jedis.hset(redisKey, chatData);  // hmset -> hset으로 변경
-
-            return "Message sent successfully!";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Error sending message.";
-        }
-
-    }
-
     @PostMapping("/end/{roomId}")
     public String roomEnd(@PathVariable("roomId") int roomId, @RequestParam("status") String status) {
         chatService.timeEnd(roomId,status);
         return "success";
     }
+
+    @PostMapping("/flip/{closureId}")
+    public ResponseEntity<Map<String, Object>> flip(
+            @PathVariable("closureId") int closureId,
+            @RequestParam("num") int num,
+            @RequestParam("userId") int userId) {
+        Card card = chatService.flipCard(userId, closureId, num);
+        String cardType = "";
+        String cardContent = "";
+        List<String> hobbyList = new ArrayList<>();
+
+        if(num == 1){
+            cardType = card.getCardType1();
+            cardContent = card.getCardContent1();
+        } else if(num == 2){
+            cardType = card.getCardType2();
+            cardContent = card.getCardContent2();
+        } else if(num == 3){
+            cardType = card.getCardType3();
+            cardContent = card.getCardContent3();
+        }
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("cardType", cardType);
+        if(cardType.equals("취미")){
+            hobbyList = new ArrayList<>(Arrays.asList(cardContent.split(":")));
+            response.put("cardContent", hobbyList);
+        }else {
+            response.put("cardContent", cardContent);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+
+    @PostMapping("/markAsRead")
+    public ResponseEntity<String> markMessagesAsRead(@RequestParam int roomId, @RequestParam int userId) {
+        try {
+            // ChatService의 markMessagesAsRead 메서드 호출
+            chatService.markMessagesAsRead(roomId, userId);
+            return ResponseEntity.ok("Messages marked as read");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error marking messages as read");
+        }
+    }
+
 
 }

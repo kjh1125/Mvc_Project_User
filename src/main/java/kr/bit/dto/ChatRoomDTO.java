@@ -12,5 +12,5 @@ public class ChatRoomDTO {
     private String content;
     private String sessionStatus;
     private String endTime;
-    private int unReadCount;
+    private Integer unReadCount;
 }

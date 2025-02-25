@@ -1,11 +1,9 @@
 package kr.bit.dao;
 
 import kr.bit.dto.RoomStatusDTO;
-import kr.bit.entity.ChatClosure;
-import kr.bit.entity.ChatRoom;
-import kr.bit.entity.Message;
-import kr.bit.entity.Report;
+import kr.bit.entity.*;
 import kr.bit.mapper.ChatMapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -71,7 +69,7 @@ public class ChatDao {
 
     public void insertMessage(Message message){chatMapper.insertMessage(message);}
 
-    public void insertChatClosure(ChatClosure chatClosure){chatMapper.insertChatClosure(chatClosure);}
+    public int insertChatClosure(ChatClosure chatClosure){ return chatMapper.insertChatClosure(chatClosure);}
 
     public Integer getClosureId(ChatClosure chatClosure){return chatMapper.getClosureId(chatClosure);}
 
@@ -84,6 +82,18 @@ public class ChatDao {
     public void report(Report report){chatMapper.report(report);}
 
     public void setIsReported(int roomId){chatMapper.setIsReported(roomId);}
+
+    public String getOppositeNickname(ChatClosure chatClosure){return chatMapper.getOppositeNickname(chatClosure);}
+
+    public void insertCard(Card card){chatMapper.insertCard(card);}
+
+    public Card getCardByChatEndId(int chatEndId){return chatMapper.getCardByChatEndId(chatEndId);}
+
+    public void updateCardStatus(int closureId,int cardNumber){chatMapper.updateCardStatus(closureId, cardNumber);}
+
+    public void manContinue(int roomId){chatMapper.manContinue(roomId);}
+
+    public void womanContinue(int roomId){chatMapper.womanContinue(roomId);}
 }
 
 

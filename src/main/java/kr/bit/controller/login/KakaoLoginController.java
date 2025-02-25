@@ -44,7 +44,8 @@ public class KakaoLoginController {
     private String getAccessToken(String code) {
         String accessToken = null;
         try {
-            String redirectURI = "http://localhost:8080/blindtime/kakaoLogin"; // Callback URL
+//            String redirectURI = "http://localhost:8080/kakaoLogin"; // Callback URL
+            String redirectURI = "https://blindtime.kro.kr/kakaoLogin"; // Callback URL
             String apiURL = "https://kauth.kakao.com/oauth/token?"
                     + "grant_type=authorization_code"
                     + "&client_id=" + kakaoClientId

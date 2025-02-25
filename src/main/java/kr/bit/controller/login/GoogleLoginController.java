@@ -48,7 +48,8 @@ public class GoogleLoginController {
     private String getGoogleAccessToken(String authCode) {
         String accessToken = null;
         try {
-            String redirectURI = "http://localhost:8080/blindtime/googleLogin"; // Callback URL
+//            String redirectURI = "http://localhost:8080/googleLogin"; // Callback URL
+            String redirectURI = "https://blindtime.kro.kr/googleLogin"; // Callback URL
             String apiURL = "https://oauth2.googleapis.com/token";
 
             // 요청 파라미터 구성
