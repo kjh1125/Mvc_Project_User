@@ -228,7 +228,7 @@
     $purchase.on('click', function() {
         if (!$purchase.prop('disabled')) {  // disabled 속성을 확인
             $.ajax({
-                url: '/blindtime/user/charge',
+                url: '/user/charge',
                 type: 'POST',
                 data: { points: $chargeInput.val() },
                 success: function(response) {

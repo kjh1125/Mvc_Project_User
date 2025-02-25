@@ -92,4 +92,10 @@ public interface UserMapper {
 
     @Delete("DELETE FROM user_hobbies where user_id=#{userId}")
     void deleteUserHobby(int userId);
+
+    @Update("UPDATE points set reading_glass = reading_glass + #{readingGlass}, points = points- #{points} where user_id=#{userId}")
+    void purchaseGlass(Point point);
+
+    @Update("UPDATE points set firewood = firewood + #{firewood}, points = points- #{points} where user_id=#{userId}")
+    void purchaseFirewood(Point point);
 }

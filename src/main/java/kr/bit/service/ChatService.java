@@ -400,7 +400,7 @@ public class ChatService {
         Card returnCard = new Card();
         if(cardCheck.getCardStatus1().equals("open")||cardCheck.getCardStatus2().equals("open")||cardCheck.getCardStatus3().equals("open")){
             if(userDao.getPoint(userId).getReadingGlass()>0){
-                userDao.updateReadingGlass(userId);
+                userDao.purchaseReadingGlass(userId);
                 chatDao.updateCardStatus(closureId,cardNumber);
                 if(cardNumber==1){
                     returnCard.setCardType1(cardCheck.getCardType1());

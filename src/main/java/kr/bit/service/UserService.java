@@ -84,7 +84,6 @@ public class UserService {
     public void changeUserProfile(String type, Object value, int userId) {
         switch (type) {
             case "nickname":
-                System.out.println((String)value);
                 userDao.updateNickname((String)value, userId);
                 break;
             case "height":
@@ -128,5 +127,79 @@ public class UserService {
             userDao.createUserHobby(userHobby);
         }
 
+    }
+
+    public Point purchaseGlass(String value, int userId){
+        Point newPoint = new Point();
+        switch(value){
+            case "1":{
+                if(userDao.getPoint(userId).getPoints()<200){
+                    return null;
+                }
+                newPoint.setReadingGlass(20);
+                newPoint.setUserId(userId);
+                newPoint.setPoints(200);
+                userDao.purchaseGlass(newPoint);
+                break;
+            }
+            case "2":{
+                if(userDao.getPoint(userId).getPoints()<600){
+                    return null;
+                }
+                newPoint.setReadingGlass(65);
+                newPoint.setUserId(userId);
+                newPoint.setPoints(600);
+                userDao.purchaseGlass(newPoint);
+                break;
+            }
+            case "3":{
+                if(userDao.getPoint(userId).getPoints()<1200){
+                    return null;
+                }
+                newPoint.setReadingGlass(135);
+                newPoint.setUserId(userId);
+                newPoint.setPoints(1200);
+                userDao.purchaseGlass(newPoint);
+                break;
+            }
+        }
+        return userDao.getPoint(userId);
+    }
+
+    public Point purchaseFirewood(String value, int userId){
+        Point newPoint = new Point();
+        switch(value){
+            case "1":{
+                if(userDao.getPoint(userId).getPoints()<200){
+                    return null;
+                }
+                newPoint.setFirewood(20);
+                newPoint.setUserId(userId);
+                newPoint.setPoints(200);
+                userDao.purchaseFirewood(newPoint);
+                break;
+            }
+            case "2":{
+                if(userDao.getPoint(userId).getPoints()<600){
+                    return null;
+                }
+                newPoint.setFirewood(65);
+                newPoint.setUserId(userId);
+                newPoint.setPoints(600);
+                userDao.purchaseFirewood(newPoint);
+                break;
+            }
+            case "3":{
+                if(userDao.getPoint(userId).getPoints()<1200){
+                    return null;
+                }
+                newPoint.setFirewood(135);
+                newPoint.setUserId(userId);
+                newPoint.setPoints(1200);
+                userDao.purchaseFirewood(newPoint);
+                break;
+            }
+        }
+        return userDao.getPoint(userId);
     }
 }

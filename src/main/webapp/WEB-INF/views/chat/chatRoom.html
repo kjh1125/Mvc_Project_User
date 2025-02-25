@@ -448,7 +448,7 @@
 
     const markAsRead = (roomId,currentUserId) => {
         $.ajax({
-            url: '/blindtime/chat/markAsRead', // 서버에 읽은 메시지 처리 API 호출
+            url: '/chat/markAsRead', // 서버에 읽은 메시지 처리 API 호출
             method: 'POST',
             data: {
                 roomId: roomId,
@@ -549,19 +549,19 @@
                         clearInterval(timerInterval); // 타이머 멈추기
                         // AJAX 요청 후 setInterval 멈추기
                         $.ajax({
-                            url: `/blindtime/chat/end/${roomId}`,
+                            url: `/chat/end/${roomId}`,
                             type: 'POST',
                             data: {
                                 status: "on"
                             },
                             success: function(response) {
                                 setTimeout(() => {
-                                window.location.href = `/blindtime/chat/end/${roomId}`;
+                                window.location.href = `/chat/end/${roomId}`;
                             }, 3000);
                             },
                             error: function(xhr, status, error) {
                                 setTimeout(() => {
-                                    window.location.href = `/blindtime/chat/end/${roomId}`;
+                                    window.location.href = `/chat/end/${roomId}`;
                                 }, 3000);
                             }
                         });

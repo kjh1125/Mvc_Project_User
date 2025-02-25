@@ -47,7 +47,8 @@ public class NaverLoginController {
     private String getAccessToken(String code, String state) {
         String accessToken = null;
         try {
-            String redirectURI = "http://localhost:8080/blindtime/naverLogin"; // Callback URL
+//            String redirectURI = "http://localhost:8080/naverLogin"; // Callback URL
+            String redirectURI = "https://blindtime.kro.kr/naverLogin"; // Callback URL
             String apiURL = "https://nid.naver.com/oauth2.0/token?grant_type=authorization_code"
                     + "&client_id=" + naverClientId
                     + "&client_secret=" + naverClientSecret

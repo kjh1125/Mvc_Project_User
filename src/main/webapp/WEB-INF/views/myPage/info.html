@@ -25,6 +25,9 @@
             color:#ffffff;
         }
 
+        #errorModal{
+            z-index: 99999;
+        }
     </style>
 </head>
 <body>
@@ -393,7 +396,7 @@
                 <h5 class="modal-title" id="errorModalLabel">오류</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
             </div>
-            <div class="modal-body">
+            <div id="errorMessage" class="modal-body">
                 닉네임을 입력해주세요.
             </div>
             <div class="modal-footer">
@@ -411,11 +414,11 @@
                 <h5 class="modal-title" id="confirmModalLabel">닉네임 변경 확인</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
             </div>
-            <div class="modal-body">
+            <div id="confirmMessage" class="modal-body">
                 정말로 닉네임을 변경하시겠습니까?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="confirmBtn">변경<span class="text-warning">(50000P)</span></button>
+                <button type="button" class="btn btn-primary" id="confirmBtn">변경<span id="price" class="text-warning">(50000P)</span></button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
             </div>
         </div>
@@ -614,11 +617,41 @@
         const value = $('#ch-'+type).val();
         if (value.trim().length === 0) {
             // 입력값이 없으면 오류 모달 띄움
-            const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-            errorModal.show();
+            $('#errorMessage').text("값이 없습니다.");
+            $('#errorModal').modal('show');
             return;
         }
-        // 입력값이 있을 경우 확인 모달 띄움
+        switch (type) {
+            case 'nickname':{
+                $('#confirmModalLabel').text('닉네임 변경 확인');
+                $('#confirmMessage').text('닉네임을 변경하시겠습니까?');
+                $('#price').text('(50000P)');
+                break;
+            }
+            case 'height':{
+                $('#confirmModalLabel').text('키 변경 확인');
+                $('#confirmMessage').text('키를 변경하시겠습니까?');
+                $('#price').text('');
+                break;
+            }
+            case 'weight':{
+                $('#confirmModalLabel').text('몸무게 변경 확인');
+                $('#confirmMessage').text('몸무게를 변경하시겠습니까?');
+                $('#price').text('');
+            }
+            case 'mbti':{
+                $('#confirmModalLabel').text('MBTI 변경 확인');
+                $('#confirmMessage').text('MBTI를 변경하시겠습니까?');
+                $('#price').text('');
+                break;
+            }
+            case 'religion':{
+                $('#confirmModalLabel').text('종교 변경 확인');
+                $('#confirmMessage').text('종교를 변경하시겠습니까?');
+                $('#price').text('');
+                break;
+            }
+        }
         const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
         confirmModal.show();
 
@@ -628,9 +661,9 @@
             const newValue = $('#ch-'+type).val();
             if (newValue.trim().length === 0) {
                 // 만약 중간에 입력값이 사라졌다면 오류 모달 띄움
-                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                $('#errorMessage').text("값이 없습니다.");
                 confirmModal.hide();
-                errorModal.show();
+                $('#errorModal').modal('show');
             } else {
                 // 확인되었으면 변경 요청 전송
                 submitChange(type, newValue);
@@ -640,7 +673,7 @@
 
     const submitChange = (type,value) => {
         $.ajax({
-            url: '/blindtime/user/change',
+            url: '/user/change',
             type: 'POST',
             data: { type: type,
                     value: value },
@@ -654,15 +687,16 @@
     }
 
     const hobbySubmit = () =>{
+        $('#confirmModalLabel').text('취미 변경 확인');
+        $('#confirmMessage').text('취미를 변경하시겠습니까?');
+        $('#price').text('');
         const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
         confirmModal.show();
         const data = $('#hobbiesInput').val();
 
-        // 확인 모달의 "확인" 버튼에 이벤트 등록 (한번만 실행되도록 off 후 on)
         $('#confirmBtn').off('click').on('click', function() {
-            // 확인 버튼 클릭 시 다시 한번 입력값 체크
             $.ajax({
-                url: '/blindtime/user/changeHobby',
+                url: '/user/changeHobby',
                 type: 'POST',
                 data: { data },
                 success: function(response) {
@@ -705,7 +739,8 @@
         const file = fileInput.files[0];
 
         if (!file) {
-            alert("업로드할 이미지를 선택해 주세요.");
+            $('#errorMessage').text("이미지가 없습니다.");
+            $('#errorModal').modal('show');
             return;
         }
 
@@ -713,13 +748,12 @@
         formData.append('image', file); // 서버에서 받을 파라미터 이름
 
         $.ajax({
-            url: '/blindtime/user/changePhoto', // 실제 이미지 업로드 엔드포인트로 수정
+            url: '/user/changePhoto',
             type: 'POST',
             data: formData,
             processData: false,  // FormData 객체를 그대로 전송
             contentType: false,  // multipart/form-data로 전송
             success: function(response) {
-                // 업로드 성공 후 처리 (예: 메인 이미지 갱신, 페이지 새로고침 등)
                 alert('이미지 업로드 성공');
                 location.reload();
             },

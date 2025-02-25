@@ -69,7 +69,7 @@ public class UserDao {
 
     public List<String> getUserHobbies(int userId){ return userMapper.getUserHobbies(userId); }
 
-    public void updateReadingGlass(int userId){ userMapper.updateReadingGlass(userId); }
+    public void purchaseReadingGlass(int userId){ userMapper.updateReadingGlass(userId); }
 
     public void updateProfileImage(UserProfile userProfile){ userMapper.updateProfileImage(userProfile); }
 
@@ -109,4 +109,8 @@ public class UserDao {
     }
 
     public void deleteUserHobby(int userId){ userMapper.deleteUserHobby(userId); }
+
+    public void purchaseGlass(Point point){ userMapper.purchaseGlass(point); }
+
+    public void purchaseFirewood(Point point){ userMapper.purchaseFirewood(point); }
 }

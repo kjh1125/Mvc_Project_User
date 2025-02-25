@@ -59,7 +59,6 @@ public class RestUserController {
                                     @RequestParam("value") String value,
                                     HttpSession session) {
         int userId = (int) session.getAttribute("user");
-        System.out.println("ㅎㅇ");
         userService.changeUserProfile(type, value, userId);
         return "success";
     }
@@ -94,6 +93,18 @@ public class RestUserController {
         Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
         userService.changeUserProfile("photo_image_url",fileName,userId);
         return "success";
+    }
+
+    @PostMapping("/glass/purchase")
+    public Point glassPurchase(@RequestParam("value") String value, HttpSession session) {
+        int userId = (int)session.getAttribute("user");
+        return userService.purchaseGlass(value, userId);
+    }
+
+    @PostMapping("/firewood/purchase")
+    public Point firewoodPurchase(@RequestParam("value") String value, HttpSession session) {
+        int userId = (int)session.getAttribute("user");
+        return userService.purchaseFirewood(value, userId);
     }
 
 }

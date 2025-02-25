@@ -56,7 +56,6 @@ public class MyPageController {
         int userId = (int) session.getAttribute("user");
         String nickname = userService.getNickname(userId);
         UserProfile userProfile = userService.getProfile(userId);
-        System.out.println(userProfile);
         List<String> userHobbyList = userService.getUserHobbies(userId);
         List<Hobby> hobbyList = userService.getHobby();
         model.addAttribute("hobbyList", hobbyList);
@@ -64,5 +63,23 @@ public class MyPageController {
         model.addAttribute("userProfile", userProfile);
         model.addAttribute("userHobbyList", userHobbyList);
         return "myPage/info";
+    }
+
+
+    @GetMapping("/glass")
+    public String glass(HttpSession session, Model model) {
+        int userId = (int) session.getAttribute("user");
+        Point point = userService.getPoint(userId);
+        model.addAttribute("point", point);
+        return "myPage/glass";
+    }
+
+
+    @GetMapping("/firewood")
+    public String firewood(HttpSession session, Model model) {
+        int userId = (int) session.getAttribute("user");
+        Point point = userService.getPoint(userId);
+        model.addAttribute("point", point);
+        return "myPage/firewood";
     }
 }
