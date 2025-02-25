@@ -1,5 +1,6 @@
 package kr.bit.service;
 
+import kr.bit.dao.UserDao;
 import kr.bit.entity.Board;
 import kr.bit.dao.BoardDao;
 import kr.bit.entity.Comment;
@@ -22,6 +23,8 @@ public class BoardService {
     private HttpSession session;
     @Autowired
     UserService userService;
+    @Autowired
+    UserDao userDao;
 
     public void insertBoard(Board board){
         int userId = (int)session.getAttribute("user");
@@ -34,7 +37,7 @@ public class BoardService {
         List<Board> boards = boardDao.getBoards();
 
         for(Board board : boards){
-            board.setNickname(userService.getNickname(board.getWriter_id()));
+            board.setNickname(userDao.getNickname(board.getWriter_id()));
         }
 
         return boards;
@@ -42,7 +45,7 @@ public class BoardService {
 
     public Board getBoard(int id){
         Board board = boardDao.getBoard(id);
-        board.setNickname(userService.getNickname(board.getWriter_id()));
+        board.setNickname(userDao.getNickname(board.getWriter_id()));
 
         return board;
     }

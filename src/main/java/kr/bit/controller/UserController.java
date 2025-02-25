@@ -70,7 +70,6 @@ public class UserController {
         User user = userJoinBean.getUser();
         UserProfile userProfile = userJoinBean.getUserProfile();
         String hobbies = userJoinBean.getHobbies();
-
         if (user.getGoogleId() != null && user.getGoogleId().isEmpty()) {
             user.setGoogleId(null);
         }
@@ -89,10 +88,13 @@ public class UserController {
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
-
-            // 파일 저장 경로 설정 (예: /path/to/upload/directory)
-            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            System.out.println(fileName);
+            String fileName = "";
+            if(file.isEmpty()){
+                fileName = "default.jpg";
+            }
+            else {
+                fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            }
             Path path = Paths.get(uploadDir, "user_photos", fileName);
 
             // 파일을 지정된 디렉토리에 저장
@@ -127,7 +129,7 @@ public class UserController {
         return "redirect:/main";
     }
 
-    @PostMapping("/logOut")
+    @PostMapping("/logout")
     public String logOut(HttpSession session, HttpServletResponse response) {
         session.invalidate();
         Cookie cookie = new Cookie("JSESSIONID", null);

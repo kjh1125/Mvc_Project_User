@@ -221,7 +221,7 @@
                         <i class="bi bi-arrow-left" onclick="prevPage(7)"></i>
                         7/10
                     </div>
-                    <label class="pb-3" for="weight">
+                    <label class="pb-3" for="mbti">
                         MBTI를 입력해주세요
                     </label>
                     <select id="mbti" th:field="*{userProfile.mbti}" class="form-select w-auto m-auto">
@@ -302,35 +302,35 @@
 
                 <div class="d-flex flex-wrap">
                     <div class="d-flex align-items-center m-2 mb-3" onclick="drinkCheck(1)">
-                        <input class="form-check-input" type="radio" name="drinking_level" value="none" id="drink1" th:field="*{userProfile.drinkingLevel}">
+                        <input class="form-check-input" type="radio" name="drinking_level" value="아예 안 마심" id="drink1" th:field="*{userProfile.drinkingLevel}">
                         <label class="form-check-label" for="drink1">
                             <span class="check-drink border border-info rounded-pill p-2" id="drinkCheck1">아예 안 마심</span>
                         </label>
                     </div>
 
                     <div class="d-flex align-items-center m-2 mb-3" onclick="drinkCheck(2)">
-                        <input class="form-check-input" type="radio" name="drinking_level" value="social" id="drink2" th:field="*{userProfile.drinkingLevel}">
+                        <input class="form-check-input" type="radio" name="drinking_level" value="가끔 마심" id="drink2" th:field="*{userProfile.drinkingLevel}">
                         <label class="form-check-label" for="drink2">
                             <span class="check-drink border border-info rounded-pill p-2" id="drinkCheck2">가끔 마심</span>
                         </label>
                     </div>
 
                     <div class="d-flex align-items-center m-2 mb-3" onclick="drinkCheck(3)">
-                        <input class="form-check-input" type="radio" name="drinking_level" value="moderate" id="drink3" th:field="*{userProfile.drinkingLevel}">
+                        <input class="form-check-input" type="radio" name="drinking_level" value="자주 마심" id="drink3" th:field="*{userProfile.drinkingLevel}">
                         <label class="form-check-label" for="drink3">
                             <span class="check-drink border border-info rounded-pill p-2" id="drinkCheck3">자주 마심</span>
                         </label>
                     </div>
 
                     <div class="d-flex align-items-center m-2 mb-3" onclick="drinkCheck(4)">
-                        <input class="form-check-input" type="radio" name="drinking_level" value="heavy" id="drink4" th:field="*{userProfile.drinkingLevel}">
+                        <input class="form-check-input" type="radio" name="drinking_level" value="매일 마심" id="drink4" th:field="*{userProfile.drinkingLevel}">
                         <label class="form-check-label" for="drink4">
                             <span class="check-drink border border-info rounded-pill p-2" id="drinkCheck4">매일 마심</span>
                         </label>
                     </div>
 
                     <div class="d-flex align-items-center m-2 mb-3" onclick="drinkCheck(5)">
-                        <input class="form-check-input" type="radio" name="drinking_level" value="none" id="drink5" th:field="*{userProfile.drinkingLevel}">
+                        <input class="form-check-input" type="radio" name="drinking_level" value="금주중" id="drink5" th:field="*{userProfile.drinkingLevel}">
                         <label class="form-check-label" for="drink5">
                             <span class="check-drink border border-info rounded-pill p-2" id="drinkCheck5">금주중</span>
                         </label>
@@ -358,35 +358,35 @@
 
                 <div class="d-flex flex-wrap">
                     <div class="d-flex align-items-center m-2 mb-3" onclick="smokeCheck(1)">
-                        <input class="form-check-input" type="radio" name="smoking_status" value="social_smoker" id="smoke1" th:field="*{userProfile.smokingStatus}">
+                        <input class="form-check-input" type="radio" name="smoking_status" value="술 마실 때만" id="smoke1" th:field="*{userProfile.smokingStatus}">
                         <label class="form-check-label" for="smoke1">
                             <span class="check-smoke border border-info rounded-pill p-2" id="smokeCheck1">술 마실 때만</span>
                         </label>
                     </div>
 
                     <div class="d-flex align-items-center m-2 mb-3" onclick="smokeCheck(2)">
-                        <input class="form-check-input" type="radio" name="smoking_status" value="regular_smoker" id="smoke2" th:field="*{userProfile.smokingStatus}">
+                        <input class="form-check-input" type="radio" name="smoking_status" value="흡연" id="smoke2" th:field="*{userProfile.smokingStatus}">
                         <label class="form-check-label" for="smoke2">
                             <span class="check-smoke border border-info rounded-pill p-2" id="smokeCheck2">흡연</span>
                         </label>
                     </div>
 
                     <div class="d-flex align-items-center m-2 mb-3" onclick="smokeCheck(3)">
-                        <input class="form-check-input" type="radio" name="smoking_status" value="non_smoker" id="smoke3" th:field="*{userProfile.smokingStatus}">
+                        <input class="form-check-input" type="radio" name="smoking_status" value="비흡연" id="smoke3" th:field="*{userProfile.smokingStatus}">
                         <label class="form-check-label" for="smoke3">
                             <span class="check-smoke border border-info rounded-pill p-2" id="smokeCheck3">비흡연</span>
                         </label>
                     </div>
 
                     <div class="d-flex align-items-center m-2 mb-3" onclick="smokeCheck(4)">
-                        <input class="form-check-input" type="radio" name="smoking_status" value="non_smoker" id="smoke4" th:field="*{userProfile.smokingStatus}">
+                        <input class="form-check-input" type="radio" name="smoking_status" value="전자담배" id="smoke4" th:field="*{userProfile.smokingStatus}">
                         <label class="form-check-label" for="smoke4">
                             <span class="check-smoke border border-info rounded-pill p-2" id="smokeCheck4">전자담배</span>
                         </label>
                     </div>
 
                     <div class="d-flex align-items-center m-2 mb-3" onclick="smokeCheck(5)">
-                        <input class="form-check-input" type="radio" name="smoking_status" value="non_smoker" id="smoke5" th:field="*{userProfile.smokingStatus}">
+                        <input class="form-check-input" type="radio" name="smoking_status" value="금연" id="smoke5" th:field="*{userProfile.smokingStatus}">
                         <label class="form-check-label" for="smoke5">
                             <span class="check-smoke border border-info rounded-pill p-2" id="smokeCheck5">금연</span>
                         </label>
@@ -413,10 +413,12 @@
                     </label>
 
                     <input style="display: none" id="hobbiesInput" th:field="*{hobbies}">
-                    <div class="d-flex flex-wrap" th:each="hobby : ${hobbyList}">
-                        <div class="d-flex align-items-center" th:onclick="'toggleHobbySelection('+${hobby.id}+')'">
+                    <div class="d-flex flex-row flex-wrap">
+                    <div th:each="hobby : ${hobbyList}">
+                        <div class="d-flex align-items-center m-2 mb-3" th:onclick="'toggleHobbySelection('+${hobby.id}+')'">
                                 <span class="check-hobby border border-info rounded-pill p-2" th:id="'hobbyCheck'+${hobby.id}" th:text="${hobby.name}"></span>
                         </div>
+                    </div>
                     </div>
 
 

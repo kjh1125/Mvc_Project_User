@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>모바일 게시판</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        .cursor-pointer:hover {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-view">
+    <div class="back-view p-4">
+        <div class="mb-2 d-flex align-items-center">
+            <a th:href="@{/myPage}">
+                <i class="fs-4 bi bi-arrow-left"></i>
+            </a>
+            <div class="ms-1 pt-1">
+                돋보기 충전
+            </div>
+        </div>
+        <div class="ms-3 pb-2 d-flex flex-row justify-content-between border-bottom border-secondary">
+            <div class="d-flex flex-column align-items-center">
+                <div>보유 중 돋보기</div>
+                <div class="fs-2 fw-bold">
+                    <i class="bi bi-search pe-2"></i>
+                    <span id="currentGlass" th:text="${point.readingGlass}"></span>
+                </div>
+            </div>
+            <div class="d-flex flex-column align-items-center justify-content-end">
+                <div class="fw-bold">
+                    <span id="currentPoint" th:text="${point.points}"></span>P
+                </div>
+                <div>
+                    포인트
+                </div>
+            </div>
+        </div>
+        <div class="fs-5 mt-5 d-flex justify-content-center w-100 fw-bold" style="color:saddlebrown">
+            구매하기
+        </div>
+        <div class="d-flex flex-row justify-content-between w-100 p-4 ps-5 pe-5 align-items-center cursor-pointer" style="background-color: #d5d4d4" onclick="glass(1)">
+            <div class="d-flex flex-row fs-4 fw-bold">
+                <i class="bi bi-search pe-2 me-3"></i>
+                <div>20</div>
+            </div>
+            <div>200P</div>
+        </div>
+        <div class="d-flex flex-row justify-content-between w-100 p-4 ps-5 pe-5 align-items-center mt-5 cursor-pointer" style="background-color: #d5d4d4" onclick="glass(2)">
+            <div class="d-flex flex-row fs-4 fw-bold align-items-center">
+                <i class="bi bi-search pe-2 me-3"></i>
+                <div>60</div>
+                <div class="ps-2 text-danger fs-6">+5</div>
+            </div>
+            <div>600P</div>
+        </div>
+        <div class="d-flex flex-row justify-content-between w-100 p-4 ps-5 pe-5 align-items-center mt-5 cursor-pointer" style="background-color: #d5d4d4" onclick="glass(3)">
+            <div class="d-flex flex-row fs-4 fw-bold align-items-center">
+                <i class="bi bi-search pe-2 me-3"></i>
+                <div>120</div>
+                <div class="ps-2 text-danger fs-6">+15</div>
+            </div>
+            <div>1,200P</div>
+        </div>
+    </div>
+    <div th:replace="fragments/footer.html :: footer">
+
+    </div>
+</div>
+<!-- 확인 모달: 변경 확인 -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">돋보기 충전 확인</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+            </div>
+            <div id="confirmMessage" class="modal-body">
+                충전하시겠습니까?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="confirmBtn">충전<span id="price" class="text-warning">(50000P)</span></button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- 확인 모달: 변경 확인 -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel">돋보기 충전 완료</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+            </div>
+            <div id="successMessage" class="modal-body">
+                충전이 완료되었습니다!!
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">확인</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- 확인 모달: 변경 확인 -->
+<div class="modal fade" id="failModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="failModalLabel">돋보기 충전 실패</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+            </div>
+            <div id="failMessage" class="modal-body">
+                보유한 포인트가 부족합니다. 충전하시겠습니까?
+            </div>
+            <div class="modal-footer">
+                <a th:href="@{/myPage/charge}">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">충전</button>
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const glass = (value) => {
+        switch (value) {
+            case 1:{
+                $('#price').text('(200P)');
+                break;
+            }
+            case 2:{
+                $('#price').text('(600P)');
+                break;
+            }
+            case 3:{
+                $('#price').text('(1200P)');
+                break;
+            }
+        }
+        const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        confirmModal.show();
+
+        // 확인 모달의 "확인" 버튼에 이벤트 등록 (한번만 실행되도록 off 후 on)
+        $('#confirmBtn').off('click').on('click', function() {
+                submitGlass(value);
+        });
+    }
+
+    const submitGlass = (value) => {
+        $.ajax({
+            url: '/user/glass/purchase',
+            type: 'POST',
+            data: { value: value },
+            success: function(response) {
+                console.log(response);
+                if(response==''){
+                    $('#confirmModal').modal('hide');
+                    $('#failModal').modal('show');
+                }
+                else {
+                    $('#currentGlass').text(response.readingGlass);
+                    $('#currentPoint').text(response.points);
+                    $('#confirmModal').modal('hide');
+                    $('#successModal').modal('show');
+                }
+            },
+            error: function(xhr, status, error) {
+            }
+        });
+    }
+</script>
+</body>
+</html>

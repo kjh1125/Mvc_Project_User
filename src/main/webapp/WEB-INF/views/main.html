@@ -12,18 +12,148 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 
     <style>
+        .bottom-box {
+            position: absolute;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            bottom: 50px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+        }
+        .back-view{
+            position: relative;
+            height: 100vh;
+        }
+        .white-to-black {
+            background: radial-gradient(white, black);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .white-to-black:hover {
+            cursor: pointer;
+            text-shadow: 0 0 10px #007BFF; /* 파란색 섀도우 효과 */
+        }
+
+        .white-to-blue {
+            background: radial-gradient(white, #007BFF); /* 더 선명한 파란색 사용 */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transform: scale(1.2); /* 약간 확대 */
+            transition: transform 0.3s ease, text-shadow 0.3s ease;
+        }
     </style>
 </head>
 <body>
 
 <div class="mobile-view">
     <div class="back-view">
-
+        <!-- 이미지 컨테이너: 첫 이미지는 보이고, 나머지는 d-none -->
+        <div>
+        <img th:src="@{/images/eventDefault.png}" style="width: 100%; height: 100%; object-fit: fill;" alt="기본이벤트배경"/>
+        </div>
+        <div style="height: 100%" th:each="event, iterStat : ${eventList}" class="d-none">
+            <img th:src="@{/uploads/events/{eventUrl}(eventUrl=${event.imageUrl})}"
+                 style="width:100%; height:100%; object-fit: fill;" />
+        </div>
+        <div class="bottom-box">
+            <div class="d-flex flex-row justify-content-around" style="width:50%">
+                <!-- 각 이미지에 해당하는 아이콘, 초기에는 모두 white-to-black -->
+                <i class="bi bi-circle fs-4 white-to-black"></i>
+                <div th:each="event, iterStat : ${eventList}">
+                    <i class="bi bi-circle fs-4 white-to-black"></i>
+                </div>
+            </div>
+        </div>
     </div>
-    <div th:replace="fragments/footer.html :: footer">
-
-    </div>
+    <div th:replace="fragments/footer.html :: footer"></div>
 </div>
 
+<script>
+    // 캐시 우회를 위한 이미지 새로고침 함수
+    function refreshImages() {
+        const images = document.querySelectorAll('img');
+        images.forEach(img => {
+            let currentSrc = img.getAttribute('src');
+            if (currentSrc.indexOf('?') !== -1) {
+                currentSrc = currentSrc.split('?')[0];
+            }
+            img.src = currentSrc + '?v=' + new Date().getTime();
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        refreshImages();
+
+        // 슬라이드 이미지 컨테이너(하단 버튼영역 제외)
+        const imageContainers = document.querySelectorAll('.back-view > div:not(.bottom-box)');
+        // 하단 아이콘들
+        const icons = document.querySelectorAll('.bottom-box i');
+
+        let currentIndex = 0;
+        const totalImages = imageContainers.length;
+        let autoSlideInterval = null;
+        let autoSlideTimeout = null;
+
+        // 아이콘 상태 업데이트 함수
+        function updateIcons() {
+            icons.forEach((icon, index) => {
+                if(index === currentIndex) {
+                    icon.classList.remove('white-to-black');
+                    icon.classList.add('white-to-blue');
+                } else {
+                    icon.classList.remove('white-to-blue');
+                    icon.classList.add('white-to-black');
+                }
+            });
+        }
+
+        // 이미지 전환 함수
+        function showImage(index) {
+            // 현재 이미지 숨김
+            imageContainers[currentIndex].classList.add('d-none');
+            currentIndex = index;
+            // 새 이미지 보이기
+            imageContainers[currentIndex].classList.remove('d-none');
+            updateIcons();
+        }
+
+        // 자동 슬라이드 함수
+        function autoSlide() {
+            const nextIndex = (currentIndex + 1) % totalImages;
+            showImage(nextIndex);
+        }
+
+        // 자동 슬라이드 시작 함수
+        function startAutoSlide() {
+            autoSlideInterval = setInterval(autoSlide, 3000);
+        }
+
+        // 초기 아이콘 업데이트
+        updateIcons();
+        // 자동 슬라이드 시작
+        startAutoSlide();
+
+        // 아이콘 클릭 이벤트 추가
+        icons.forEach((icon, index) => {
+            icon.addEventListener('click', function(){
+                if(index !== currentIndex) {
+                    // 클릭한 아이콘에 해당하는 이미지로 전환
+                    showImage(index);
+                    // 자동 슬라이드 일시 중지: 기존 타이머와 인터벌 클리어
+                    clearInterval(autoSlideInterval);
+                    clearTimeout(autoSlideTimeout);
+                    // 5초 후 자동 슬라이드 재시작
+                    autoSlideTimeout = setTimeout(() => {
+                        startAutoSlide();
+                    }, 5000);
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

@@ -17,7 +17,6 @@
         .chat-container {
             display: flex;
             flex-direction: column-reverse; /* 최신 메시지가 위로 오도록 */
-            max-height: 100vh;
             overflow-y: hidden; /* 스크롤 활성화 */
             margin-bottom:50px;
             padding: 10px;
@@ -258,9 +257,7 @@
                                 <a th:href="@{/chat/list}">
                                     <i class="fs-4 bi bi-arrow-left"></i>
                                 </a>
-                                <span class="ps-2 fs-4">
-                                    닉네임
-                                </span>
+                                <span class="ps-2 fs-4"  th:text="${nickname}"></span>
                             </div>
                             <div>
                                 <i id="dotsMenu" class="fs-4 bi bi-three-dots-vertical" ></i>
@@ -271,7 +268,7 @@
                                 </div>
                                 </div>
                         </div>
-                        <div th:if="${endTime}">
+                        <div th:if="${status=='on'}">
                         <div class="d-flex justify-content-around m-auto border-bottom" style="width: 100%;">
                             <div style="width:25%"></div>
                             <div class="d-flex justify-content-end pe-1" style="width:25%">
@@ -283,7 +280,7 @@
                             </div>
                         </div>
                         </div>
-                        <div th:unless="${endTime}">
+                        <div th:if="${status=='wait'}">
                             <div class="d-flex justify-content-around m-auto border-bottom" style="width: 100%;">
                                 <div style="width:25%"></div>
                                 <div class="d-flex justify-content-center pe-1" style="width:50%">
@@ -303,6 +300,12 @@
                  id="user-icon"
                  alt="아이콘"
                  style="width:10%; height:10%; border-radius: 50%;" class="d-none"/>
+            <div th:if="${out==true}">
+                <div class="d-flex justify-content-center" style="width: 100%;">
+                    <div class="border rounded-pill p-2" style="background-color: darkgrey">상대방이 나갔습니다
+                    </div>
+                </div>
+            </div>
             <!-- 메시지를 반복해서 출력 -->
             <div th:each="message : ${messageList}">
                 <!-- userId가 같으면 오른쪽 배치 -->
@@ -332,12 +335,12 @@
                     <div class="border border-info rounded-pill" style="background-color: #ECE6F0; width: 100%;">
                         <input id="roomId" type="hidden" th:value="${roomId}">
                         <input id="userId" type="hidden" th:value="${userId}">
-                        <div th:if="${status}=='on'">
+                        <div th:if="(${status}=='on' or ${status}=='continue') and ${out==false}">
                         <label style="width:100%;">
                             <input id="chatInput" class="border-0 ms-1 bg-transparent" style="width:90%;" name="text" type="text" onkeydown="checkEnterKey(event)"/>
                         </label>
                         </div>
-                        <div th:unless="${status}=='on'">
+                        <div th:unless="(${status}=='on' or ${status}=='continue') and ${out==false}">
                             <label style="width:100%;">
                                 <input class="border-0 ms-1 bg-transparent" style="width:90%;" name="text" type="text" onkeydown="checkEnterKey(event)" disabled/>
                             </label>
@@ -353,8 +356,16 @@
         </div>
     </footer>
 </div>
-
+<span id="status" th:text="${status}" class="d-none"></span>
+<span id="receiverId" th:text="${receiverId}" class="d-none"></span>
 <script>
+    const receiverId = $("#receiverId").text();
+    const status = $('#status').text();
+    if (status === 'wait') {
+        setInterval(function() {
+            location.reload(); // 페이지 새로고침
+        }, 3000); // 3000ms (3초)마다 실행
+    }
     // 현재 사용자 ID (예: 서버에서 Thymeleaf로 전달받거나, 별도 JS 변수로 지정)
     const currentUserId = $("#userId").val(); // 예: "100"
     const roomId = $("#roomId").val(); // 예: "17"
@@ -399,6 +410,9 @@
                         </div>
                     </div>
                 `;
+                    $(".chat-container").prepend(messageHtml);
+                    let bottom = document.body.scrollHeight;
+                    window.scrollTo({top:bottom, left:0})
                 } else {
                     // 다른 사용자가 보낸 메시지 (왼쪽)
                     messageHtml = `
@@ -409,18 +423,43 @@
                         </div>
                     </div>
                 `;
+                    const isAtBottom = document.body.scrollHeight - document.body.scrollTop <= document.body.clientHeight;
+
+                    // 채팅 메시지 추가 (prepend)
+                    $(".chat-container").prepend(messageHtml);
+
+                    // 스크롤이 맨 아래일 경우에만 아래로 스크롤
+                    if (isAtBottom) {
+                        let bottom = document.body.scrollHeight;
+                        window.scrollTo({ top: bottom, left: 0 });
+                    }
                 }
 
                 // 메시지를 채팅 컨테이너에 추가
-                $(".chat-container").prepend(messageHtml);
 
-                // 스크롤을 가장 아래로 이동
-                let chatContainer = document.querySelector(".chat-container");
-                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                markAsRead(roomId,currentUserId);
             });
         }, function (error) {
             console.error("STOMP 연결 오류:", error);
-            setTimeout(connectStomp, 5000); // 5초 후 재연결 시도
+            setTimeout(connectStomp, 5000);
+        });
+    }
+
+    const markAsRead = (roomId,currentUserId) => {
+        $.ajax({
+            url: '/chat/markAsRead', // 서버에 읽은 메시지 처리 API 호출
+            method: 'POST',
+            data: {
+                roomId: roomId,
+                userId: currentUserId
+            },
+            success: function (response) {
+                console.log("메시지 읽음 처리 완료");
+            },
+            error: function (error) {
+                console.error("메시지 읽음 처리 실패", error);
+            }
         });
     }
 
@@ -428,7 +467,7 @@
 
     window.onload = function() {
         let bottom = document.body.scrollHeight;
-        window.scrollTo({top:bottom, left:0})
+        window.scroll({top: bottom, left: 0, behavior: 'auto'});
 
     }
 
@@ -443,21 +482,29 @@
         const msg = document.getElementById('chatInput').value; // 입력된 메시지 가져오기
 
         if (msg.trim() !== "") {
-            sendMessage(roomId, msg); // Ajax로 메시지 전송
+            sendMessage(roomId, msg,receiverId); // Ajax로 메시지 전송
         } else {
             alert("메시지를 입력하세요.");
         }
     };
 
     const sendMessage = (roomId, msg) => {
-        // 전송할 메시지 객체 구성
+        // 메시지 객체에 receiverId 포함
+        const messageWithReceiver = JSON.stringify({
+            msg: msg,
+            receiverId: receiverId
+        });
+        console.log(messageWithReceiver)
 
         // STOMP send: application destination prefix를 포함해야 함.
-        stompClient.send("/blindtime/room/" + roomId, {}, msg);
+        stompClient.send("/blindtime/room/" + roomId, {}, messageWithReceiver);
 
         // 메시지 전송 후 입력 필드 초기화
         document.getElementById('chatInput').value = "";
     };
+
+
+    let timerInterval; // setInterval ID를 저장할 변수
 
     const updateSingleTimer = () => {
         // .timer 클래스를 가진 div를 선택
@@ -497,21 +544,28 @@
                         const seconds = Math.floor(timeDifference % 60); // 초 계산
                         timeDisplay.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
                     } else {
-
                         timeDisplay.textContent = "시간 종료";
+
+                        clearInterval(timerInterval); // 타이머 멈추기
+                        // AJAX 요청 후 setInterval 멈추기
                         $.ajax({
-                            url: `/blindtime/chat/end/${roomId}`,
+                            url: `/chat/end/${roomId}`,
                             type: 'POST',
                             data: {
                                 status: "on"
                             },
                             success: function(response) {
-                                window.location.reload();
+                                setTimeout(() => {
+                                window.location.href = `/chat/end/${roomId}`;
+                            }, 3000);
                             },
                             error: function(xhr, status, error) {
-                                console.error("Error ending room:", error);
+                                setTimeout(() => {
+                                    window.location.href = `/chat/end/${roomId}`;
+                                }, 3000);
                             }
                         });
+
                     }
                 }
             }
@@ -522,9 +576,10 @@
     updateSingleTimer();
 
     // 1초마다 타이머 업데이트
-    setInterval(() => {
+    timerInterval = setInterval(() => {
         updateSingleTimer();
     }, 1000); // 1000ms = 1초
+
 
 
     const dotsMenu = document.getElementById('dotsMenu');
@@ -548,7 +603,10 @@
     const reportModal = document.getElementById('reportModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const cancelReportBtn = document.getElementById('cancelReportBtn');
-    const reportSubmitBtn = document.getElementById('reportSubmitBtn');
+    const leaveButton = document.getElementById('leaveButton');
+    const leaveModal = document.getElementById('leaveModal');
+    const closeLeaveModal = document.getElementById('closeLeaveModal');
+    const cancelLeaveBtn = document.getElementById('cancelLeaveBtn');
 
     // 모달 열기
     reportButton.onclick = function() {
@@ -565,10 +623,6 @@
         reportModal.style.display = 'none';
     };
 
-    const leaveButton = document.getElementById('leaveButton');
-    const leaveModal = document.getElementById('leaveModal');
-    const closeLeaveModal = document.getElementById('closeLeaveModal');
-    const cancelLeaveBtn = document.getElementById('cancelLeaveBtn');
 
     // 모달 열기
     leaveButton.onclick = function() {
