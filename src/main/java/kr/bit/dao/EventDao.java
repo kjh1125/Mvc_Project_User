@@ -14,7 +14,6 @@ public class EventDao {
     private EventMapper eventMapper;
 
     public List<Event> getCurrentEvents(){
-        System.out.println("dao,"+eventMapper.getCurrentEvents());
         return eventMapper.getCurrentEvents();
     }
 

@@ -376,7 +376,7 @@
 
     // STOMP 연결 함수
     function connectStomp() {
-        socket = new SockJS("/blindtime/chat");
+        socket = new SockJS("/chat");
         stompClient = Stomp.over(socket);
 
         stompClient.connect({}, function (frame) {

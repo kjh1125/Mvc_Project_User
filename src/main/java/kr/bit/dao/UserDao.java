@@ -113,4 +113,6 @@ public class UserDao {
     public void purchaseGlass(Point point){ userMapper.purchaseGlass(point); }
 
     public void purchaseFirewood(Point point){ userMapper.purchaseFirewood(point); }
+
+    public void deleteUser(@Param("userId")int userId){ userMapper.deleteUser(userId); }
 }

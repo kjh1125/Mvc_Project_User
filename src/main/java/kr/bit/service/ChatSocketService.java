@@ -1,5 +1,6 @@
 package kr.bit.service;
 
+import kr.bit.dao.ChatDao;
 import kr.bit.dto.ChatRoomDTO;
 import kr.bit.entity.ChatRoom;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ public class ChatSocketService {
     private SimpMessagingTemplate messagingTemplate;
     @Autowired
     private JedisPool jedisPool;
+    @Autowired
+    private ChatDao chatDao;
 
     // 특정 방의 모든 사용자에게 WebSocket 메시지를 전송하는 메서드
     public void notifyRoomUpdate(int roomId) {
@@ -39,7 +42,7 @@ public class ChatSocketService {
 
     public void messageUpdate(int roomId, int userId) {
         String destination = "/topic/user/" + userId;
-
+        chatDao.chatroomToTop(roomId);
         // Redis에서 roomId에 해당하는 모든 Redis 키 가져오기
         String redisPattern = "chat:" + roomId + ":*";
         try (Jedis jedis = jedisPool.getResource()) { // Redis 리소스를 안전하게 관리

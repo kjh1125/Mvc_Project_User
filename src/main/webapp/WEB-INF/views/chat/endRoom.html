@@ -344,7 +344,9 @@
                                 <span id="reading-glass" th:text="${readingGlass}"></span>
                             </div>
                             <div class="d-flex justify-content-left" style="width: 15%">
-                                <i class="bi bi-plus-circle"></i>
+                                <a th:href="@{/myPage/glass}">
+                                    <i class="bi bi-plus-circle"></i>
+                                </a>
                             </div>
                         </div>
                         <div th:if="${isContinue==true}">
@@ -394,7 +396,7 @@
 <span th:text="${closureId}" class="d-none" id="closureId"></span>
 <span th:text="${userId}" class="d-none" id="userId"></span>
 <script>
-    const freeChance = $('#freeChance').text();
+    const freeChance = $('#freeChance');
     const closureId = $("#closureId").text();
     const userId = $("#userId").text();
 
@@ -510,7 +512,7 @@
             // 카드 뒤집기 확인 모달을 표시하고, 모달 내용도 업데이트
             cardModal.style.display = 'flex';
             $('#modalText').text(`${num}번 카드를 뒤집으시겠습니까?`);
-            if(freeChance==='true'){
+            if(freeChance.text()==='true'){
                 $('#modalContent').text('첫번째는 돋보기를 소모하지 않습니다');
             }else{
                 $('#modalContent').text('돋보기를 소모합니다');
@@ -532,6 +534,7 @@
                     userId: userId
             },
             success: function(response) {
+                freeChance.text(false);
                 // card-back 내부에 들어갈 HTML을 생성할 변수
                 let newHtml = `<div style="width:150px; height:210px;">` +
                     `<div class="d-flex justify-content-center border-bottom">` +
@@ -564,6 +567,7 @@
 
                 // 카드에 flipped 클래스 토글(앞/뒤 전환)
                 card.toggleClass('flipped');
+                $('#reading-glass').text(response.readingGlass);
                 // 모달 닫기
                 cardModal.style.display = 'none';
             },
@@ -582,8 +586,7 @@
     }
 
     const charge = () => {
-        //TODO 충전하기 구현
-        cardModal.style.display = 'none';  // 모달 닫기
+        window.location.href = '/myPage/glass';  // 페이지 이동
     }
 
     // 신고 버튼 클릭 시 모달 열기
@@ -639,6 +642,13 @@
     cancelCardBtn.onclick = function() {
         cardModal.style.display = 'none';
     };
+
+    window.addEventListener("pageshow", function () {
+        if (sessionStorage.getItem("refreshMyPage") === "true") {
+            sessionStorage.removeItem("refreshMyPage"); // 플래그 삭제
+            location.reload(); // 새로고침
+        }
+    });
 </script>
 </body>
 </html>

@@ -18,8 +18,8 @@
 <body>
 
 <div class="mobile-view">
-    <div class="back-view" style="position: relative; min-height:100vh; background-color: #f8f9fa;">
-        <div class="p-1 mb-5">
+    <div class="back-view">
+        <div class="p-1">
             <h4>채팅목록</h4>
             <a href="#">
                 <div th:if="${waiting}">
@@ -45,8 +45,8 @@
                                 <i class="fs-1 bi bi-fire text-danger"></i>
                                 <span class="fs-2" id="firewood" th:text="${firewood}"/>
                             </div>
-                            <div style="width:20%">
-                                <i class="fs-2 bi bi-plus-circle"></i>
+                            <div style="display: block; width:20%">
+                            <i class="fs-2 bi bi-plus-circle" onclick="event.stopPropagation(); window.location.href='/myPage/firewood';"></i>
                             </div>
                         </div>
                     </div>
@@ -62,37 +62,39 @@
                                 <span class="fs-2" id="firewoodDie" th:text="0"/>
                             </div>
                             <div style="width:20%">
-                                <i class="fs-2 bi bi-plus-circle"></i>
+                                <i class="fs-2 bi bi-plus-circle" onclick="event.stopPropagation(); window.location.href='/myPage/firewood';"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </a>
-            <div th:each="chat:${chatRoomList}">
-                <div class="mt-4 d-flex flex-row justify-content-between align-items-center" >
-                    <div th:switch="${chat.sessionStatus}">
-                        <div th:case="wait">
-                            <form th:action="@{/chat/roomEnter}" method="post" th:id="'chatForm' + ${chat.chatRoomId}">
-                                <input type="hidden" name="room_id" th:value="${chat.chatRoomId}" />
-                                <div th:onclick="|document.getElementById('chatForm' + ${chat.chatRoomId}).submit()|">
+            <div>
+                <div class="chat-box" th:each="chat:${chatRoomList}">
+                    <div class="mt-4 d-flex flex-row align-items-center" th:id="'chat-room-' + ${chat.chatRoomId}">
+                        <div class="w-100 ms-3 me-3 mb-2" th:switch="${chat.sessionStatus}">
+                            <div th:case="wait">
+                                <form th:action="@{/chat/roomEnter}" method="post" th:id="'chatForm' + ${chat.chatRoomId}">
+                                    <input type="hidden" name="room_id" th:value="${chat.chatRoomId}" />
+                                    <div th:onclick="|document.getElementById('chatForm' + ${chat.chatRoomId}).submit()|">
+                                        <div th:replace="chat/chat-card :: cardTemplate(chat=${chat})"></div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div th:case="on">
+                                <a th:href="@{'/chat/room/' + ${chat.chatRoomId}}">
                                     <div th:replace="chat/chat-card :: cardTemplate(chat=${chat})"></div>
-                                </div>
-                            </form>
-                        </div>
-                        <div th:case="on">
-                            <a th:href="@{'/chat/room/' + ${chat.chatRoomId}}">
-                            <div th:replace="chat/chat-card :: cardTemplate(chat=${chat})"></div>
-                            </a>
-                        </div>
-                        <div th:case="end">
-                            <a th:href="@{'/chat/end/' + ${chat.chatRoomId}}">
-                            <div th:replace="chat/chat-card :: cardTemplate(chat=${chat})"></div>
-                            </a>
-                        </div>
-                        <div th:case="continue">
-                            <a th:href="@{'/chat/room/' + ${chat.chatRoomId}}">
-                            <div th:replace="chat/chat-card :: cardTemplate(chat=${chat})"></div>
-                            </a>
+                                </a>
+                            </div>
+                            <div th:case="end">
+                                <a th:href="@{'/chat/end/' + ${chat.chatRoomId}}">
+                                    <div th:replace="chat/chat-card :: cardTemplate(chat=${chat})"></div>
+                                </a>
+                            </div>
+                            <div th:case="continue">
+                                <a th:href="@{'/chat/room/' + ${chat.chatRoomId}}">
+                                    <div th:replace="chat/chat-card :: cardTemplate(chat=${chat})"></div>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -103,7 +105,7 @@
     </div>
 </div>
 
-<span id="userId" th:text="${userId}"></span>
+<span class="d-none" id="userId" th:text="${userId}"></span>
 <script>
     const matchStart = () =>{
         $.ajax({
@@ -127,7 +129,7 @@
 
     // STOMP 연결 함수
     function connectStomp() {
-        socket = new SockJS("/blindtime/chat");
+        socket = new SockJS("/chat");
         stompClient = Stomp.over(socket);
 
         stompClient.connect({}, function (frame) {
@@ -136,18 +138,30 @@
             // 특정 채팅방 구독
             stompClient.subscribe("/topic/user/" + currentUserId, function (messageFrame) {
                 let received = messageFrame.body;
-                let json = JSON.parse(received);
                 if (received === "refresh") {
                     window.location.reload();
                     return;
                 }
+                let json = JSON.parse(received);
                 if(json!=null){
                     $('#chat-content'+json.roomId).text(json.latestMessage);
                     $('#chat-unread-count' + json.roomId)
                         .text(json.unReadCount)
                         .css('display', 'flex');
-                }
 
+                    let chatRoomDiv = $('#chat-room-' + json.roomId); // 현재 채팅방 div 선택
+                    console.log(chatRoomDiv);
+
+                    if (chatRoomDiv.length) { // 요소가 존재하는지 확인
+                        let chatContainer = chatRoomDiv.closest('.chat-box'); // 상위 .asdf div 선택
+                        console.log(chatContainer);
+
+                        if (chatContainer.length) { // .asdf가 존재하면 이동
+                            chatContainer.parent().prepend(chatContainer); // 부모의 맨 앞으로 이동
+                        }
+                    }
+
+                }
             });
         }, function (error) {
             console.error("STOMP 연결 오류:", error);
@@ -156,14 +170,6 @@
     }
 
     connectStomp();
-
-
-
-
-
-
-
-
 
     let timerInterval;
 
@@ -220,7 +226,6 @@
                         } else {
                             // 시간이 종료된 경우, "시간 종료" 표시
                             remainingTimeSpan.textContent = "시간 종료";
-                            clearInterval(timerInterval);
                             // 시간 종료 시 AJAX 요청으로 roomEnd 호출
                             $.ajax({
                                 url: `/chat/end/${roomId}`,
@@ -229,9 +234,13 @@
                                     status: roomStatus
                                 },
                                 success: function(response) {
-                                    setTimeout(() => {
-                                        window.location.reload();
-                                    }, 3000);
+                                    let chatRoomDiv = $('#chat-room-' + roomId); // 해당 채팅방 div 찾기
+                                    if (chatRoomDiv.length) {
+                                        let chatContainer = chatRoomDiv.closest('.chat-box'); // 상위 chat-box 찾기
+                                        if (chatContainer.length) {
+                                            chatContainer.parent().prepend(chatContainer); // 부모의 맨 앞으로 이동
+                                        }
+                                    }
                                 },
                                 error: function(xhr, status, error) {
                                     setTimeout(() => {
@@ -252,6 +261,12 @@
         updateTimer();
     }, 1000); // 1000ms = 1초
 
+    window.addEventListener("pageshow", function () {
+        if (sessionStorage.getItem("refreshMyPage") === "true") {
+            sessionStorage.removeItem("refreshMyPage"); // 플래그 삭제
+            location.reload(); // 새로고침
+        }
+    });
 </script>
 
 </body>
