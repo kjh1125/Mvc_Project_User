@@ -94,6 +94,8 @@ public class ChatDao {
     public void manContinue(int roomId){chatMapper.manContinue(roomId);}
 
     public void womanContinue(int roomId){chatMapper.womanContinue(roomId);}
+
+    public void chatroomToTop(int roomId){chatMapper.chatroomToTop(roomId);}
 }
 
 

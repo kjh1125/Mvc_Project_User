@@ -98,4 +98,7 @@ public interface UserMapper {
 
     @Update("UPDATE points set firewood = firewood + #{firewood}, points = points- #{points} where user_id=#{userId}")
     void purchaseFirewood(Point point);
+
+    @Delete("DELETE from users where user_id=#{userId}")
+    void deleteUser(@Param("userId")int userId);
 }

@@ -2,6 +2,7 @@ package kr.bit.service;
 
 import kr.bit.dao.UserDao;
 import kr.bit.entity.*;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -202,4 +203,6 @@ public class UserService {
         }
         return userDao.getPoint(userId);
     }
+
+    public void deleteUser(@Param("userId")int userId){userDao.deleteUser(userId);}
 }

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>모바일 게시판</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=7abe9ea8f22f24ef4bd818b0c72f8534"></script>
+    <style>
+    </style>
+</head>
+<body>
+
+<div class="mobile-view">
+    <div class="back-view p-4">
+
+        <div class="mb-5 d-flex align-items-center">
+            <a th:href="@{/myPage/supports}">
+                <i class="fs-4 bi bi-arrow-left"></i>
+            </a>
+            <div class="ms-1 pt-1">
+                찾아오시는 길
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <div class="fw-bold mb-3">지도</div>
+            <div id="map" style="width:100%; height:200px;"></div>
+        </div>
+
+        <div class="mb-5">
+            <div class="fw-bold mb-3">찾아오는 길</div>
+            <div class="d-flex flex-column pt-2 ps-2 pe-2 border-bottom border-2 border-secondary">
+                <div class="mb-2 text-secondary">
+                    주소
+                </div>
+                <div>
+                    서울 강남구 강남대로94길 20 삼오빌딩 5층
+                </div>
+            </div>
+            <div class="d-flex flex-column pt-2 ps-2 pe-2 border-bottom border-2 border-secondary">
+                <div class="mb-2 text-secondary">
+                    지하철
+                </div>
+                <div>
+                    <p class="p-0 m-0">신논현역 9호선 5번출구 - 강남역 방향 도보 12분
+                    <p class="p-0 m-0">강남역 2호선 11번출구 - 신논현역 방향 도보 4분
+                </div>
+            </div>
+            <div class="d-flex flex-column pt-2 ps-2 pe-2 border-bottom border-2 border-secondary">
+                <div class="mb-2 text-secondary">
+                    버스
+                </div>
+                <div>
+                    하차) 강남역12번출구(강남역, 강남역사거리방면)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="fragments/footer.html :: footer">
+
+    </div>
+</div>
+<script>
+    var container = document.getElementById('map');
+    var options = {
+        center: new kakao.maps.LatLng(37.49940515, 127.02903835),
+        level: 3
+    };
+
+    var map = new kakao.maps.Map(container, options);
+
+    var markerPosition  = new kakao.maps.LatLng(37.49940515, 127.02903835);
+
+    // 마커를 생성합니다
+    var marker = new kakao.maps.Marker({
+        position: markerPosition
+    });
+    marker.setMap(map);
+
+    var iwContent = '<div class="fw-bold" style="width:200px; padding:5px;">서울 강남구 역삼동 819-3</div>', // 인포윈도우에 표출될 내용으로 HTML 문자열이나 document element가 가능합니다
+        iwPosition = new kakao.maps.LatLng(37.49940515, 127.02903835); //인포윈도우 표시 위치입니다
+
+    // 인포윈도우를 생성합니다
+    var infowindow = new kakao.maps.InfoWindow({
+        position : iwPosition,
+        content : iwContent
+    });
+
+    // 마커 위에 인포윈도우를 표시합니다. 두번째 파라미터인 marker를 넣어주지 않으면 지도 위에 표시됩니다
+    infowindow.open(map, marker);
+</script>
+</body>
+</html>

@@ -20,6 +20,9 @@ import redis.clients.jedis.JedisPool;
 import javax.servlet.http.HttpSession;
 import java.sql.SQLOutput;
 import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Controller
@@ -155,13 +158,21 @@ public class ChatController {
             model.addAttribute("out", false);
         }
         chatService.markMessagesAsRead(roomId,userId);
+        Timestamp endTime = chatRoom.getEndTime();
+        if (endTime != null) {
+            ZonedDateTime zonedDateTime = endTime.toInstant()
+                    .atZone(ZoneId.of("Asia/Seoul"));  // 한국 시간대로 변환
 
+            String endTimeFormatted = zonedDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME); // ISO 8601 형식 변환
+            model.addAttribute("endTime", endTimeFormatted);
+        } else {
+            model.addAttribute("endTime", null); // endTime이 없을 경우 null 설정
+        }
         model.addAttribute("roomId", roomId);
         model.addAttribute("messageList", messageList);
         model.addAttribute("userId", userId);
         model.addAttribute("profileImageId", profileImageId);
         model.addAttribute("chatRoom", chatRoom);
-        model.addAttribute("endTime", chatRoom.getEndTime());
         model.addAttribute("status", sessionStatus);
         model.addAttribute("receiverId", receiverId);
         model.addAttribute("nickname", nickname);
@@ -312,10 +323,19 @@ public class ChatController {
         else{
             model.addAttribute("freeChance", false);
         }
+        Timestamp endTime =  chatService.getChatRoom(roomId).getEndTime();
+        if (endTime != null) {
+            ZonedDateTime zonedDateTime = endTime.toInstant()
+                    .atZone(ZoneId.of("Asia/Seoul"));  // 한국 시간대로 변환
+
+            String endTimeFormatted = zonedDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME); // ISO 8601 형식 변환
+            model.addAttribute("endTime", endTimeFormatted);
+        } else {
+            model.addAttribute("endTime", null); // endTime이 없을 경우 null 설정
+        }
         model.addAttribute("isContinue",isContinue);
         model.addAttribute("readingGlass", readingGlass);
         model.addAttribute("userId",userId);
-        model.addAttribute("endTime", chatService.getChatRoom(roomId).getEndTime());
         model.addAttribute("otherNickname", otherNickname);
         model.addAttribute("closureId", closureId);
         return "chat/endRoom";  // 뷰 이름

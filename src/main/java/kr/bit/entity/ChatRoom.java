@@ -16,5 +16,6 @@ public class ChatRoom {
     private boolean womanOut;
     private String sessionStatus;         // session_status -> sessionStatus
     private Timestamp endTime;
+    private Timestamp lastUpdated;
     private int outId;
 }
