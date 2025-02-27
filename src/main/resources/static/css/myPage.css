@@ -1,0 +1,28 @@
+input[type="number"] {
+    -webkit-appearance: none;  /* Safari, Chrome에서 화살표 제거 */
+    -moz-appearance: textfield; /* Firefox에서 화살표 제거 */
+    appearance: none;           /* 표준화된 방법으로 화살표 제거 */
+    padding: 0;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#purchase {
+    border-radius:10px;
+    background-color: #dddddd;
+    color:#DB4747;
+    width:70%
+}
+#purchase:hover{
+    cursor: pointer;
+}
+
+#purchase.disabled{
+    color: gray !important;
+}
+#purchase.disabled:hover{
+    cursor: default;
+}
