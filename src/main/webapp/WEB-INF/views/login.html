@@ -1,19 +1,5 @@
-<html xmlns:th="http://www.thymeleaf.org" lang="kr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no">
-    <title>Title</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
-    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"
-            integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
-    <script>
-        Kakao.init('7abe9ea8f22f24ef4bd818b0c72f8534'); // 사용하려는 앱의 JavaScript 키 입력
-    </script>
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="kr" th:with="page='login'">
+    <head th:replace="~{fragments/header :: head}"></head>
 <body>
 <div class="mobile-view">
     <div class="d-flex flex-column justify-content-center align-items-center" style="margin-top:150px">
