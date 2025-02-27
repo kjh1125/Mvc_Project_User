@@ -1,20 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no">
-    <title>모바일 게시판</title>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=7abe9ea8f22f24ef4bd818b0c72f8534"></script>
-    <style>
-    </style>
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko" th:with="page='map'">
+<head th:replace="~{fragments/header :: head}"></head>
 <body>
 
 <div class="mobile-view">

@@ -1,5 +1,6 @@
 package kr.bit.controller.login;
 
+import kr.bit.service.LoginService;
 import kr.bit.service.UserService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ public class NaverLoginController {
 
     @Value("${naver.client.pw}")
     private String naverClientSecret;
+
+    @Autowired
+    private LoginService loginService;
 
     @RequestMapping(value = "/naverLogin", method = RequestMethod.GET)
     public String loginNaver(@RequestParam(value = "code") String code, @RequestParam(value = "state") String state, RedirectAttributes redirectAttributes, HttpServletResponse response, HttpServletRequest request) {
@@ -118,22 +122,8 @@ public class NaverLoginController {
             e.printStackTrace();
         }
         if (userId != null) {
-            // 인증 정보를 SecurityContext에 설정
-            Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            String gender = userService.getGender(userId);
-            HttpSession session = request.getSession();
-            session.setAttribute("user", userId);
-            session.setAttribute("gender", gender);
-
-            // 세션 ID를 쿠키로 설정
-            Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());  // 세션 ID를 쿠키에 담습니다
-            sessionCookie.setPath("/");  // 전체 사이트에 대해 쿠키가 유효하도록 설정
-            sessionCookie.setHttpOnly(true);  // 클라이언트 JS에서 쿠키 접근 불가
-            sessionCookie.setSecure(true);  // HTTPS에서만 쿠키 전송
-            sessionCookie.setMaxAge(60 * 60);  // 쿠키의 유효기간 설정 (예: 1시간)
-            response.addCookie(sessionCookie);  // 응답으로 쿠키를 클라이언트에 추가
+            loginService.processLogin(userId,request,response);
 
             return "redirect:/main";
         } else {

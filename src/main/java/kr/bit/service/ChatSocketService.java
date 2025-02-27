@@ -35,6 +35,13 @@ public class ChatSocketService {
         messagingTemplate.convertAndSend(destination, message);
     }
 
+    public void notifyRoomOut(int roomId) {
+        String destination = "/topic/room/" + roomId;
+        String message = "out";  // 클라이언트가 이 메시지를 받으면 새로고침하도록 처리
+
+        messagingTemplate.convertAndSend(destination, message);
+    }
+
     public void refreshUser(int userId){
         String destination = "/topic/user/" + userId;
         String message= "refresh";
