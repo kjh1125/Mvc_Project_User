@@ -29,6 +29,7 @@ import redis.clients.jedis.JedisPoolConfig;
 
 @Configuration
 @EnableWebMvc
+@EnableScheduling
 @ComponentScan(basePackages = {"kr.bit.controller", "kr.bit.service", "kr.bit.dao", "kr.bit.mapper", "kr.bit.security", "kr.bit.dto","kr.bit.entity","kr.bit.handler"})
 public class ServletConfig implements WebMvcConfigurer {
 
