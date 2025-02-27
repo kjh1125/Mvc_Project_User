@@ -257,7 +257,7 @@
     });
 
     $purchase.on('click', function() {
-        if (!$purchase.prop('disabled')) {
+        if (!$purchase.hasClass('disabled')) {
             $('#confirmModal').modal("show");
         }
     });

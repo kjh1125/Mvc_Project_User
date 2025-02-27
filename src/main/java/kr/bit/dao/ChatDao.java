@@ -19,9 +19,6 @@ public class ChatDao {
         return chatMapper.getChatRoomsByUserId(userId);
     }
 
-    public List<Message> getMessagesByRoomId(int roomId){
-        return chatMapper.getMessagesByRoomId(roomId);
-    }
 
     public String getLastMessageContentByRoomId(int roomId){
         return chatMapper.getLastMessageContentByRoomId(roomId);
@@ -51,16 +48,9 @@ public class ChatDao {
         chatMapper.chatStart(chatRoom);
     }
 
-    public Timestamp getEndTime(int roomId){
-        return chatMapper.getEndTime(roomId);
-    }
 
     public void updateChatRoom(int roomId, String sessionStatus, int interval){
         chatMapper.updateChatRoom(roomId, sessionStatus, interval);
-    }
-
-    public Integer getReportCount(int roomId){
-        return chatMapper.getReportCount(roomId);
     }
 
     public void deleteChatRoom(int roomId){
@@ -96,6 +86,12 @@ public class ChatDao {
     public void womanContinue(int roomId){chatMapper.womanContinue(roomId);}
 
     public void chatroomToTop(int roomId){chatMapper.chatroomToTop(roomId);}
+
+    public List<Message> getMessagesByRoomId(int userId){return chatMapper.getMessagesByRoomId(userId);}
+
+    public List<Integer> getChatroomListByUserId(int userId){return chatMapper.getChatroomListByUserId(userId);}
+
+    public Timestamp getEndTime(int roomId){return chatMapper.getEndTime(roomId);}
 }
 
 

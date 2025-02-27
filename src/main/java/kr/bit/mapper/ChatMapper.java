@@ -4,6 +4,7 @@ import kr.bit.dto.RoomStatusDTO;
 import kr.bit.entity.*;
 import org.apache.ibatis.annotations.*;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -16,8 +17,12 @@ public interface ChatMapper {
             "ORDER BY last_updated DESC")
     List<ChatRoom> getChatRoomsByUserId(int userId);
 
-    @Select("select * from messages where room_id=#{roomId}")
-    List<Message> getMessagesByRoomId(int roomId);
+
+    @Select("select room_id as roomId , user_id as userId, message_content as messageContent, created_at as createdAt, is_read as `read` from messages where room_id=#{roomId} ")
+    List<Message> getMessagesByRoomId(@Param("roomId")int roomId);
+
+    @Select("select id from chat_rooms where man_id=#{userId} or woman_id=#{userId};")
+    List<Integer> getChatroomListByUserId(int userId);
 
     @Select("select message_content from messages where room_id=#{roomId} order by created_at desc limit 1")
     String getLastMessageContentByRoomId(int roomId);
@@ -53,7 +58,7 @@ public interface ChatMapper {
     @Delete("delete from chat_rooms where id=#{roomId}")
     void deleteChatRoom(int roomId);
 
-    @Insert("INSERT INTO messages (room_id,user_id,message_content,created_at,is_read) values(#{roomId},#{userId},#{messageContent},#{createdAt},#{read})")
+    @Insert("INSERT IGNORE INTO messages (room_id,user_id,message_content,created_at,is_read) values(#{roomId},#{userId},#{messageContent},#{createdAt},#{read})")
     void insertMessage(Message message);
 
     @Insert("INSERT IGNORE INTO chat_closures (room_id, user_id) VALUES (#{roomId}, #{userId})")
@@ -110,7 +115,6 @@ public interface ChatMapper {
 
     @Update("UPDATE chat_rooms SET last_updated = NOW()  WHERE id = #{roomId}")
     void chatroomToTop(@Param("roomId")int roomId);
-
 
 
 }
