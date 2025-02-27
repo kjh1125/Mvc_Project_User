@@ -62,4 +62,3 @@ a {
     transform: scale(1.2); /* 약간 확대 */
     transition: transform 0.3s ease, text-shadow 0.3s ease;
 }
-
