@@ -146,8 +146,8 @@ public class ChatController {
     @PostMapping("/out/{roomId}")
     public String outRoom(@PathVariable("roomId") int roomId, Model model, HttpSession session) {
         String gender = (String) session.getAttribute("gender");
+        chatSocketService.notifyRoomOut(roomId);
         chatService.updateOutRoom(roomId,gender);
-        chatSocketService.notifyRoomUpdate(roomId);
         return "redirect:/chat/list";  // 뷰 이름
     }
 
