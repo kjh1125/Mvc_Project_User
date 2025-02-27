@@ -4,6 +4,7 @@ import kr.bit.entity.Card;
 import kr.bit.entity.ChatRoom;
 import kr.bit.entity.Message;
 import kr.bit.service.ChatService;
+import kr.bit.service.ChatSocketService;
 import kr.bit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,8 @@ public class RestChatController {
 
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private ChatSocketService chatSocketService;
 
 
     @PostMapping("/ping")
@@ -113,9 +115,20 @@ public class RestChatController {
     }
 
     @PostMapping("/end/{roomId}")
-    public String roomEnd(@PathVariable("roomId") int roomId, @RequestParam("status") String status) {
-        chatService.timeEnd(roomId,status);
-        return "success";
+    public ResponseEntity<String> roomEnd(@PathVariable("roomId") int roomId, @RequestParam("status") String status) {
+        if (status.equals("on") || status.equals("end")) {
+            chatService.timeEnd(roomId, status);
+        }
+
+        if (status.equals("on")) {
+            return ResponseEntity.ok("success"); // ✅ HTTP 200
+        }
+
+        if (status.equals("end")) {
+            return ResponseEntity.ok("delete"); // ✅ HTTP 200
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error"); // ✅ HTTP 400 (잘못된 요청)
     }
 
     @PostMapping("/flip/{closureId}")
@@ -158,7 +171,7 @@ public class RestChatController {
     public ResponseEntity<String> markMessagesAsRead(@RequestParam int roomId, @RequestParam int userId) {
         try {
             // ChatService의 markMessagesAsRead 메서드 호출
-            chatService.markMessagesAsRead(roomId, userId);
+            chatSocketService.markMessagesAsRead(roomId, userId);
             return ResponseEntity.ok("Messages marked as read");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error marking messages as read");

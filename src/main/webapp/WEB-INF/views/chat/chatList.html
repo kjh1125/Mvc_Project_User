@@ -234,18 +234,24 @@
                                     status: roomStatus
                                 },
                                 success: function(response) {
-                                    let chatRoomDiv = $('#chat-room-' + roomId); // 해당 채팅방 div 찾기
-                                    if (chatRoomDiv.length) {
-                                        let chatContainer = chatRoomDiv.closest('.chat-box'); // 상위 chat-box 찾기
-                                        if (chatContainer.length) {
-                                            chatContainer.parent().prepend(chatContainer); // 부모의 맨 앞으로 이동
+                                    if (response === "success") {
+                                        let chatRoomDiv = $('#chat-room-' + roomId); // 해당 채팅방 div 찾기
+                                        if (chatRoomDiv.length) {
+                                            let chatContainer = chatRoomDiv.closest('.chat-box'); // 상위 chat-box 찾기
+                                            if (chatContainer.length) {
+                                                chatContainer.parent().prepend(chatContainer); // 부모의 맨 앞으로 이동
+                                            }
                                         }
+                                    }
+                                    else if (response === "delete") {
+                                        let chatRoomDiv = $('#chat-room-' + roomId); // 해당 채팅방 div 찾기
+                                        let chatContainer = chatRoomDiv.closest('.chat-box'); // 상위 chat-box 찾기
+                                        chatContainer.remove();
                                     }
                                 },
                                 error: function(xhr, status, error) {
-                                    setTimeout(() => {
+                                    console.log("머임")
                                         window.location.reload();
-                                    }, 3000);
                                 }
                             });
                         }

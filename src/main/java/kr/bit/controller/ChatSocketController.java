@@ -28,8 +28,7 @@ public class ChatSocketController {
 
     @Autowired
     private JedisPool jedisPool;
-    @Autowired
-    private ChatService chatService;
+
     @Autowired
     private ChatSocketService chatSocketService;
 
@@ -45,31 +44,10 @@ public class ChatSocketController {
         String message = messageDTO.getMsg();
         int receiverId = messageDTO.getReceiverId();
 
-        // 현재 시간 및 포맷 설정
         LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String createdAt = now.format(formatter);
+        Timestamp createdAt = Timestamp.valueOf(now);
 
-        // Message 객체를 생성하여 필요한 정보를 설정 (원하는 경우 추가 처리 가능)
-        Message msgObj = new Message();
-        msgObj.setRoomId(Integer.parseInt(roomId));
-        msgObj.setMessageContent(message);
-        msgObj.setUserId(userId);
-        msgObj.setCreatedAt(Timestamp.valueOf(now));
-
-        Map<String, String> chatData = new HashMap<>();
-        chatData.put("room_id", roomId);
-        chatData.put("msg", message);
-        chatData.put("user_id", String.valueOf(userId));
-        chatData.put("created_at", createdAt);
-        chatData.put("read", "false");
-
-        String redisKey = "chat:" + roomId + ":" + System.currentTimeMillis();
-        try (Jedis jedis = jedisPool.getResource()) {
-            jedis.hset(redisKey, chatData);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        chatSocketService.saveMessageToRedis(roomId,userId,message,createdAt);
 
         chatSocketService.messageUpdate(Integer.parseInt(roomId),receiverId);
 
