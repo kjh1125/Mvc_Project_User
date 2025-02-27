@@ -61,3 +61,24 @@
     right: 10px;  /* 오른쪽에서 떨어진 거리 */
     z-index: 100; /* 다른 컨텐츠 위에 표시되도록 */
 }
+
+.comment-container {
+    position: relative;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.delete-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #dc3545; /* Bootstrap의 Danger 색상 */
+    font-size: 18px;
+    text-decoration: none;
+}
+
+.delete-icon:hover {
+    color: #a71d2a;
+}
