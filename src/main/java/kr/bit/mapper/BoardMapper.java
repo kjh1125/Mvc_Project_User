@@ -1,6 +1,7 @@
 package kr.bit.mapper;
 
 import kr.bit.entity.Board;
+import kr.bit.entity.Comment;
 import kr.bit.entity.Like;
 import kr.bit.entity.ReportContent;
 import org.apache.ibatis.annotations.Delete;
@@ -44,5 +45,14 @@ public interface BoardMapper {
     //게시물 수정
     @Update("update boards set title=#{title},content=#{content} where id=#{id} and writer_id=#{writer_id}")
     void updateContent(Board board);
+    //댓글 추가
+    @Insert("insert into comments(board_id,writer_id,content)values(#{board_id},#{writer_id},#{content})")
+    void insertComment(Comment comment);
+    //댓글 삭제
+    @Delete("delete from comments where id = #{id}")
+    void deleteComment(int id);
+    //게시글의 모든 댓글 불러오기
+    @Select("select * from comments where board_id = #{board_id} order by id desc")
+    List<Comment> getComments(int board_id);
 
 }

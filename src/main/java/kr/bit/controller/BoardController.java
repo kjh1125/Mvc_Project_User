@@ -31,14 +31,6 @@ public class BoardController {
     @Autowired
     private HttpSession session;
 
-
-    // 현재 Timestamp 생성
-    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-
-    // Timestamp → LocalDateTime → String 변환 (소수점 제거)
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    String formattedTime = timestamp.toLocalDateTime().format(formatter);
-
     @GetMapping(value = "/list")
     public String boardList(Model model){
         List<Board> boards = boardService.getBoards();
@@ -58,19 +50,10 @@ public class BoardController {
         like.setBoard_id(id); //게시물 id
         boolean checkLikeExists = boardService.checkLikeExists(like);
 
-        //샘플 코멘트
-        List<Comment> commentList = new ArrayList<>();
-        Comment comment1 = new Comment(1, 2, 3, "댓글 내용", formattedTime,"치킨1");
-        Comment comment2 = new Comment(1, 2, 3, "댓글 내용", formattedTime,"치킨2");
-
-        commentList.add(comment1);
-        commentList.add(comment2);
-        commentList.add(comment2);
-        commentList.add(comment2);
-        commentList.add(comment2);
+        List<Comment> comments = boardService.getComments(id);
 
         model.addAttribute("board",board);
-        model.addAttribute("commentList",commentList);
+        model.addAttribute("commentList",comments);
         model.addAttribute("checkLikeExists",checkLikeExists);
 
         return "board/boardDetail";
@@ -83,9 +66,13 @@ public class BoardController {
     }
 
     @PostMapping("/add")
-    public String addBoard(@ModelAttribute Board board) {
+    public String addBoard(@ModelAttribute Board board, RedirectAttributes redirectAttributes) {
 
         boardService.insertBoard(board);
+
+        // Flash 메시지 추가
+        redirectAttributes.addFlashAttribute("message", "게시물이 성공적으로 작성되었습니다!");
+        
         return "redirect:/board/list";
     }
 
@@ -171,6 +158,26 @@ public class BoardController {
         return "redirect:/board/list"; // 리다이렉트 후 메시지 표시됨
     }
 
+    //댓글 작성 화면
+    @PostMapping("/comment")
+    @ResponseBody
+    public ResponseEntity<String> insertComment(@RequestBody Comment comment) {
+
+        boardService.insertComment(comment);
+
+        return ResponseEntity.ok("success");
+    }
+
+    //댓글 삭제
+    @DeleteMapping("/comment/{id}")
+    @ResponseBody
+    public ResponseEntity<String> deleteComment(@PathVariable int id) {
+
+        boardService.deleteComment(id);
+
+        return ResponseEntity.ok("success");
+    }
+
 
     //권한 체크용
     @PostMapping("/check-auth/{board_id}")
@@ -184,6 +191,5 @@ public class BoardController {
 
         return response;
     }
-
 
 }

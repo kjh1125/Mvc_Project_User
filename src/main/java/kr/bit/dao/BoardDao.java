@@ -1,9 +1,13 @@
 package kr.bit.dao;
 
 import kr.bit.entity.Board;
+import kr.bit.entity.Comment;
 import kr.bit.entity.Like;
 import kr.bit.entity.ReportContent;
 import kr.bit.mapper.BoardMapper;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -56,4 +60,15 @@ public class BoardDao {
     public void updateContent(Board board){
         boardMapper.updateContent(board);
     }
+
+    public void insertComment(Comment comment){
+        boardMapper.insertComment(comment);
+    }
+    public void deleteComment(int id){
+        boardMapper.deleteComment(id);
+    }
+    public List<Comment> getComments(int board_id){
+        return boardMapper.getComments(board_id);
+    }
+
 }

@@ -1,5 +1,7 @@
 port: 8080  
-context path: /blindtime  
+context path: /
 
-
-db.properties 설정 jdbc.url=jdbc:mysql://localhost:3306/#{이름}?serverTimezone=Asia/Seoul 으로 수정
+git update-index --assume-unchanged src/main/webapp/WEB-INF/views/login.html  
+git update-index --assume-unchanged src/main/java/kr/bit/controller/login/GoogleLoginController.java   
+git update-index --assume-unchanged src/main/java/kr/bit/controller/login/KakaoLoginController.java   
+git update-index --assume-unchanged src/main/java/kr/bit/controller/login/NaverLoginController.java   
