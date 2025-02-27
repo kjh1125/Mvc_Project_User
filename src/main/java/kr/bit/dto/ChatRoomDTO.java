@@ -2,6 +2,8 @@ package kr.bit.dto;
 
 import lombok.Data;
 
+import java.sql.Timestamp;
+
 @Data
 public class ChatRoomDTO {
     private int chatRoomId;
@@ -13,4 +15,5 @@ public class ChatRoomDTO {
     private String sessionStatus;
     private String endTime;
     private Integer unReadCount;
+    private Timestamp lastUpdated;
 }

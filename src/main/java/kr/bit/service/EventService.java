@@ -16,7 +16,6 @@ public class EventService {
     private EventDao eventDao;
 
     public List<Event> getCurrentEvents(){
-        System.out.println("service");
         return eventDao.getCurrentEvents();
     }
 

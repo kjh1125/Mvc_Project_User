@@ -82,4 +82,22 @@ public class MyPageController {
         model.addAttribute("point", point);
         return "myPage/firewood";
     }
+
+    @GetMapping("/supports")
+    public String supports(){
+        return "myPage/supports";
+    }
+
+    @GetMapping("/guide")
+    public String guide(){
+        return "myPage/guide";
+    }
+
+    @GetMapping("/map")
+    public String map() {return "myPage/map";}
+
+
+    @GetMapping("/terms")
+    public String terms() {return "myPage/terms";}
+
 }

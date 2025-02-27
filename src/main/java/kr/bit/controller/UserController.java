@@ -141,5 +141,17 @@ public class UserController {
         return "redirect:/login";
     }
 
+    @PostMapping("/delete")
+    public String deleteUser(HttpSession session, HttpServletResponse response){
+        int userId = (int) session.getAttribute("user");
+        userService.deleteUser(userId);
+        session.invalidate();
+        Cookie cookie = new Cookie("JSESSIONID", null);
+        cookie.setPath("/");  // 애플리케이션의 루트 경로로 설정
+        cookie.setMaxAge(0);  // 쿠키를 즉시 만료시킴
+        response.addCookie(cookie);  // 응답에 쿠키 추가
+
+        return "redirect:/login";
+    }
 
 }

@@ -124,6 +124,7 @@ public class RestChatController {
             @RequestParam("num") int num,
             @RequestParam("userId") int userId) {
         Card card = chatService.flipCard(userId, closureId, num);
+        int readingGlass = userService.getPoint(userId).getReadingGlass();
         String cardType = "";
         String cardContent = "";
         List<String> hobbyList = new ArrayList<>();
@@ -147,6 +148,8 @@ public class RestChatController {
         }else {
             response.put("cardContent", cardContent);
         }
+        response.put("readingGlass", readingGlass);
+
         return ResponseEntity.ok(response);
     }
 

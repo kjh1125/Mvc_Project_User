@@ -8,8 +8,12 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public interface ChatMapper {
-    @Select("SELECT id, man_id AS manId, man_enter AS manEnter, man_continue AS manContinue, man_out AS manOut, woman_id AS womanId, woman_enter AS womanEnter, woman_continue AS womanContinue, woman_out AS womanOut, session_status AS sessionStatus, end_time AS endTime " +
-            "FROM chat_rooms WHERE (man_id = #{userId} AND man_out = false) OR (woman_id = #{userId} AND woman_out = false)")
+    @Select("SELECT id, man_id AS manId, man_enter AS manEnter, man_continue AS manContinue, man_out AS manOut, " +
+            "woman_id AS womanId, woman_enter AS womanEnter, woman_continue AS womanContinue, woman_out AS womanOut, " +
+            "last_updated AS lastUpdated, session_status AS sessionStatus, end_time AS endTime " +
+            "FROM chat_rooms " +
+            "WHERE (man_id = #{userId} AND man_out = false) OR (woman_id = #{userId} AND woman_out = false) " +
+            "ORDER BY last_updated DESC")
     List<ChatRoom> getChatRoomsByUserId(int userId);
 
     @Select("select * from messages where room_id=#{roomId}")
@@ -103,6 +107,10 @@ public interface ChatMapper {
 
     @Update("update cards set card_status_#{cardNumber}='open' where chat_end_id=#{closureId}")
     void updateCardStatus(@Param("closureId") int closureId, @Param("cardNumber") int cardNumber);
+
+    @Update("UPDATE chat_rooms SET last_updated = NOW()  WHERE id = #{roomId}")
+    void chatroomToTop(@Param("roomId")int roomId);
+
 
 
 }
