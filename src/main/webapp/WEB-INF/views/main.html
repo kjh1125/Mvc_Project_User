@@ -7,7 +7,7 @@
     <div class="back-view">
         <!-- 이미지 컨테이너: 첫 이미지는 보이고, 나머지는 d-none -->
         <div>
-        <img th:src="@{/images/eventDefault.png}" style="width: 100%; height: 100%; object-fit: fill;" alt="기본이벤트배경"/>
+            <img th:src="@{/images/eventDefault.png}" style="width: 100%; height: calc(100vh - 50px); ; object-fit: fill;" alt="기본이벤트배경"/>
         </div>
         <div style="height: 100%" th:each="event, iterStat : ${eventList}" class="d-none">
             <img th:src="@{/uploads/events/{eventUrl}(eventUrl=${event.imageUrl})}"
@@ -24,7 +24,7 @@
         </div>
     </div>
     <div th:replace="fragments/footer.html :: footer">
-        </div>
+    </div>
 </div>
 
 <script>
