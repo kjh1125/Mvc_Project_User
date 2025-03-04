@@ -21,7 +21,7 @@ public class UserService {
         return userDao.googleLogin(google_id);
     }
 
-    public Integer kakaoLogin(long kakao_id){
+    public Integer kakaoLogin(String kakao_id){
         return userDao.kakaoLogin(kakao_id);
     }
 

@@ -5,6 +5,7 @@ import kr.bit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +22,8 @@ import java.net.URL;
 import java.net.HttpURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @CrossOrigin("*")
@@ -33,14 +36,54 @@ public class KakaoLoginController {
     @Value("${kakao.client.id}")
     private String kakaoClientId;
 
+
+    @Autowired
+    private Environment env;
+
     @Autowired
     private LoginService loginService;
 
+    @GetMapping("/kakaoLoginRequest")
+    @ResponseBody
+    public Map<String, String> kakaoLoginRequest(HttpServletRequest request) {
+        String state = loginService.generateCSRFToken(); // 🔹 CSRF 방어를 위한 state 값 생성
+        request.getSession().setAttribute("oauthState", state); // 🔹 세션에 state 저장
+
+        // 🔹 Kakao OAuth2 인증 요청 URL
+        String kakaoAuthUrl = "https://kauth.kakao.com/oauth/authorize"
+                + "?client_id=" + env.getProperty("kakao.client.id")
+                + "&redirect_uri=" + env.getProperty("redirectURI")+"kakaoLogin"
+                + "&response_type=code"
+                + "&state=" + state; // 🔹 CSRF 보호용 state 값 추가
+
+        Map<String, String> response = new HashMap<>();
+        response.put("url", kakaoAuthUrl);
+        return response;
+    }
+
     @RequestMapping(value = "/kakaoLogin", method = RequestMethod.GET)
-    public String loginKakao(@RequestParam(value = "code") String code,RedirectAttributes redirectAttributes, HttpServletResponse response, HttpServletRequest request) {
+    public String loginKakao(
+            @RequestParam(value = "code") String code,
+            @RequestParam(value = "state", required = false) String state, // ✅ state 값 추가
+            RedirectAttributes redirectAttributes,
+            HttpServletResponse response,
+            HttpServletRequest request) {
+
+        // ✅ 1️⃣ 세션에서 `state` 값 가져오기
+        String sessionState = (String) request.getSession().getAttribute("oauthState");
+
+        // ✅ 2️⃣ `state` 값이 일치하지 않으면 로그인 차단 (CSRF 공격 방어)
+        if (sessionState == null || !sessionState.equals(state)) {
+            return "Error: Invalid OAuth state. Possible CSRF attack.";
+        }
+
+        // ✅ 3️⃣ `state` 값 검증 후, 세션에서 제거 (재사용 방지)
+        request.getSession().removeAttribute("oauthState");
+
+        // ✅ 4️⃣ Kakao Access Token 요청
         String accessToken = getAccessToken(code);
         if (accessToken != null) {
-            return getKakaoUserInfo(accessToken,redirectAttributes,response,request);
+            return getKakaoUserInfo(accessToken, redirectAttributes, response, request);
         }
         return "Error: Unable to retrieve access token.";
     }
@@ -48,12 +91,10 @@ public class KakaoLoginController {
     private String getAccessToken(String code) {
         String accessToken = null;
         try {
-//            String redirectURI = "http://localhost:8080/kakaoLogin"; // Callback URL
-            String redirectURI = "https://blindtime.kro.kr/kakaoLogin"; // Callback URL
             String apiURL = "https://kauth.kakao.com/oauth/token?"
                     + "grant_type=authorization_code"
-                    + "&client_id=" + kakaoClientId
-                    + "&redirect_uri=" + redirectURI
+                    + "&client_id=" + env.getProperty("kakao.client.id")
+                    + "&redirect_uri=" + env.getProperty("redirectURI")+"kakaoLogin"
                     + "&code=" + code;
 
             URL url = new URL(apiURL);
@@ -87,7 +128,7 @@ public class KakaoLoginController {
 
     private String getKakaoUserInfo(String accessToken, RedirectAttributes redirectAttributes, HttpServletResponse response, HttpServletRequest request) {
         Integer userId = null;
-        Long kakaoId = null;
+        String kakaoId = null;
         try {
             String header = "Bearer " + accessToken;
             String apiURL_userInfo = "https://kapi.kakao.com/v2/user/me";
@@ -113,7 +154,8 @@ public class KakaoLoginController {
 
             // 사용자 정보 JSON 파싱
             JSONObject userInfoJson = new JSONObject(res_userInfo.toString());
-            kakaoId = userInfoJson.getLong("id");
+            kakaoId =  String.valueOf(userInfoJson.getLong("id"));
+            System.out.println(kakaoId);
             userId = userService.kakaoLogin(kakaoId);
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,7 +167,8 @@ public class KakaoLoginController {
 
             return "redirect:/main";
         } else {
-            redirectAttributes.addAttribute("kakaoId", kakaoId);
+            request.getSession().setAttribute("kakaoId", kakaoId);
+            loginService.processRegister(request,response);
             return "redirect:/user/register";
         }
     }

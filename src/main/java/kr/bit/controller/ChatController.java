@@ -75,6 +75,9 @@ public class ChatController {
     public String chatRoom(@PathVariable("roomId") int roomId, Model model, HttpSession session) {
         int userId = (int) session.getAttribute("user");
         ChatRoom chatRoom = chatService.getChatRoom(roomId);
+        if(chatRoom==null){
+            return "redirect:/chat/list";
+        }
         if(chatRoom.getWomanId()!=userId&&chatRoom.getManId()!=userId){
             return "redirect:/chat/list";
         }
@@ -178,6 +181,9 @@ public class ChatController {
         int userId = (int) session.getAttribute("user");
         String gender = (String) session.getAttribute("gender");
         RoomStatusDTO roomStatus = chatService.getSessionStatus(roomId);
+        if(roomStatus==null){
+            return "redirect:/chat/list";
+        }
         if(!roomStatus.getSessionStatus().equals("end")){
             return "redirect:/chat/room/" + roomId;
         }

@@ -1,82 +1,22 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no">
-    <title>Title</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <style>
-        input[type="radio"] {
-            display: none;
-        }
-        form{
-            margin-bottom: 0;
-        }
 
-        label, i {
-            cursor: pointer;
-        }
-
-        .form-check-label i {
-            font-size: 1.5rem;
-            color: #4285F4;
-        }
-        .page{
-            display: none;
-            max-height: 100%;
-        }
-
-        #page1{
-            display: block;
-        }
-
-        .radioChecked{
-            background-color: #4285F4;
-            color:#ffffff;
-        }
-
-        .check-radio{
-            font-size: 0.8rem;
-        }
-
-        .pictureBox{
-            width: 80%;
-            height: 50vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #d9d9d9;
-            margin: auto;
-        }
-
-        .pictureBox:hover{
-            cursor: pointer;
-        }
-
-
-    </style>
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko" th:with="page='register'">
+<head th:replace="~{fragments/header :: head}"></head>
 <body>
 <div class="mobile-view">
     <form th:action="@{/user/register_pro}" method="post" th:object="${userJoinBean}"  enctype="multipart/form-data">
-        <input type="hidden" th:value="${googleId}" th:field="*{user.googleId}">
-        <input type="hidden" th:value="${kakaoId}" th:field="*{user.kakaoId}">
-        <input type="hidden" th:value="${naverId}" th:field="*{user.naverId}">
     <!--1페이지-->
     <div id="page1" class="page">
         <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
-                    <a th:href="@{/main}">
-                        <i class="bi bi-arrow-left"></i>
+                    <a th:href="@{/login}">
+                        <i class="fs-4 bi bi-arrow-left cursor-pointer"></i>
                     </a>
-                    1/10
+                    1/11
                 </div>
 
-                <label class="pb-3">
+                <label class="fs-3 pb-3">
                     성별을 알려주세요
                 </label>
                 <div class="d-flex align-items-center" onclick="manCheck()" >
@@ -106,11 +46,11 @@
         <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
-                    <i class="bi bi-arrow-left" onclick="prevPage(2)"></i>
-                    2/10
+                    <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prevPage(2)"></i>
+                    2/11
                 </div>
 
-                <label class="pb-3" for="year">
+                <label class="fs-3 pb-3" for="year">
                     생년월일을 알려주세요
                 </label>
                 <div class="d-flex align-items-center m-auto mt-3">
@@ -132,13 +72,13 @@
         <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
-                    <i class="bi bi-arrow-left" onclick="prevPage(3)"></i>
-                    3/10
+                    <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prevPage(3)"></i>
+                    3/11
                 </div>
-                <label class="pb-3" for="nickname">
+                <label class="fs-3 pb-3" for="nickname">
                     닉네임을 알려주세요
                 </label>
-                <input id="nickname" th:field="*{user.nickname}" type="text" class="border-0" placeholder="닉네임" onkeyup="updateNickname()" onkeydown="checkEnterKey(event,3)">
+                <input id="nickname" th:field="*{user.nickname}" type="text" class="fs-3 border-0" placeholder="닉네임" onkeyup="updateNickname()" onkeydown="checkEnterKey(event,3)">
             </div>
 
             <div>
@@ -152,13 +92,14 @@
         <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
-                    <i class="bi bi-arrow-left" onclick="prevPage(4)"></i>
-                    4/10
+                    <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prevPage(4)"></i>
+                    4/11
                 </div>
-                <label class="pb-3" for="height">
+                <label class="fs-3 pb-3" for="height">
                     키를 알려주세요
                 </label>
-                <input id="height" th:field="*{userProfile.height}" type="number" class="border-0" placeholder="000cm" onkeyup="updateHeight()" onkeydown="checkEnterKey(event,4)">
+                <input id="height" th:field="*{userProfile.height}" type="number" class="fs-3 border-0" placeholder="000cm" onkeyup="updateHeight()" onkeydown="checkEnterKey(event,4)">
+                <p id="height-error" class="text-danger"></p>
             </div>
 
             <div>
@@ -172,13 +113,14 @@
         <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
-                    <i class="bi bi-arrow-left" onclick="prevPage(5)"></i>
+                    <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prevPage(5)"></i>
                     5/11
                 </div>
-                <label class="pb-3" for="weight">
+                <label class="fs-3 pb-3" for="weight">
                     몸무게를 알려주세요
                 </label>
-                <input id="weight" th:field="*{userProfile.weight}" type="number" class="border-0" placeholder="000kg" onkeyup="updateWeight()" onkeydown="checkEnterKey(event,5)">
+                <input id="weight" th:field="*{userProfile.weight}" type="number" class="fs-3 border-0" placeholder="000kg" onkeyup="updateWeight()" onkeydown="checkEnterKey(event,5)">
+                <p id="weight-error" class="text-danger"></p>
             </div>
 
             <div>
@@ -192,10 +134,10 @@
             <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
                 <div class="d-flex flex-column">
                     <div class="d-flex justify-content-between">
-                        <i class="bi bi-arrow-left" onclick="prevPage(6)"></i>
+                        <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prevPage(6)"></i>
                         6/11
                     </div>
-                    <label class="pb-3" for="weight">
+                    <label class="fs-3 pb-3" for="weight">
                         본인의 사진을 넣어주세요
                     </label>
                     <div class="pictureBox" onclick="document.getElementById('photoInput').click()">
@@ -218,10 +160,10 @@
             <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
                 <div class="d-flex flex-column">
                     <div class="d-flex justify-content-between">
-                        <i class="bi bi-arrow-left" onclick="prevPage(7)"></i>
-                        7/10
+                        <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prevPage(7)"></i>
+                        7/11
                     </div>
-                    <label class="pb-3" for="mbti">
+                    <label class="fs-3 pb-3" for="mbti">
                         MBTI를 입력해주세요
                     </label>
                     <select id="mbti" th:field="*{userProfile.mbti}" class="form-select w-auto m-auto">
@@ -257,10 +199,10 @@
         <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
-                    <i class="bi bi-arrow-left" onclick="prevPage(8)"></i>
-                    8/10
+                    <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prevPage(8)"></i>
+                    8/11
                 </div>
-                <label class="pb-3" for="religion">
+                <label class="fs-3 pb-3" for="religion">
                     종교를 입력해주세요
                 </label>
                 <select id="religion" th:field="*{userProfile.religion}" class="form-select w-auto m-auto">
@@ -293,10 +235,10 @@
         <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
-                    <i class="bi bi-arrow-left" onclick="prevPage(9)"></i>
-                    9/10
+                    <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prevPage(9)"></i>
+                    9/11
                 </div>
-                <label class="pb-3">
+                <label class="fs-3 pb-3">
                     술은 얼마나 드시나요?
                 </label>
 
@@ -349,10 +291,10 @@
         <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-between">
-                    <i class="bi bi-arrow-left" onclick="prevPage(10)"></i>
+                    <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prevPage(10)"></i>
                     10/11
                 </div>
-                <label class="pb-3">
+                <label class="fs-3 pb-3">
                     흡연량은 어떻게 되시나요?
                 </label>
 
@@ -405,10 +347,10 @@
             <div class="d-flex flex-column justify-content-between p-4" style="height:100vh;" >
                 <div class="d-flex flex-column">
                     <div class="d-flex justify-content-between">
-                        <i class="bi bi-arrow-left" onclick="prevPage(11)"></i>
+                        <i class="fs-4 bi bi-arrow-left cursor-pointer" onclick="prevPage(11)"></i>
                         11/11
                     </div>
-                    <label class="pb-3" id="hobbyLabel">
+                    <label class="fs-3 pb-3" id="hobbyLabel">
                         취미는 어떤게 있으신가요?(0/5)
                     </label>
 
@@ -520,17 +462,21 @@
     }
 
     const updateHeight = () => {
-        if ($('#height').val() != null && $('#height').val() !== "") {
+        if ($('#height').val() >=100 && $('#height').val()<=300 ) {
             $("#button4").prop("disabled", false); // 버튼 활성화
+            $('#height-error').text("")
         } else {
+            $('#height-error').text("키는 100이상 300이하로 입력해주세요")
             $("#button4").prop("disabled", true); // 버튼 비활성화
         }
     }
 
     const updateWeight = () => {
-        if ($('#weight').val() != null && $('#weight').val() !== "") {
+        if ($('#weight').val() >=30 && $('#weight').val() <=200) {
             $("#button5").prop("disabled", false); // 버튼 활성화
+            $('#weight-error').text("")
         } else {
+            $('#weight-error').text("무게는 30이상 200이하로 입력해주세요")
             $("#button5").prop("disabled", true); // 버튼 비활성화
         }
     }
@@ -608,18 +554,24 @@
         if(event.key==='Enter'){
             event.preventDefault();
             if(inputValue != '' ){
-                nextPage(number);
                 switch(number){
                     case 3:{
+                        nextPage(number);
                         $('#height').focus();
                         break;
                     }
                     case 4:{
-                        $('#weight').focus();
+                        if ($('#height').val() >=100 && $('#height').val()<=300 ) {
+                            nextPage(number);
+                            $('#weight').focus();
+                        }
                         break;
                     }
-                    default:
-                        break;
+                    case 5:{
+                        if ($('#weight').val() >=20 && $('#weight').val() <=200) {
+                            nextPage(number);
+                        }
+                    }
                 }
             }
         }
