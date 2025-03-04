@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +22,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @CrossOrigin("*")
@@ -30,33 +33,56 @@ public class NaverLoginController {
     @Autowired
     private UserService userService;
 
-    @Value("${naver.client.id}")
-    private String naverClientId;
-
-    @Value("${naver.client.pw}")
-    private String naverClientSecret;
-
     @Autowired
     private LoginService loginService;
 
+    @Autowired
+    private Environment env;
+
+    @GetMapping("/naverLoginRequest")
+    @ResponseBody
+    public Map<String, String> naverLoginRequest(HttpServletRequest request) {
+        String state = loginService.generateCSRFToken(); // 🔹 CSRF 방어를 위한 state 값 생성
+        request.getSession().setAttribute("oauthState", state); // 🔹 세션에 state 저장
+
+        // 🔹 Naver OAuth2 인증 요청 URL
+        String naverAuthUrl = "https://nid.naver.com/oauth2.0/authorize"
+                + "?response_type=code"
+                + "&client_id=" + env.getProperty("naver.client.id")
+                + "&redirect_uri=" + env.getProperty("redirectURI") + "naverLogin"
+                + "&state=" + state; // 🔹 CSRF 보호용 state 값 추가
+
+        Map<String, String> response = new HashMap<>();
+        response.put("url", naverAuthUrl);
+        return response;
+    }
+
+
     @RequestMapping(value = "/naverLogin", method = RequestMethod.GET)
-    public String loginNaver(@RequestParam(value = "code") String code, @RequestParam(value = "state") String state, RedirectAttributes redirectAttributes, HttpServletResponse response, HttpServletRequest request) {
+    public String loginNaver(@RequestParam(value = "code") String code, @RequestParam(value = "state", required = false) String state, RedirectAttributes redirectAttributes, HttpServletResponse response, HttpServletRequest request) {
+
         String accessToken = getAccessToken(code, state);
+        // ✅ 1️⃣ 세션에서 `state` 값 가져오기
+        String sessionState = (String) request.getSession().getAttribute("oauthState");
+        // ✅ 2️⃣ `state` 값이 일치하지 않으면 로그인 차단 (CSRF 공격 방어)
+        if (sessionState == null || !sessionState.equals(state)) {
+            return "Error: Invalid OAuth state. Possible CSRF attack.";
+        }
+
         if (accessToken != null) {
             return getNaverUserInfo(accessToken,redirectAttributes,response,request);
         }
         return "Error: Unable to retrieve access token.";
     }
-
     private String getAccessToken(String code, String state) {
         String accessToken = null;
         try {
-//            String redirectURI = "http://localhost:8080/naverLogin"; // Callback URL
-            String redirectURI = "https://blindtime.kro.kr/naverLogin"; // Callback URL
+            String redirectURI = "http://localhost:8080/naverLogin"; // Callback URL
+//            String redirectURI = "https://blindtime.kro.kr/naverLogin"; // Callback URL
             String apiURL = "https://nid.naver.com/oauth2.0/token?grant_type=authorization_code"
-                    + "&client_id=" + naverClientId
-                    + "&client_secret=" + naverClientSecret
-                    + "&redirect_uri=" + redirectURI
+                    + "&client_id=" + env.getProperty("naver.client.id")
+                    + "&client_secret=" + env.getProperty("naver.client.pw")
+                    + "&redirect_uri=" + env.getProperty("redirectURI")+"naverLogin"
                     + "&code=" + code
                     + "&state=" + state;
 
@@ -127,7 +153,8 @@ public class NaverLoginController {
 
             return "redirect:/main";
         } else {
-            redirectAttributes.addAttribute("naverId", naverId);
+            request.getSession().setAttribute("naverId", naverId);
+            loginService.processRegister(request,response);
             return "redirect:/user/register";
         }
     }
