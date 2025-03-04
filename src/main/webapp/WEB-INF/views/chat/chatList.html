@@ -121,7 +121,6 @@
         stompClient = Stomp.over(socket);
 
         stompClient.connect({}, function (frame) {
-            console.log("STOMP 연결됨: " + frame);
 
             // 특정 채팅방 구독
             stompClient.subscribe("/topic/user/" + currentUserId, function (messageFrame) {
@@ -138,11 +137,9 @@
                         .css('display', 'flex');
 
                     let chatRoomDiv = $('#chat-room-' + json.roomId); // 현재 채팅방 div 선택
-                    console.log(chatRoomDiv);
 
                     if (chatRoomDiv.length) { // 요소가 존재하는지 확인
                         let chatContainer = chatRoomDiv.closest('.chat-box'); // 상위 .asdf div 선택
-                        console.log(chatContainer);
 
                         if (chatContainer.length) { // .asdf가 존재하면 이동
                             chatContainer.parent().prepend(chatContainer); // 부모의 맨 앞으로 이동
@@ -160,6 +157,7 @@
     connectStomp();
 
     let timerInterval;
+    let isRequesting = false;  // ✅ 중복 요청 방지 플래그
 
     const updateTimer = () => {
         const timerElements = document.querySelectorAll("div[id^='timer']");
@@ -212,8 +210,12 @@
                                 remainingTimeSpan.textContent = `${hours}:${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
                             }
                         } else {
+                            if (isRequesting) return;  // ✅ 이미 요청 중이면 return
+                            isRequesting = true;
                             // 시간이 종료된 경우, "시간 종료" 표시
                             remainingTimeSpan.textContent = "시간 종료";
+                            clearInterval(timerInterval);
+                            timerInterval = null;
                             // 시간 종료 시 AJAX 요청으로 roomEnd 호출
                             $.ajax({
                                 url: `/chat/end/${roomId}`,
@@ -222,24 +224,17 @@
                                     status: roomStatus
                                 },
                                 success: function(response) {
-                                    if (response === "success") {
-                                        let chatRoomDiv = $('#chat-room-' + roomId); // 해당 채팅방 div 찾기
-                                        if (chatRoomDiv.length) {
-                                            let chatContainer = chatRoomDiv.closest('.chat-box'); // 상위 chat-box 찾기
-                                            if (chatContainer.length) {
-                                                chatContainer.parent().prepend(chatContainer); // 부모의 맨 앞으로 이동
-                                            }
-                                        }
-                                    }
-                                    else if (response === "delete") {
-                                        let chatRoomDiv = $('#chat-room-' + roomId); // 해당 채팅방 div 찾기
-                                        let chatContainer = chatRoomDiv.closest('.chat-box'); // 상위 chat-box 찾기
-                                        chatContainer.remove();
-                                    }
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 3000);  // ✅ 3초 후에 새로고침
+
+                                    isRequesting=false;
                                 },
                                 error: function(xhr, status, error) {
-                                    console.log("머임")
+                                    setTimeout(() => {
                                         window.location.reload();
+                                    }, 3000);  // ✅ 3초 후에 새로고침
+                                    isRequesting=false;
                                 }
                             });
                         }

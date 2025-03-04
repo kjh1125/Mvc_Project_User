@@ -1,5 +1,6 @@
 package kr.bit.config;
 
+import kr.bit.interceptor.SessionInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -24,7 +25,7 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
 
     @Override
     protected Class<?>[] getRootConfigClasses() {
-        return new Class[] { RootConfig.class };
+        return new Class[] { RootConfig.class, SecurityConfig.class };
     }
 
     @Override
@@ -50,5 +51,7 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
     public ConversionService conversionService() {
         return new DefaultConversionService();
     }
+
+
 
 }

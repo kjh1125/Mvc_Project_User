@@ -35,19 +35,6 @@ public class RestChatController {
     @Autowired
     private ChatSocketService chatSocketService;
 
-
-    @PostMapping("/ping")
-    public String ping(HttpSession session) {
-        try (Jedis jedis = new Jedis("223.130.151.175", 6379)) {  // try-with-resources로 Jedis 자동 종료
-            List<String> ping = jedis.zrandmember("manList",10);  // PING 명령
-            System.out.println(ping);
-            return "hello";  // "PONG" 반환
-        } catch (Exception e) {
-            System.out.println("Redis connection error: " + e.getMessage());
-            return "Error: Unable to connect to Redis server";
-        }
-    }
-
     @PostMapping("/matchStart")
     public String matchStart(HttpSession session) {
         int userId = (int) session.getAttribute("user");

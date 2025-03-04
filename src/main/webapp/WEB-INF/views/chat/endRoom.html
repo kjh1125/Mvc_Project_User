@@ -290,7 +290,6 @@
         stompClient = Stomp.over(socket);
 
         stompClient.connect({}, function (frame) {
-            console.log("STOMP 연결됨: " + frame);
 
             // 특정 채팅방 구독
             stompClient.subscribe("/topic/user/" + userId, function (messageFrame) {
@@ -406,7 +405,6 @@
     }
 
     const flip = (num) => {
-        console.log(num+"!!"+userId+"!!"+closureId);
         const card = $("#card" + num);
         $.ajax({
             url: '/chat/flip/'+closureId,

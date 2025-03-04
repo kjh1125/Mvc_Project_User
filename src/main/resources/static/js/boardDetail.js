@@ -1,3 +1,4 @@
+
     // 전역 변수와 DOM 요소 참조를 초기화 함수로 분리
     let user_id, board_id, alertModal;
     let likeBtn, heartCountSpan, reportForm, reportModal;

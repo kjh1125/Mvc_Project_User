@@ -12,6 +12,8 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -100,7 +102,10 @@ public class ChatSocketService {
     }
 
     public void saveMessageToRedis(String roomId, int userId, String message, Timestamp createdAt) {
-        String createdAtStr = createdAt.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+
+        String createdAtStr = nowInKorea.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
         String messageId = String.valueOf(System.currentTimeMillis()); // 메시지 ID (타임스탬프)
 
         Map<String, String> chatData = new HashMap<>();
