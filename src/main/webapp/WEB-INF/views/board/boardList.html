@@ -21,23 +21,40 @@
                 <div class="post-footer" th:text="${board.created_at} + ' | ' + ${board.nickname}">25-02-05 16:06</div>
             </div>
         </div>
+        <div class="fixed-box">
+            <a th:href="@{/board/add}">
+                <div class="fab-button" >
+                <div class="fab">
+                    <i class="bi bi-pencil"></i>
+                </div>
+            </div>
+            </a>
+        </div>
     </div>
 
-    <!-- Floating Button -->
-    <aside class="commonLayoutFab">
-        <a th:href="@{/board/add}"><div class="fab-button" >
-            <div class="fab">
-                <i class="bi bi-pencil"></i>
-            </div>
-        </div>
-        </a>
-    </aside>
 
     <!-- footer.html 포함 -->
     <div th:replace="fragments/footer.html :: footer"> </div>
 
 </div>
 <script>
+    function adjustButtonPosition() {
+        const content = document.querySelector('.back-view');
+        const button = document.querySelector('.fixed-box');
+
+        const contentWidth = content.offsetWidth;  // 부모 컨텐츠의 너비
+        const buttonWidth = button.offsetWidth;    // 버튼의 너비
+
+        const shift = (contentWidth / 2) - 80;
+        button.style.left = `calc(50% + ${shift}px)`;  // 가운데에서 부모 기준 이동
+    }
+
+    // 초기 위치 설정
+    adjustButtonPosition();
+
+    // 윈도우 크기 변경 시 재계산
+    window.addEventListener('resize', adjustButtonPosition);
+
     setTimeout(function() {
         let alertBox = document.querySelector(".alert");
         if (alertBox) {
