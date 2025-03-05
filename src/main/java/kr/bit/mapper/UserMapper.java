@@ -10,7 +10,7 @@ public interface UserMapper {
     Integer googleLogin(String google_id);
 
     @Select("select user_id from users where kakao_id=#{kakaoId}")
-    Integer kakaoLogin(long kakao_id);
+    Integer kakaoLogin(String kakao_id);
 
     @Select("select user_id from users where naver_id=#{naverId}")
     Integer naverLogin(String naver_id);

@@ -147,7 +147,7 @@
                                 <div class="card-container" onclick="flipCard(2)">
                                     <div class="card" id="card2">
                                         <div class="card-front">
-                                            <img th:src="@{/images/card.png}" class="cards" alt="카드" width="100" height="120"/>
+                                            <img th:src="@{/images/card.png}" class="cards" alt="카드" width="100" height="140"/>
                                         </div>
                                         <div class="card-back">
                                             <div id="card-front2" style="width:100px; height: 140px;">
@@ -290,7 +290,6 @@
         stompClient = Stomp.over(socket);
 
         stompClient.connect({}, function (frame) {
-            console.log("STOMP 연결됨: " + frame);
 
             // 특정 채팅방 구독
             stompClient.subscribe("/topic/user/" + userId, function (messageFrame) {
@@ -406,7 +405,6 @@
     }
 
     const flip = (num) => {
-        console.log(num+"!!"+userId+"!!"+closureId);
         const card = $("#card" + num);
         $.ajax({
             url: '/chat/flip/'+closureId,

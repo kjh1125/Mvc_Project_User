@@ -1,19 +1,5 @@
-<html xmlns:th="http://www.thymeleaf.org" lang="kr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no">
-    <title>Title</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
-    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"
-            integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
-    <script>
-        Kakao.init('7abe9ea8f22f24ef4bd818b0c72f8534'); // 사용하려는 앱의 JavaScript 키 입력
-    </script>
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="kr" th:with="page='login'">
+    <head th:replace="~{fragments/header :: head}"></head>
 <body>
 <div class="mobile-view">
     <div class="d-flex flex-column justify-content-center align-items-center" style="margin-top:150px">
@@ -41,52 +27,59 @@
 
 <script>
     function googleLogin() {
-        var googleClientId = '491361950548-csjpd36h82d3ma39vru2r2pmbvugr6ro.apps.googleusercontent.com';  // 구글 클라이언트 ID 입력
-        // var redirectUri = 'http://localhost:8080/googleLogin'; // 구글 로그인 리디렉션 URI
-        var redirectUri = 'https://blindtime.kro.kr/googleLogin'; // 구글 로그인 리디렉션 URI
-
-        var scope = 'email%20profile%20openid'; // 요청할 범위
-        var responseType = 'code';  // 인증 코드 받기
-        var apiUrl = "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + googleClientId
-            + "&redirect_uri=" + encodeURIComponent(redirectUri)
-            + "&response_type=" + responseType
-            + "&scope=" + scope
-            + "&access_type=offline";
-
-        window.location.href = apiUrl;  // 구글 로그인 페이지로 리디렉션
-    }
-
-    function kakaoLogin() {
-        Kakao.Auth.authorize({
-            // redirectUri: 'http://localhost:8080/kakaoLogin',
-            redirectUri: 'https://blindtime.kro.kr/kakaoLogin',
+        $.ajax({
+            url: '/googleLoginRequest', // 로그인 URL 요청
+            type: 'GET',
+            dataType: 'json',  // JSON 응답을 받기 위해 설정
+            success: function(response) {
+                if (response.url) {
+                    window.location.href = response.url;  // 응답받은 URL로 이동
+                } else {
+                    alert("Google 로그인 URL을 받아오지 못했습니다.");
+                }
+            },
+            error: function(xhr, status, error) {
+                alert("오류 발생: " + error);
+            }
         });
     }
 
-    function generateState() {
-        // 상태 값 생성 (보안을 위해 랜덤값 생성)
-        var array = new Uint32Array(10);
-        window.crypto.getRandomValues(array);
-        return array.join('');
+
+    function kakaoLogin() {
+        $.ajax({
+            url: '/kakaoLoginRequest', // 로그인 URL 요청
+            type: 'GET',
+            dataType: 'json',  // JSON 응답을 받기 위해 설정
+            success: function(response) {
+                if (response.url) {
+                    window.location.href = response.url;  // 응답받은 URL로 이동
+                } else {
+                    alert("Kakao 로그인 URL을 받아오지 못했습니다.");
+                }
+            },
+            error: function(xhr, status, error) {
+                alert("오류 발생: " + error);
+            }
+        });
     }
 
+
     function naverLogin() {
-        var clientId = 'fBXX5nbSsulYyCUP7NDj'; // 네이버 클라이언트 ID
-        // var redirectURI = encodeURIComponent("http://localhost:8080/naverLogin"); // 콜백 URL
-        var redirectURI = encodeURIComponent("https://blindtime.kro.kr/naverLogin"); // 콜백 URL
-        var state = generateState(); // 고유 상태 값 생성
-
-        // URL 생성
-        var apiURL = "https://nid.naver.com/oauth2.0/authorize?response_type=code";
-        apiURL += "&client_id=" + clientId;
-        apiURL += "&redirect_uri=" + redirectURI;
-        apiURL += "&state=" + state;
-
-        // 세션에 state 저장 (브라우저 세션에 저장하는 방법은 일반적으로 Cookies나 LocalStorage로 저장)
-        sessionStorage.setItem("state", state);
-
-        // 네이버 로그인 페이지로 리다이렉션
-        window.location.href = apiURL;
+        $.ajax({
+            url: '/naverLoginRequest', // 로그인 URL 요청
+            type: 'GET',
+            dataType: 'json',  // JSON 응답을 받기 위해 설정
+            success: function(response) {
+                if (response.url) {
+                    window.location.href = response.url;  // 응답받은 URL로 이동
+                } else {
+                    alert("Naver 로그인 URL을 받아오지 못했습니다.");
+                }
+            },
+            error: function(xhr, status, error) {
+                alert("오류 발생: " + error);
+            }
+        });
     }
 </script>
 

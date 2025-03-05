@@ -151,7 +151,6 @@
             type: 'POST',
             data: { value: value },
             success: function(response) {
-                console.log(response);
                 if(response==''){
                     $('#confirmModal').modal('hide');
                     $('#failModal').modal('show');

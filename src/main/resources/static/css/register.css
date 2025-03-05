@@ -1,0 +1,47 @@
+input[type="radio"] {
+    display: none;
+}
+form{
+    margin-bottom: 0;
+}
+
+label, i {
+    cursor: pointer;
+}
+
+.form-check-label i {
+    font-size: 1.5rem;
+    color: #4285F4;
+}
+.page{
+    display: none;
+    max-height: 100%;
+}
+
+#page1{
+    display: block;
+}
+
+.radioChecked{
+    background-color: #4285F4;
+    color:#ffffff;
+}
+
+.check-radio{
+    font-size: 0.8rem;
+}
+
+.pictureBox{
+    width: 80%;
+    height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #d9d9d9;
+    margin: auto;
+}
+
+.pictureBox:hover{
+    cursor: pointer;
+}
+
