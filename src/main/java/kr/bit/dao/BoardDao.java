@@ -74,4 +74,8 @@ public class BoardDao {
     public int getImage(int writerId) {
         return boardMapper.getImage(writerId);
     }
+
+    public List<Board> getBoardNotice(){
+        return boardMapper.getBoardNotice();
+    };
 }
