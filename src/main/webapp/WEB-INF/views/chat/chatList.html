@@ -1,26 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no">
-    <title>모바일 게시판</title>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <script src="https://cdn.jsdelivr.net/sockjs/1.0.2/sockjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
-    <style>
-    </style>
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko" th:with="page='chatList'">
+<head th:replace="~{fragments/header :: head}"></head>
 <body>
 
 <div class="mobile-view">
     <div class="back-view">
         <div class="p-1">
+            <div class="p-3">
             <h4>채팅목록</h4>
+            </div>
             <a href="#">
                 <div th:if="${waiting}">
                     <div class="d-flex align-items-center justify-content-between" style="background: #D9D9D9; height: 35%;">
@@ -41,11 +29,11 @@
                             <div style="width:25%">
                                 <span class="fs-2">매칭하기</span>
                             </div>
-                            <div class="d-flex align-items-center" style="width:17.5%">
+                            <div class="d-flex align-items-center" style="width:22%">
                                 <i class="fs-1 bi bi-fire text-danger"></i>
                                 <span class="fs-2" id="firewood" th:text="${firewood}"/>
                             </div>
-                            <div style="display: block; width:20%">
+                            <div style="display: block; width:15.5%">
                             <i class="fs-2 bi bi-plus-circle" onclick="event.stopPropagation(); window.location.href='/myPage/firewood';"></i>
                             </div>
                         </div>
@@ -100,22 +88,29 @@
                 </div>
             </div>
         </div>
-        <div th:replace="fragments/footer.html :: footer">
-        </div>
+    </div>
+    <div th:replace="fragments/footer.html :: footer">
     </div>
 </div>
 
 <span class="d-none" id="userId" th:text="${userId}"></span>
 <script>
+    let isMatch = false;
     const matchStart = () =>{
+        if(isMatch){
+            return;
+        }
+        isMatch = true;
         $.ajax({
             url: '/chat/matchStart',
             type: 'POST',
             data: { },
             success: function(response) {
+                isMatch=false;
                 window.location.reload();
             },
             error: function(xhr, status, error) {
+                isMatch=false;
                 alert('오류 ' + error);
             }
         });
@@ -133,7 +128,6 @@
         stompClient = Stomp.over(socket);
 
         stompClient.connect({}, function (frame) {
-            console.log("STOMP 연결됨: " + frame);
 
             // 특정 채팅방 구독
             stompClient.subscribe("/topic/user/" + currentUserId, function (messageFrame) {
@@ -150,11 +144,9 @@
                         .css('display', 'flex');
 
                     let chatRoomDiv = $('#chat-room-' + json.roomId); // 현재 채팅방 div 선택
-                    console.log(chatRoomDiv);
 
                     if (chatRoomDiv.length) { // 요소가 존재하는지 확인
                         let chatContainer = chatRoomDiv.closest('.chat-box'); // 상위 .asdf div 선택
-                        console.log(chatContainer);
 
                         if (chatContainer.length) { // .asdf가 존재하면 이동
                             chatContainer.parent().prepend(chatContainer); // 부모의 맨 앞으로 이동
@@ -172,6 +164,7 @@
     connectStomp();
 
     let timerInterval;
+    let isRequesting = false;  // ✅ 중복 요청 방지 플래그
 
     const updateTimer = () => {
         const timerElements = document.querySelectorAll("div[id^='timer']");
@@ -224,8 +217,12 @@
                                 remainingTimeSpan.textContent = `${hours}:${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
                             }
                         } else {
+                            if (isRequesting) return;  // ✅ 이미 요청 중이면 return
+                            isRequesting = true;
                             // 시간이 종료된 경우, "시간 종료" 표시
                             remainingTimeSpan.textContent = "시간 종료";
+                            clearInterval(timerInterval);
+                            timerInterval = null;
                             // 시간 종료 시 AJAX 요청으로 roomEnd 호출
                             $.ajax({
                                 url: `/chat/end/${roomId}`,
@@ -234,18 +231,17 @@
                                     status: roomStatus
                                 },
                                 success: function(response) {
-                                    let chatRoomDiv = $('#chat-room-' + roomId); // 해당 채팅방 div 찾기
-                                    if (chatRoomDiv.length) {
-                                        let chatContainer = chatRoomDiv.closest('.chat-box'); // 상위 chat-box 찾기
-                                        if (chatContainer.length) {
-                                            chatContainer.parent().prepend(chatContainer); // 부모의 맨 앞으로 이동
-                                        }
-                                    }
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 3000);  // ✅ 3초 후에 새로고침
+
+                                    isRequesting=false;
                                 },
                                 error: function(xhr, status, error) {
                                     setTimeout(() => {
                                         window.location.reload();
-                                    }, 3000);
+                                    }, 3000);  // ✅ 3초 후에 새로고침
+                                    isRequesting=false;
                                 }
                             });
                         }

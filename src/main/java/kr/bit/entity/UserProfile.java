@@ -1,7 +1,10 @@
 package kr.bit.entity;
 
 import lombok.Data;
-import lombok.Setter;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 @Data
 public class UserProfile {
@@ -12,7 +15,11 @@ public class UserProfile {
     private String birthDay;
     private String birthDate;
     private String createdAt;
+    @Min(100)
+    @Max(300)
     private Integer height;
+    @Min(30)
+    @Max(200)
     private Integer weight;
     private String photoImageUrl;
     private int profileImageId;
