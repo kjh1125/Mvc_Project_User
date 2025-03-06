@@ -32,9 +32,17 @@ public class BoardService {
         boardDao.insertBoard(board);
     }
 
-    public List<Board> getBoards(){
-
-        List<Board> boards = boardDao.getBoards();
+    public List<Board> getBoards(int page){
+        int limit = 5; // 게시글 5개씩 출력
+        int pageSize = 0;
+        if(page == 1){
+            pageSize = 0;
+        }
+        else{
+            pageSize = page*limit;
+        }
+        int offset = pageSize;
+        List<Board> boards = boardDao.getBoards(limit,offset);
 
         for(Board board : boards){
             board.setNickname(userDao.getNickname(board.getWriter_id()));
@@ -97,9 +105,13 @@ public class BoardService {
 
         for(Comment comment : comments){
             comment.setNickname(userService.getNickname(comment.getWriter_id()));
+            comment.setImage_id_url("/images/profile-icon/"+boardDao.getImage(comment.getWriter_id())+".jpg");
         }
 
         return comments;
     }
-
+    //이미지 id user_profille table에서 가져오기
+    public int getImage(int writerId) {
+        return boardDao.getImage(writerId);
+    }
 }

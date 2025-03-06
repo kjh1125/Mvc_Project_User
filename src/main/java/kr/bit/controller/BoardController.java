@@ -32,8 +32,9 @@ public class BoardController {
     private HttpSession session;
 
     @GetMapping(value = "/list")
-    public String boardList(Model model){
-        List<Board> boards = boardService.getBoards();
+    public String boardList(@RequestParam(value = "page", defaultValue = "1") int page,Model model){
+
+        List<Board> boards = boardService.getBoards(page);
 
         model.addAttribute("boards",boards);
 
@@ -44,6 +45,9 @@ public class BoardController {
     public String boardDetail(Model model, @RequestParam("id") int id){
         //게시물 불러오기
         Board board = boardService.getBoard(id);
+        //프로필 이미지 가져오기 // 작성자 ID 기준
+        int image_id = boardService.getImage(board.getWriter_id());
+        String image_id_url = "/images/profile-icon/"+image_id+".jpg";
         //좋아요 표시를 위한 확인
         Like like = new Like();
         like.setUser_id((int)session.getAttribute("user")); //로그인 사람의 id값
@@ -52,6 +56,7 @@ public class BoardController {
 
         List<Comment> comments = boardService.getComments(id);
 
+        model.addAttribute("image_id_url",image_id_url);
         model.addAttribute("board",board);
         model.addAttribute("commentList",comments);
         model.addAttribute("checkLikeExists",checkLikeExists);

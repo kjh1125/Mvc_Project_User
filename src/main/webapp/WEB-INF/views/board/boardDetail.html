@@ -22,7 +22,7 @@
             <!-- 게시글 -->
             <div class="card p-3">
                 <div class="d-flex align-items-center">
-                    <img alt="프로필" class="profile-img me-2" th:src="@{/images/profile-icon/1.jpg}">
+                    <img alt="프로필" class="profile-img me-2" th:src="@{${image_id_url}}">
                     <div style="">
                         <strong th:text="${board.nickname}">하리보</strong>
                         <div class="dropdown">
@@ -69,7 +69,7 @@
             <!-- 댓글 리스트로 받아와서 each 함수를 이용하여 출력-->
             <div class="comment-box mt-2" th:each="comment : ${commentList}">
                 <div class="d-flex align-items-center">
-                    <img alt="프로필" class="profile-img me-2" th:src="@{/images/profile-icon/1.jpg}">
+                    <img alt="프로필" class="profile-img me-2" th:src="@{${comment.image_id_url}}">
                     <div class="comment-container" style="">
                         <strong th:text="${comment.nickname}">치킨</strong>
                         <a href="#" class="delete-icon" th:if="${session.user == comment.writer_id}"

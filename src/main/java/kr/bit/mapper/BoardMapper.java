@@ -15,9 +15,12 @@ public interface BoardMapper {
     //게시물 추가
     @Insert("insert into boards(writer_id,title,content) values(#{writer_id},#{title},#{content})")
     void insertBoard(Board board);
-    //모든 게시물 확인
-    @Select("select * from boards order by id desc")
-    List<Board> getBoards();
+    //모든 게시물 확인 (공지 제외)
+    @Select("select * from boards where is_notice=0 order by created_at desc limit #{limit} offset #{offset}")
+    List<Board> getBoards(int limit, int offset);
+    //모든 게시물 확인 (공지만)
+    @Select("select * from boards where is_notice=1 order by created_at desc")
+    List<Board> getBoardNotice();
     //단일 게시물 확인
     @Select("select * from boards where id = #{id}")
     Board getBoard(int id);
@@ -54,5 +57,7 @@ public interface BoardMapper {
     //게시글의 모든 댓글 불러오기
     @Select("select * from comments where board_id = #{board_id} order by id desc")
     List<Comment> getComments(int board_id);
-
+    //게시물 글쓴이 아이디 기준으로 profile의 이미지 아이디 가져오기
+    @Select("select profile_image_id from user_profiles where user_id = #{writerId}")
+    int getImage(int writerId);
 }
