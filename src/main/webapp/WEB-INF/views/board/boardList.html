@@ -11,7 +11,7 @@
     <!-- 게시글 리스트 -->
     <div class="back-view">
         <div class="post-card" th:each="notice : ${notices}">
-            <a th:href="@{./detail(id=${notice.id})}"><div class="post-title" th:text="'[공지사항]'+${notice.title}">공지사항</div>
+            <a th:href="@{./detailNotice(id=${notice.id})}"><div class="post-title" th:text="'[공지사항]'+${notice.title}">공지사항</div>
                 <div class="post-content" th:text="${notice.content}">공지사항</div></a>
         </div>
         <div class="post-card" th:each="board : ${boards}">
