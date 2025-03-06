@@ -16,7 +16,7 @@ public interface BoardMapper {
     @Insert("insert into boards(writer_id,title,content) values(#{writer_id},#{title},#{content})")
     void insertBoard(Board board);
     //모든 게시물 확인 (공지 제외)
-    @Select("select * from boards where is_notice=0 order by created_at desc limit #{limit} offset #{offset}")
+    @Select("select * from boards where is_notice=0 order by created_at desc")
     List<Board> getBoards(int limit, int offset);
     //모든 게시물 확인 (공지만)
     @Select("select * from boards where is_notice=1 order by created_at desc")
