@@ -35,8 +35,10 @@ public class BoardController {
     public String boardList(@RequestParam(value = "page", defaultValue = "1") int page,Model model){
 
         List<Board> boards = boardService.getBoards(page);
+        List<Board> notices = boardService.getBoardNotice();
 
         model.addAttribute("boards",boards);
+        model.addAttribute("notices", notices);
 
         return "board/boardList";
     }

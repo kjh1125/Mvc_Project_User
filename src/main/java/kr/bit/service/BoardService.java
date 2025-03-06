@@ -114,4 +114,8 @@ public class BoardService {
     public int getImage(int writerId) {
         return boardDao.getImage(writerId);
     }
+
+    public List<Board> getBoardNotice(){
+        return boardDao.getBoardNotice();
+    };
 }
