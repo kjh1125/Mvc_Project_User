@@ -67,3 +67,17 @@ a {
 .cursor-pointer:hover {
     cursor: pointer;
 }
+
+#google-btn:active{
+    background-color: #3367D6;
+    transform: scale(0.97);
+}
+#naver-btn:active {
+    background-color: #19B300;
+    transform: scale(0.97);
+}
+
+#kakao-btn:active {
+    background-color: #E5D400;
+    transform: scale(0.97);
+}
