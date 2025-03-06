@@ -23,8 +23,8 @@ public class BoardDao {
         boardMapper.insertBoard(board);
     }
 
-    public List<Board> getBoards(){
-        return boardMapper.getBoards();
+    public List<Board> getBoards(int limit,int offset){
+        return boardMapper.getBoards(limit, offset);
     }
 
     public Board getBoard(int id){
@@ -71,4 +71,7 @@ public class BoardDao {
         return boardMapper.getComments(board_id);
     }
 
+    public int getImage(int writerId) {
+        return boardMapper.getImage(writerId);
+    }
 }

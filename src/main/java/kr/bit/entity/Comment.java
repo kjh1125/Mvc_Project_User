@@ -10,5 +10,6 @@ public class Comment {
     private String content;
     private String created_at;
     private String nickname;
+    private String image_id_url;
 
 }
