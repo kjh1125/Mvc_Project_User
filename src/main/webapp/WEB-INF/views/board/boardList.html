@@ -13,9 +13,6 @@
         <div class="post-card" th:each="notice : ${notices}">
             <a th:href="@{./detail(id=${notice.id})}"><div class="post-title" th:text="'[공지사항]'+${notice.title}">공지사항</div>
                 <div class="post-content" th:text="${notice.content}">공지사항</div></a>
-            <div class="d-flex justify-content-between mt-2">
-                <div class="post-footer" th:text="${board.created_at} + ' | ' + '관리자'">25-02-05 16:06</div>
-            </div>
         </div>
         <div class="post-card" th:each="board : ${boards}">
             <a th:href="@{./detail(id=${board.id})}"><div class="post-title" th:text="${board.title}">안녕하세요</div>
