@@ -238,9 +238,6 @@ p{
     margin-bottom: 0.5rem;
 }
 
-.cursor-pointer:hover {
-    cursor: pointer;
-}
 
 input[type="radio"] {
     display: none;
