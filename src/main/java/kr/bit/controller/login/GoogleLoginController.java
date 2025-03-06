@@ -1,10 +1,12 @@
 package kr.bit.controller.login;
 
+import kr.bit.service.LoginService;
 import kr.bit.service.UserService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @CrossOrigin("*")
@@ -30,34 +34,71 @@ public class GoogleLoginController {
     @Autowired
     private UserService userService;
 
-    @Value("${google.client.id}")
-    private String googleClientId;
+    @Autowired
+    private LoginService loginService;
 
-    @Value("${google.client.pw}")
-    private String googleClientPw;
+    @Autowired
+    private Environment env;
+
+
+
+    @GetMapping("/googleLoginRequest")
+    @ResponseBody
+    public Map<String, String> googleLoginRequest(HttpServletRequest request) {
+        String state = loginService.generateCSRFToken();
+        request.getSession().setAttribute("oauthState", state); // 세션에 저장
+
+        String googleAuthUrl = "https://accounts.google.com/o/oauth2/v2/auth"
+                + "?client_id=" + env.getProperty("google.client.id")
+                + "&redirect_uri=" + env.getProperty("redirectURI")+"googleLogin"
+                + "&response_type=code"
+                + "&scope=email%20profile%20openid"
+                + "&access_type=offline"
+                + "&state=" + state; // CSRF 보호용 state 값 추가
+
+        Map<String, String> response = new HashMap<>();
+        response.put("url", googleAuthUrl);
+        return response;
+    }
 
     @GetMapping("/googleLogin")
-    public String loginGoogle(@RequestParam(value = "code") String authCode, RedirectAttributes redirectAttributes, HttpServletResponse response, HttpServletRequest request) {
+    public String loginGoogle(
+            @RequestParam(value = "code") String authCode,
+            @RequestParam(value = "state", required = false) String state,
+            RedirectAttributes redirectAttributes,
+            HttpServletResponse response,
+            HttpServletRequest request) {
+        // 1️⃣ 세션에서 `state` 값 가져오기
+        String sessionState = (String) request.getSession().getAttribute("oauthState");
+
+        // 2️⃣ `state` 값이 일치하지 않으면 로그인 차단 (CSRF 공격 방어)
+        if (sessionState == null || !sessionState.equals(state)) {
+            return "Error: Invalid OAuth state. Possible CSRF attack.";
+        }
+
+        // 3️⃣ `state` 값 검증 후, 세션에서 제거 (재사용 방지)
+        request.getSession().removeAttribute("oauthState");
+
+        // 4️⃣ Google Access Token 요청
         String token = getGoogleAccessToken(authCode);
         if (token != null) {
-            return getGoogleUserInfo(token, redirectAttributes, response, request);  // 수정된 부분
+            return getGoogleUserInfo(token, redirectAttributes, response, request);
         }
         return "Error: Unable to retrieve access token.";
     }
 
+
     private String getGoogleAccessToken(String authCode) {
         String accessToken = null;
         try {
-//            String redirectURI = "http://localhost:8080/googleLogin"; // Callback URL
-            String redirectURI = "https://blindtime.kro.kr/googleLogin"; // Callback URL
             String apiURL = "https://oauth2.googleapis.com/token";
 
             // 요청 파라미터 구성
             String data = "grant_type=authorization_code"
-                    + "&client_id=" + googleClientId
-                    + "&client_secret=" + googleClientPw
+                    + "&client_id=" + env.getProperty("google.client.id")
+                    + "&client_secret=" + env.getProperty("google.client.pw")
                     + "&code=" + authCode
-                    + "&redirect_uri=" + redirectURI;
+                    + "&redirect_uri=" + env.getProperty("redirectURI")+"googleLogin";
 
             // URL 연결 설정
             URL url = new URL(apiURL);
@@ -88,7 +129,7 @@ public class GoogleLoginController {
 
             // JSON 파싱 후 id_token 추출
             JSONObject jsonResponse = new JSONObject(response.toString());
-            accessToken = jsonResponse.getString("id_token");
+            accessToken = jsonResponse.getString("access_token");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -100,7 +141,7 @@ public class GoogleLoginController {
         String googleId;
         BufferedReader br = null;
         try {
-            String apiURL = "https://oauth2.googleapis.com/tokeninfo?id_token=" + token;
+            String apiURL = "https://oauth2.googleapis.com/tokeninfo?access_token=" + token;
             URL url = new URL(apiURL);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
@@ -141,25 +182,13 @@ public class GoogleLoginController {
         }
 
         if (userId != null) {
-            // 인증 정보를 SecurityContext에 설정
-            Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            String gender = userService.getGender(userId);
-            HttpSession session = request.getSession();
-            session.setAttribute("user", userId);
-            session.setAttribute("gender", gender);
 
-            // 세션 ID를 쿠키로 설정
-            Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());  // 세션 ID를 쿠키에 담습니다
-            sessionCookie.setPath("/");  // 전체 사이트에 대해 쿠키가 유효하도록 설정
-            sessionCookie.setHttpOnly(true);  // 클라이언트 JS에서 쿠키 접근 불가
-            sessionCookie.setSecure(true);  // HTTPS에서만 쿠키 전송
-            sessionCookie.setMaxAge(60 * 60);  // 쿠키의 유효기간 설정 (예: 1시간)
-            response.addCookie(sessionCookie);  // 응답으로 쿠키를 클라이언트에 추가
+            loginService.processLogin(userId,request,response);
 
             return "redirect:/main";
         } else {
-            redirectAttributes.addAttribute("googleId", googleId);
+            request.getSession().setAttribute("googleId", googleId);
+            loginService.processRegister(request,response);
             return "redirect:/user/register";
         }
     }

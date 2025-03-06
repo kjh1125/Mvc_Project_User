@@ -18,7 +18,7 @@ public class UserDao {
         return userMapper.googleLogin(google_id);
     }
 
-    public Integer kakaoLogin(long kakao_id){
+    public Integer kakaoLogin(String kakao_id){
         return userMapper.kakaoLogin(kakao_id);
     }
 

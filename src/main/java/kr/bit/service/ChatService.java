@@ -130,75 +130,49 @@ public class ChatService {
 
     @Transactional
     public void timeEnd(int roomId, String status) {
+        RoomStatusDTO roomStatusDTO = chatDao.getSessionStatus(roomId);
+        Timestamp endtime = chatDao.getEndTime(roomId);
+        Timestamp now = Timestamp.from(Instant.now());
+        System.out.println("끝나는시간:"+endtime);
+        System.out.println("지금시간:"+now);
+        if (endtime == null) {
+            return;
+        }
 
-            RoomStatusDTO roomStatusDTO = chatDao.getSessionStatus(roomId);
+        if (endtime.after(now)) {
+            return; // ✅ 종료 시간이 현재 시간보다 이후이면 실행 안 함
+        }
 
-            if (status.equals("on")&&roomStatusDTO.getSessionStatus().equals("on")) {
-                chatDao.updateChatRoom(roomId, "end", 24 * 60);
-                ChatRoom chatRoom = chatDao.getChatRoom(roomId);
-                int manId = chatRoom.getManId();
-                int womanId = chatRoom.getWomanId();
-                ChatClosure chatClosure1 = new ChatClosure();
-                ChatClosure chatClosure2 = new ChatClosure();
-                chatClosure1.setRoomId(roomId);
-                chatClosure2.setRoomId(roomId);
-                chatClosure1.setUserId(manId);
-                chatClosure2.setUserId(womanId);
-                int result1 = chatDao.insertChatClosure(chatClosure1);
-                if (result1 == 0) {
-                    return; // 첫번째 삽입이 거부되었을 경우 바로 종료
-                }
-                int result2 = chatDao.insertChatClosure(chatClosure2);
-                if (result2 == 0) {
-                    return; // 두번째 삽입이 거부되었을 경우 바로 종료
-                }
-                if(createCard(chatClosure1.getId(),womanId)!=0){
-                    return;
-                };
-                if(createCard(chatClosure2.getId(),manId)!=0){
-                    return;
-                };
+        if (status.equals("on") && roomStatusDTO.getSessionStatus().equals("on")) {
+            chatDao.updateChatRoom(roomId, "end", 24 * 60);
+            ChatRoom chatRoom = chatDao.getChatRoom(roomId);
+            int manId = chatRoom.getManId();
+            int womanId = chatRoom.getWomanId();
 
-                // 해당 채팅방의 Redis 키 패턴 (예: chat:17:*)
-                String redisPattern = "chat:" + roomId + ":*";
-                try {
-                    Jedis jedis = jedisPool.getResource();
-                    // 패턴에 맞는 모든 Redis 키를 조회
-                    Set<String> keys = jedis.keys(redisPattern);
+            ChatClosure chatClosure1 = new ChatClosure();
+            ChatClosure chatClosure2 = new ChatClosure();
+            chatClosure1.setRoomId(roomId);
+            chatClosure2.setRoomId(roomId);
+            chatClosure1.setUserId(manId);
+            chatClosure2.setUserId(womanId);
 
-                    if (keys.isEmpty()) {
-                        return; // 채팅 기록이 없다면 그냥 종료
-                    }
+            int result1 = chatDao.insertChatClosure(chatClosure1);
+            if (result1 == 0) return; // 첫 번째 삽입 실패 시 종료
 
-                    for (String key : keys) {
-                        // 각 키에 저장된 해시 데이터를 가져옴
-                        Map<String, String> chatData = jedis.hgetAll(key);
+            int result2 = chatDao.insertChatClosure(chatClosure2);
+            if (result2 == 0) return; // 두 번째 삽입 실패 시 종료
 
-                        // Message 객체로 매핑
-                        Message message = new Message();
-                        message.setRoomId(Integer.parseInt(chatData.get("room_id")));
-                        message.setUserId(Integer.parseInt(chatData.get("user_id")));
-                        message.setMessageContent(chatData.get("msg"));
-                        // created_at은 "yyyy-MM-dd HH:mm:ss" 형식으로 저장되었다고 가정
-                        message.setCreatedAt(Timestamp.valueOf(chatData.get("created_at")));
-                        // "read" 값이 "true"이면 true, 아니면 false로 처리
-                        message.setRead(chatData.get("read").equalsIgnoreCase("true"));
-
-                        // SQL에 메시지 삽입
-                        chatDao.insertMessage(message);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            } else if(status.equals("end")&&roomStatusDTO.getSessionStatus().equals("end")) {
-                if (!chatDao.getSessionStatus(roomId).isReported()) {
-                    chatDao.deleteChatRoom(roomId);
-                }else {
-                    chatDao.manOut(roomId);
-                    chatDao.womanOut(roomId);
-                }
+            if (createCard(chatClosure1.getId(), womanId) != 0) return;
+            if (createCard(chatClosure2.getId(), manId) != 0) return;
+        }
+        else if (status.equals("end") && roomStatusDTO.getSessionStatus().equals("end")) {
+            if (!chatDao.getSessionStatus(roomId).isReported()) {
+                chatDao.deleteChatRoom(roomId);
+            } else {
+                chatDao.manOut(roomId);
+                chatDao.womanOut(roomId);
             }
+        }
     }
 
     private int createCard(int chatEndId, int otherId) {
@@ -437,27 +411,6 @@ public class ChatService {
             int user2 = chatDao.getChatRoom(roomId).getWomanId();
             chatSocketService.refreshUser(user1);
             chatSocketService.refreshUser(user2);
-        }
-    }
-
-    public void markMessagesAsRead(int roomId, int userId) {
-        try (Jedis jedis = jedisPool.getResource()) {
-            // Redis에 저장된 모든 메시지를 조회하여 `roomId`와 `userId`가 다르고 `read` 값이 false인 경우에만 처리
-            Set<String> keys = jedis.keys("chat:" + roomId + ":*"); // roomId에 해당하는 모든 메시지 키 가져오기
-            for (String key : keys) {
-                Map<String, String> chatData = jedis.hgetAll(key);
-                int messageUserId = Integer.parseInt(chatData.get("user_id")); // 보낸 사람의 ID
-                String messageReadStatus = chatData.get("read"); // 읽음 여부
-
-                // 받은 사람이 보낸 사람과 다르고, 메시지가 아직 읽히지 않았다면
-                if (messageUserId!=(userId) && messageReadStatus.equals("false")) {
-                    chatData.put("read", "true"); // 읽음 처리
-                    jedis.hset(key, chatData); // Redis에서 업데이트
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error marking messages as read", e); // 예외를 던져서 호출자가 처리할 수 있도록
         }
     }
 }
