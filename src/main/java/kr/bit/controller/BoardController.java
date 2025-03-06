@@ -66,6 +66,16 @@ public class BoardController {
         return "board/boardDetail";
     }
 
+    @GetMapping(value = "/detailNotice")
+    public String boardDetailNotice(Model model, @RequestParam("id") int id){
+        //게시물 불러오기
+        Board board = boardService.getBoard(id);
+
+        model.addAttribute("board",board);
+
+        return "board/boardNotice";
+    }
+
     @GetMapping(value = "/add")
     public String boardAdd(Model model){
         model.addAttribute("board", new Board());
