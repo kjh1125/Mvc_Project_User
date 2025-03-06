@@ -95,15 +95,22 @@
 
 <span class="d-none" id="userId" th:text="${userId}"></span>
 <script>
+    let isMatch = false;
     const matchStart = () =>{
+        if(isMatch){
+            return;
+        }
+        isMatch = true;
         $.ajax({
             url: '/chat/matchStart',
             type: 'POST',
             data: { },
             success: function(response) {
+                isMatch=false;
                 window.location.reload();
             },
             error: function(xhr, status, error) {
+                isMatch=false;
                 alert('오류 ' + error);
             }
         });
