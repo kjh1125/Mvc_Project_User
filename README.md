@@ -1,7 +1,3 @@
-port: 8080  
-context path: /
+![image](https://github.com/user-attachments/assets/1e4dba4c-e658-4550-a440-e33f66f586ce)
 
-git update-index --assume-unchanged src/main/webapp/WEB-INF/views/login.html  
-git update-index --assume-unchanged src/main/java/kr/bit/controller/login/GoogleLoginController.java   
-git update-index --assume-unchanged src/main/java/kr/bit/controller/login/KakaoLoginController.java   
-git update-index --assume-unchanged src/main/java/kr/bit/controller/login/NaverLoginController.java   
+📌 프로젝트 소개 https://www.canva.com/design/DAGfmN0yu1s/Afg3KI9ifBNOuCgDAQ3E8A/edit?utm_content=DAGfmN0yu1s&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
